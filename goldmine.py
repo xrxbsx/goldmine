@@ -5,6 +5,7 @@ import random
 import logging
 import subprocess
 from modules.voice import Voice, VoiceEntry, VoiceState
+from btoken import bot_token
 
 if not discord.opus.is_loaded():
     # the 'opus' library here is opus.dll on windows
