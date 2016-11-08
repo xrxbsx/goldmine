@@ -91,3 +91,9 @@ ENV/
 
 # Discord token
 btoken.py
+
+# Visual Studio Code
+.vscode
+
+# Komodo Edit/IDE
+*.komodoproject
