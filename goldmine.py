@@ -1,11 +1,14 @@
 from __future__ import unicode_literals
+
+import logging
+import random
+import subprocess
+
 import discord
 from discord.ext import commands
-import random
-import logging
-import subprocess
-from modules.voice import Voice, VoiceEntry, VoiceState
+
 from btoken import bot_token
+from modules.voice import Voice, VoiceEntry, VoiceState
 
 if not discord.opus.is_loaded():
     # the 'opus' library here is opus.dll on windows
@@ -26,7 +29,7 @@ Typically cool. Try not to expose the bugs! :P
 Enjoy.
 '''
 logging.basicConfig(level=logging.INFO)
-bot = commands.Bot(command_prefix="!", description=description)
+bot = commands.Bot(command_prefix=".", description=description)
 bot.add_cog(Voice(bot))
 cvoice = None
 
@@ -60,7 +63,7 @@ async def roll(dice : str):
     result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
     await bot.say(result)
 
-@bot.command(description='For when you wanna settle the score some other way')
+@bot.command(description='Do you see this?')
 async def choose(*choices : str):
     """Chooses between multiple choices."""
     await bot.say(random.choice(choices))
@@ -82,5 +85,13 @@ async def nuke(channel : discord.Channel):
     deleted = await bot.purge_from(channel, limit=1000)
     await bot.send_message(channel, 'Deleted {} message(s)'.format(len(deleted)))
 
+@bot.command()
+async def poke(target : discord.User):
+    """Pokes someone... with random results!"""
+    pass
 
-bot.run(bot_token)
+def main():
+    bot.run(bot_token)
+
+if __name__ == '__main__':
+    main()
