@@ -137,7 +137,7 @@ class Voice:
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
             await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
         else:
-            player.volume = 0.6
+            player.volume = 1.0
             entry = VoiceEntry(ctx.message, player)
             await self.bot.say('Enqueued ' + str(entry))
             await state.songs.put(entry)
@@ -200,7 +200,7 @@ class Voice:
 
         voter = ctx.message.author
         if voter == state.current.requester:
-            await self.bot.say('Requester requested skipping song...')
+            await self.bot.say('Requester of current song requested to skip - skipping song...')
             state.skip()
         elif voter.id not in state.skip_votes:
             state.skip_votes.add(voter.id)
@@ -225,7 +225,8 @@ class Voice:
             await self.bot.say('Now playing {} [skips: {}/3]'.format(state.current, skip_count))
 
     @commands.command(pass_context=True, no_pm=False)
-    async def speak(self, *args):
+    async def speak(self, ctx, *args):
+        """Uses the espeak TTS engine to speak a message."""
         state = self.get_voice_state(ctx.message.server)
         opts = {
             'default_search': 'auto',
@@ -245,7 +246,7 @@ class Voice:
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
             await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
         else:
-            player.volume = 0.6
+            player.volume = 1.0
             entry = VoiceEntry(ctx.message, player)
             await self.bot.say('Enqueued ' + str(entry))
             await state.songs.put(entry)
