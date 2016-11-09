@@ -33,7 +33,7 @@ Typically cool. Try not to expose the bugs! :P
 Enjoy.
 '''
 logging.basicConfig(level=logging.INFO)
-bot = commands.Bot(command_prefix=".", description=description)
+bot = commands.Bot(command_prefix="!", description=description)
 bot.add_cog(Voice(bot))
 bot.add_cog(Roleplay(bot))
 bot.add_cog(Admin(bot))
