@@ -12,6 +12,7 @@ from modules.voice import Voice
 from modules.roleplay import Roleplay
 from modules.admin import Admin
 from modules.luck import Luck
+from modules.cosmetic import Cosmetic
 
 if not discord.opus.is_loaded():
     # the 'opus' library here is opus.dll on windows
@@ -24,10 +25,6 @@ if not discord.opus.is_loaded():
     except OSError:
         discord.opus.load_opus('libopus')
 
-def is_me(mem):
-    """Checks if author of a message is this bot."""
-    return mem.author == bot.user
-
 description = '''Dragon5232's loyal bot written in Python, Goldmine.
 Typically cool. Try not to expose the bugs! :P
 Enjoy.
@@ -38,6 +35,7 @@ bot.add_cog(Voice(bot))
 bot.add_cog(Roleplay(bot))
 bot.add_cog(Admin(bot))
 bot.add_cog(Luck(bot))
+bot.add_cog(Cosmetic(bot))
 cvoice = None
 
 @bot.event
@@ -58,6 +56,15 @@ Remember to use the custom emotes: {2} for extra fun!
 '''
     await bot.send_message(member.server, fmt.format(member, member.server,
                                                      ' '.join([':'+i+':' for i in cemotes])))
+
+@bot.event
+async def on_member_remove(member: discord.Member):
+    """On_member_remove event for members leaving."""
+    fmt = '''Awww, **{0.mention}** has just left this server. Bye bye, **{0.mention}**!
+**{1.name}** has now lost a member. I wonder why..?
+The more members, the more fun, especially when they're friends like this one! :bear:
+'''
+    await bot.send_message(member.server, fmt.format(member, member.server))
 
 @bot.command()
 async def calc(left: int, right: int):
