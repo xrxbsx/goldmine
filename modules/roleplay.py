@@ -106,3 +106,9 @@ class Roleplay:
         await self.bot.say('*' + ctx.message.author.display_name + '* ' +
                            random.choice(self.fights).format(target) + '. '
                            + random.choice(self.death).format(target))
+
+    @commands.command()
+    async def charlie(self, *args):
+        """Ask a question... Charlie Charlie are you there?"""
+        await self.bot.say('*Charlie Charlie* ' + ' '.join(args) + "?\n**" +
+                           random.choice(['Yes', 'No']) + '**')
