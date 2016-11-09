@@ -39,10 +39,6 @@ bot.add_cog(Roleplay(bot))
 bot.add_cog(Admin(bot))
 bot.add_cog(Luck(bot))
 cvoice = None
-cemotes = [
-    'dunno',
-    'terra'
-]
 
 @bot.event
 async def on_ready():
@@ -55,13 +51,13 @@ async def on_ready():
 @bot.event
 async def on_member_join(member: discord.Member):
     """On_member_join event for newly joined members."""
-    server = member.server
+    cemotes = [i.name for i in member.server.emojis]
     fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
 If you need any help, contact an admin, moderator, or helper with your :question::question:s.
 Remember to use the custom emotes: {2} for extra fun!
 '''
-    await bot.send_message(server, fmt.format(member, server,
-                                              ' '.join([':'+i+':' for i in cemotes])))
+    await bot.send_message(member.server, fmt.format(member, member.server,
+                                                     ' '.join([':'+i+':' for i in cemotes])))
 
 @bot.command()
 async def calc(left: int, right: int):
@@ -72,6 +68,11 @@ async def calc(left: int, right: int):
 async def lmgtfy(*args):
     """Generates a Let Me Google That For You link."""
     await bot.say('http://lmgtfy.com/?q=' + '+'.join(args))
+
+@bot.command(pass_context=True)
+async def emotes(ctx):
+    """Lists all the current custom emoji on this server."""
+    await bot.say(' '.join([':'+i.name+':' for i in ctx.message.author.server.emojis]))
 
 def main():
     """Executes the main bot."""

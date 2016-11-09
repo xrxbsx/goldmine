@@ -24,3 +24,8 @@ class Admin:
         """NUKES a channel by deleting all messages!"""
         deleted = await self.bot.purge_from(channel, limit=1000)
         await self.bot.send_message(channel, 'Deleted {} message(s)'.format(len(deleted)))
+
+    @commands.command()
+    async def say(self, *args):
+        """Simply sends the input as a message. For testing."""
+        await self.bot.say(' '.join(args))
