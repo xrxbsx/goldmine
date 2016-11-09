@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 
-class Admin:
+class Luck:
     """Commands that require some luck to use.
     Lose the coin toss for me, will you?
     """

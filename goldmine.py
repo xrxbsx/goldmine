@@ -11,6 +11,7 @@ from btoken import bot_token
 from modules.voice import Voice
 from modules.roleplay import Roleplay
 from modules.admin import Admin
+from modules.luck import Luck
 
 if not discord.opus.is_loaded():
     # the 'opus' library here is opus.dll on windows
@@ -36,6 +37,7 @@ bot = commands.Bot(command_prefix=".", description=description)
 bot.add_cog(Voice(bot))
 bot.add_cog(Roleplay(bot))
 bot.add_cog(Admin(bot))
+bot.add_cog(Luck(bot))
 cvoice = None
 cemotes = [
     'dunno',
