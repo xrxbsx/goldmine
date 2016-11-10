@@ -21,4 +21,4 @@ class Cosmetic:
     @commands.command()
     async def color(self, role: str):
         """Set the color of your name. Alias to role."""
-        await self.role(role)
+        await self.role(role) #not working
