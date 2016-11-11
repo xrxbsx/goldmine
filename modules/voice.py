@@ -242,7 +242,8 @@ class Voice:
         try:
             stream = io.BytesIO(subprocess.check_output(['pico2wave', '-w', '/tmp/pipe.wav', ' '.join(args)]))
 #            state.voice.encoder_options(sample_rate=16000, channels=1)
-            player = state.voice.create_ffmpeg_player(stream, pipe=True)
+#            player = state.voice.create_ffmpeg_player(stream, pipe=True)
+            player = state.voice.create_stream_player(stream)
         except Exception as e:
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
             await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
