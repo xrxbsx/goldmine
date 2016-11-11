@@ -15,7 +15,7 @@ class Luck:
 
     @commands.command()
     async def choose(self, *choices: str):
-        """Chooses between multiple choices."""
+        """Chooses between choices given."""
         await self.bot.say(random.choice(choices))
 
     @commands.command()
