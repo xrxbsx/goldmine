@@ -240,7 +240,7 @@ class Voice:
                 return
 
         try:
-            stream = subprocess.check_output(['espeak', ' '.join(args), '--stdout'])
+            stream = io.BytesIO(subprocess.check_output(['espeak', ' '.join(args), '--stdout']))
             state.voice.encoder_options(22050, 1)
             player = await state.voice.create_stream_player(stream)
         except Exception as e:
