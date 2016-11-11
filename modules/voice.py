@@ -241,7 +241,7 @@ class Voice:
 
         try:
             stream = io.BytesIO(subprocess.check_output(['espeak', ' '.join(args), '--stdout']))
-            state.voice.encoder_options(sample_rate=22050, channels=1)
+            state.voice.encoder_options(sample_rate=24000, channels=1)
             player = await state.voice.create_stream_player(stream)
         except Exception as e:
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
