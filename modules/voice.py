@@ -270,6 +270,7 @@ class Voice:
             'default_search': 'auto',
             'quiet': True,
         }
+        intxt = ' '.join(args)
 
         try:
             async with aiohttp.ClientSession(loop=self.loop) as session:
@@ -310,14 +311,15 @@ class Voice:
                     '32': 'Kal',
                     '33': 'Mia',
                     '34': 'Ipek',
-                    'MyTextForTTS': ' '.join(args),
+                    'MyTextForTTS': intxt,
                     't': '1',
                     'SendToVaaS': ''
                 }
                 rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
-                print(rtml)
-                keyline = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
-            player = await state.voice.create_ytdl_player(keyline.split("'")[1], ytdl_options=opts)
+                keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
+            keyline = keyout.split("'")[1]
+            await self.bot.say('Now playing the following string:\n```' + ' '.join(args) + '```\n...with the Purple Shep TTS voice. Direct link to sound file:\n<' + keyline + '>\n**Note: There may be quite a *delay* before you hear the voice. Please be patient, and give it up to *15* seconds.**')
+            player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts)
         except Exception as e:
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
             await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
