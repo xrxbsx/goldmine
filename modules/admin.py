@@ -34,8 +34,8 @@ class Admin:
         """Simply sends the input as a message. For testing."""
         await self.bot.say(' '.join(args))
 
-    @commands.command()
-    async def update(self):
+    @commands.command(pass_context=True)
+    async def update(self, ctx):
         """Auto-updates this bot and restarts if any code was updated."""
         await self.bot.say('Trying to update...')
         try:
@@ -53,9 +53,10 @@ class Admin:
             await self.bot.say('Bot was already up-to-date, not restarting.')
         else:
             await self.bot.say('Bot was able to update, now restarting.')
-            self.restart()
+            ctx.invoke(self.restart)
 
     @commands.command()
     async def restart(self):
         """Restarts this bot."""
+        await self.bot.say('Goldmine is now restarting!')
         exit(0)
