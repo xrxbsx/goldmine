@@ -1,8 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
-import random
-import subprocess
+import asyncio
 
 import discord
 from discord.ext import commands
@@ -83,7 +82,16 @@ async def emotes(ctx):
 
 def main():
     """Executes the main bot."""
-    bot.run(bot_token)
+
+    loop = asyncio.get_event_loop()
+
+    try:
+        loop.run_until_complete(bot.start(bot_token))
+    except KeyboardInterrupt:
+        loop.run_until_complete(bot.logout())
+        # cancel all tasks lingering
+    finally:
+        loop.close()
 
 if __name__ == '__main__':
     main()

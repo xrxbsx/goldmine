@@ -1,8 +1,12 @@
-import discord
 import asyncio
 import io
 import subprocess
+import discord
 from discord.ext import commands
+import aiohttp
+import async_timeout
+import re
+
 
 class VoiceEntry:
     def __init__(self, message, player):
@@ -61,6 +65,7 @@ class Voice:
     def __init__(self, bot):
         self.bot = bot
         self.voice_states = {}
+        self.loop = asyncio.get_event_loop()
 
     def get_voice_state(self, server):
         state = self.voice_states.get(server.id)
@@ -84,8 +89,8 @@ class Voice:
             except:
                 pass
 
-    @commands.command(pass_context=True, no_pm=True)
-    async def join(self, ctx, *, channel : discord.Channel):
+    @commands.command(no_pm=True)
+    async def join(self, *, channel: discord.Channel):
         """Joins a voice channel."""
         try:
             await self.create_voice_client(channel)
@@ -113,7 +118,7 @@ class Voice:
         return True
 
     @commands.command(pass_context=True, no_pm=True)
-    async def play(self, ctx, *, song : str):
+    async def play(self, ctx, *, song: str):
         """Plays a song.
         If there is a song currently in the queue, then it is
         queued until the next song is done playing.
@@ -134,9 +139,9 @@ class Voice:
 
         try:
             player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
-        except Exception as e:
+        except Exception as exp:
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
-            await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
+            await self.bot.send_message(ctx.message.channel, fmt.format(type(exp).__name__, exp))
         else:
             player.volume = 1.0
             entry = VoiceEntry(ctx.message, player)
@@ -227,12 +232,8 @@ class Voice:
 
     @commands.command(pass_context=True, no_pm=False)
     async def speak(self, ctx, *args):
-        """Uses the espeak TTS engine to speak a message."""
+        """Uses the SVOX Pico TTS engine to speak a message."""
         state = self.get_voice_state(ctx.message.server)
-        opts = {
-            'default_search': 'auto',
-            'quiet': True,
-        }
 
         if state.voice is None:
             success = await ctx.invoke(self.summon)
@@ -242,8 +243,81 @@ class Voice:
         try:
             stream = io.BytesIO(subprocess.check_output(['pico2wave', '-w', '/tmp/pipe.wav', ' '.join(args)]))
             state.voice.encoder_options(sample_rate=16000, channels=1)
-#            player = state.voice.create_ffmpeg_player(stream, pipe=True)
             player = state.voice.create_stream_player(stream)
+        except Exception as e:
+            fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
+            await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
+        else:
+            player.volume = 1.0
+            player.start()
+
+    async def getform(self, session, url, data):
+        with async_timeout.timeout(10):
+            async with session.post(url, data=data) as response:
+                return await response.text()
+
+    @commands.command(pass_context=True, no_pm=False)
+    async def purpleshep(self, ctx, *args):
+        """Uses the Purple Shep TTS voice to speak a message."""
+        state = self.get_voice_state(ctx.message.server)
+
+        if state.voice is None:
+            success = await ctx.invoke(self.summon)
+            if not success:
+                return
+
+        opts = {
+            'default_search': 'auto',
+            'quiet': True,
+        }
+
+        try:
+            async with aiohttp.ClientSession(loop=self.loop) as session:
+                payload = {
+                    'MyLanguages': 'sonid10',
+                    '0': 'Leila',
+                    '1': 'Laia',
+                    '2': 'Eliska',
+                    '3': 'Mette',
+                    '4': 'Zoe',
+                    '5': 'Jasmijn',
+                    '6': 'Tyler',
+                    '7': 'Deepa',
+                    '8': 'Rhona',
+                    '9': 'Rachel',
+                    'MySelectedVoice': 'WillFromAfar (emotive voice)',
+                    '11': 'Hanna',
+                    '12': 'Sanna',
+                    '13': 'Manon-be',
+                    '14': 'Louise',
+                    '15': 'Manon',
+                    '16': 'Claudia',
+                    '17': 'Dimitris',
+                    '18': 'Fabiana',
+                    '19': 'Sakura',
+                    '20': 'Minji',
+                    '21': 'Lulu',
+                    '22': 'Bente',
+                    '23': 'Monika',
+                    '24': 'Marcia',
+                    '25': 'Celia',
+                    '26': 'Alyona',
+                    '27': 'Biera',
+                    '28': 'Ines',
+                    '29': 'Rodrigo',
+                    '30': 'Elin',
+                    '31': 'Samuel',
+                    '32': 'Kal',
+                    '33': 'Mia',
+                    '34': 'Ipek',
+                    'MyTextForTTS': ' '.join(args),
+                    't': '1',
+                    'SendToVaaS': ''
+                }
+                rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
+                print(rtml)
+                keyline = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
+            player = await state.voice.create_ytdl_player(keyline.split("'")[1], ytdl_options=opts)
         except Exception as e:
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
             await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
