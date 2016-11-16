@@ -55,6 +55,7 @@ class Admin:
             await self.bot.say('Bot was able to update, now restarting.')
             self.restart()
 
-    def restart(self):
+    @commands.command()
+    async def restart(self):
         """Restarts this bot."""
         exit(0)
