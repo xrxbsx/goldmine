@@ -1,14 +1,16 @@
 import asyncio
 import io
 import subprocess
+import re
+import textwrap
 import discord
 from discord.ext import commands
 import aiohttp
 import async_timeout
-import re
 
 
 class VoiceEntry:
+    """Class to represent an entry in the voice quene."""
     def __init__(self, message, player):
         self.requester = message.author
         self.channel = message.channel
@@ -22,16 +24,20 @@ class VoiceEntry:
         return fmt.format(self.player, self.requester)
 
 class VoiceState:
+    """Class for handling any voice-related actions."""
     def __init__(self, bot):
         self.current = None
         self.voice = None
         self.bot = bot
         self.play_next_song = asyncio.Event()
+        self.play_next_speech = asyncio.Event()
         self.songs = asyncio.Queue()
+        self.speeches = asyncio.Queue()
         self.skip_votes = set() # a set of user_ids that voted
         self.audio_player = self.bot.loop.create_task(self.audio_player_task())
 
     def is_playing(self):
+        """Check if anything is currently playing."""
         if self.voice is None or self.current is None:
             return False
 
@@ -40,17 +46,25 @@ class VoiceState:
 
     @property
     def player(self):
+        """Get the current player object."""
         return self.current.player
 
     def skip(self):
+        """Skip the currently playing song."""
         self.skip_votes.clear()
         if self.is_playing():
             self.player.stop()
 
     def toggle_next(self):
+        """Play the next song in quene."""
         self.bot.loop.call_soon_threadsafe(self.play_next_song.set)
 
+    def toggle_next_speech(self):
+        """Play the next speech line in quene."""
+        self.bot.loop.call_soon_threadsafe(self.play_next_speech.set)
+
     async def audio_player_task(self):
+        """Handle the quene and playing of voice entries."""
         while True:
             self.play_next_song.clear()
             self.current = await self.songs.get()
@@ -68,6 +82,7 @@ class Voice:
         self.loop = asyncio.get_event_loop()
 
     def get_voice_state(self, server):
+        """Get the current VoiceState object."""
         state = self.voice_states.get(server.id)
         if state is None:
             state = VoiceState(self.bot)
@@ -76,6 +91,7 @@ class Voice:
         return state
 
     async def create_voice_client(self, channel):
+        """Create a new voice client on a specified channel."""
         voice = await self.bot.join_voice_channel(channel)
         state = self.get_voice_state(channel.server)
         state.voice = voice
@@ -94,10 +110,10 @@ class Voice:
         """Joins a voice channel."""
         try:
             await self.create_voice_client(channel)
-        except discord.ClientException:
-            await self.bot.say('Already in a voice channel...')
         except discord.InvalidArgument:
             await self.bot.say('This is not a voice channel...')
+        except discord.ClientException:
+            await self.bot.say('Already in a voice channel...')
         else:
             await self.bot.say('Ready to play audio in ' + channel.name)
 
@@ -149,7 +165,7 @@ class Voice:
             await state.songs.put(entry)
 
     @commands.command(pass_context=True, no_pm=True)
-    async def volume(self, ctx, value : int):
+    async def volume(self, ctx, value: int):
         """Sets the volume of the currently playing song."""
 
         state = self.get_voice_state(ctx.message.server)
@@ -319,10 +335,11 @@ class Voice:
                 keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
             keyline = keyout.split("'")[1]
             await self.bot.say('Now playing the following string:\n```' + ' '.join(args) + '```\n...with the Purple Shep TTS voice. Direct link to sound file:\n<' + keyline + '>\n**Note: There may be quite a *delay* before you hear the voice. Please be patient, and give it up to *15* seconds.**')
-            player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts)
+            player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
         except Exception as e:
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
             await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
         else:
-            player.volume = 1.0
-            player.start()
+            player.volume = 0.75
+            entry = VoiceEntry(ctx.message, player)
+            await state.songs.put(entry)

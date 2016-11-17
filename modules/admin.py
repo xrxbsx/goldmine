@@ -58,5 +58,5 @@ class Admin:
     @commands.command()
     async def restart(self):
         """Restarts this bot."""
-        await self.bot.say('Goldmine is now restarting!')
+        await self.bot.say('This bot is now restarting!')
         exit(0)

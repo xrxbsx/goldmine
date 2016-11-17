@@ -112,3 +112,8 @@ class Roleplay:
         """Ask a question... Charlie Charlie are you there?"""
         await self.bot.say('*Charlie Charlie* ' + ' '.join(args) + "?\n**" +
                            random.choice(['Yes', 'No']) + '**')
+
+    @commands.command(pass_context=True)
+    async def mentionme(self, ctx):
+        """Have the bot mention yourself. Useful for testing."""
+        await self.bot.say('Hey there, ' + ctx.message.author.mention + '!')
