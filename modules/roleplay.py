@@ -4,6 +4,7 @@ import random
 import discord
 from discord.ext import commands
 from .cog import Cog
+from cleverbot import Cleverbot
 
 class Roleplay(Cog):
     """Commands related to roleplay.
@@ -78,15 +79,21 @@ class Roleplay(Cog):
         '{0} passes out.'
     ]
 
+    def __init__(self, bot, cmdfix):
+        self.cb = Cleverbot()
+        super().__init__(bot, cmdfix)
+
     @commands.command(pass_context=True)
     async def poke(self, ctx, target: str):
-        """Pokes someone... with random results!"""
+        """Pokes someone... with random results!
+        Syntax: poke [person]"""
         await self.bot.say('*' + ctx.message.author.display_name + '* pokes *' +
                            target + '* **' + random.choice(self.adjs) + '**.')
 
     @commands.command(pass_context=True)
     async def boop(self, ctx, target: str):
-        """Boops someone with possibly satisfying results."""
+        """Boops someone with possibly satisfying results.
+        Syntax: boop [person]"""
         await self.bot.say('*' + ctx.message.author.display_name + '* boops *' +
                            target + '* **' + random.choice(self.adjs) + '**.')
 
@@ -133,7 +140,7 @@ class Roleplay(Cog):
         cmap = {
             ' ': '    ',
             '#': ':hash:',
-            '!': ':exclamation',
+            '!': ':exclamation:',
             '?': ':question:',
             '-': ':heavy_minus_sign:',
             '.': ':small_blue_diamond:',
@@ -145,3 +152,9 @@ class Roleplay(Cog):
             if s in cmap:
                 chars[i] = cmap[s]
         await self.bot.say(str(''.join(chars)))
+
+    @commands.command()
+    async def cleverbot(self, *args):
+        """Queries the Cleverbot service. Because why not.
+        Syntax: cleverbot [message here]"""
+        await self.bot.say(self.cb.ask(' '.join(args)))

@@ -8,7 +8,7 @@ Commands:
  - purge [channel] - Removes all messages sent by this bot in the specified channel.
 
 # Installation
-Simply run `python3 -m pip install -U discord.py[voice]` to install discord.py with voice support.
+Simply run `python3 -m pip install -U -r requirements.txt` to install all the dependencies of this bot.
 Next, you'll need to create a bot account on Discord and get your bot authentication token. Create a new file called `btoken.py` in the same folder as `goldmine.py`, and insert the following:
 ```python
 bot_token = 'INSERT_YOUR_TOKEN_HERE'
