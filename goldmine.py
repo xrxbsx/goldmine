@@ -63,10 +63,10 @@ Remember to use the custom emotes: {2} for extra fun! You can access my help wit
 async def on_member_remove(member: discord.Member):
     """On_member_remove event for members leaving."""
     fmt = '''Awww, **{0.mention}** has just left this server. Bye bye, **{0.mention}**!
-**{1.name}** has now lost a member. I wonder why..?
+**{1.name}** has now lost a {2}. I wonder why..?
 The more members, the more fun, especially when they're friends like this one! :bear:
 '''
-    await bot.send_message(member.server, fmt.format(member, member.server))
+    await bot.send_message(member.server, fmt.format(member, member.server, 'member'))
 
 @bot.command()
 async def calc(*args):
