@@ -97,3 +97,6 @@ btoken.py
 
 # Komodo Edit/IDE
 *.komodoproject
+
+# IntelliJ Idea
+.idea

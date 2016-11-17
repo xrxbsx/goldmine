@@ -1,21 +1,19 @@
-import asyncio
-import io
+"""Definition of the bot's Admin module.'"""
 import subprocess
 
 import discord
 from discord.ext import commands
+from .cog import Cog
 
 
-class Admin:
+class Admin(Cog):
     """Commands useful for admins and/or moderators.
     Can be extremely powerful, use with caution!
     """
-    def __init__(self, bot):
-        self.bot = bot
 
     def is_me(self, mem):
         """Checks if author of a message is this bot."""
-        return mem.author == bot.user
+        return mem.author == self.bot.user
 
     @commands.command()
     async def purge(self, channel: discord.Channel):

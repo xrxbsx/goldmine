@@ -12,6 +12,7 @@ from modules.roleplay import Roleplay
 from modules.admin import Admin
 from modules.luck import Luck
 from modules.cosmetic import Cosmetic
+from util.safe_math import eval_expr as emath
 
 if not discord.opus.is_loaded():
     # the 'opus' library here is opus.dll on windows
@@ -26,15 +27,17 @@ if not discord.opus.is_loaded():
 
 description = '''Dragon5232's loyal bot written in Python, Goldmine.
 Typically cool. Try not to expose the bugs! :P
-Enjoy.
+Enjoy, and leave comments for Dragon5232!
 '''
+cmdfix = '!'
+
 logging.basicConfig(level=logging.INFO)
-bot = commands.Bot(command_prefix="!", description=description)
-bot.add_cog(Voice(bot))
-bot.add_cog(Roleplay(bot))
-bot.add_cog(Admin(bot))
-bot.add_cog(Luck(bot))
-bot.add_cog(Cosmetic(bot))
+bot = commands.Bot(command_prefix=cmdfix, description=description)
+bot.add_cog(Voice(bot, cmdfix))
+bot.add_cog(Roleplay(bot, cmdfix))
+bot.add_cog(Admin(bot, cmdfix))
+bot.add_cog(Luck(bot, cmdfix))
+bot.add_cog(Cosmetic(bot, cmdfix))
 cvoice = None
 
 @bot.event
@@ -51,10 +54,10 @@ async def on_member_join(member: discord.Member):
     cemotes = [i.name for i in member.server.emojis]
     fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
 If you need any help, contact an admin, moderator, or helper with your :question::question:s.
-Remember to use the custom emotes: {2} for extra fun!
+Remember to use the custom emotes: {2} for extra fun! You can access my help with {3}help.
 '''
     await bot.send_message(member.server, fmt.format(member, member.server,
-                                                     ' '.join([':'+i+':' for i in cemotes])))
+                                                     ' '.join([':'+i+':' for i in cemotes]), cmdfix))
 
 @bot.event
 async def on_member_remove(member: discord.Member):
@@ -66,9 +69,9 @@ The more members, the more fun, especially when they're friends like this one! :
     await bot.send_message(member.server, fmt.format(member, member.server))
 
 @bot.command()
-async def calc(left: int, right: int):
+async def calc(*args):
     """Evaluates a mathematical experssion."""
-    await bot.say(left + right)
+    await bot.say(emath(' '.join(args)))
 
 @bot.command()
 async def lmgtfy(*args):

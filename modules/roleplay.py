@@ -1,12 +1,11 @@
-import asyncio
-import io
+"""Definition of the bot's Roleplay module."""
 import random
 
 import discord
 from discord.ext import commands
+from .cog import Cog
 
-
-class Roleplay:
+class Roleplay(Cog):
     """Commands related to roleplay.
     Examples: poking, stabbing, and color roles.
     """
@@ -78,8 +77,6 @@ class Roleplay:
         '{0} is in shock.',
         '{0} passes out.'
     ]
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.command(pass_context=True)
     async def poke(self, ctx, target: str):
@@ -95,25 +92,56 @@ class Roleplay:
 
     @commands.command(pass_context=True)
     async def stab(self, ctx, target: str):
-        """Floran besst sssstabber! Painful, too."""
+        """Floran besst sssstabber! Painful, too.
+        Syntax: stab [person]"""
         await self.bot.say('*' + ctx.message.author.display_name + '* ' +
                            random.choice(self.fights).format(target) + '. '
                            + random.choice(self.death).format(target))
 
     @commands.command(pass_context=True)
     async def attack(self, ctx, target: str):
-        """Hurts someone with determination in the shot."""
+        """Hurts someone with determination in the shot.
+        Syntax: attack [person]"""
         await self.bot.say('*' + ctx.message.author.display_name + '* ' +
                            random.choice(self.fights).format(target) + '. '
                            + random.choice(self.death).format(target))
 
     @commands.command()
     async def charlie(self, *args):
-        """Ask a question... Charlie Charlie are you there?"""
+        """Ask a question... Charlie Charlie are you there?
+        Syntax: charlie [question to ask, without punctuation]"""
         await self.bot.say('*Charlie Charlie* ' + ' '.join(args) + "?\n**" +
                            random.choice(['Yes', 'No']) + '**')
 
     @commands.command(pass_context=True)
     async def mentionme(self, ctx):
-        """Have the bot mention yourself. Useful for testing."""
+        """Have the bot mention yourself. Useful for testing.
+        Syntax: mentionme"""
         await self.bot.say('Hey there, ' + ctx.message.author.mention + '!')
+
+    @commands.command(pass_context=True)
+    async def mention(self, ctx, target: str):
+        """Make the bot mention someone. Useful for testing.
+        Syntax: mention [mention, nickname, DiscordTag, or username]"""
+        await self.bot.say('Hey there, ' + target + '!')
+
+    @commands.command()
+    async def emotisay(self, *args):
+        """Make the bot mention someone. Useful for testing.
+        Syntax: emotisay [your text here]"""
+        chars = list(' '.join(args).lower())
+        cmap = {
+            ' ': '    ',
+            '#': ':hash:',
+            '!': ':exclamation',
+            '?': ':question:',
+            '-': ':heavy_minus_sign:',
+            '.': ':small_blue_diamond:',
+            '~': ':wavy_dash:'
+        }
+        for i, s in enumerate(chars):
+            if s in list('abcdefghijklmnopqrstuvwxyz'):
+                chars[i] = ':regional_indicator_' + s + ':'
+            if s in cmap:
+                chars[i] = cmap[s]
+        await self.bot.say(str(''.join(chars)))

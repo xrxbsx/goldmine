@@ -1,3 +1,4 @@
+"""Definition of the bot's Voice module.'"""
 import asyncio
 import io
 import subprocess
@@ -7,21 +8,26 @@ import discord
 from discord.ext import commands
 import aiohttp
 import async_timeout
-
+from .cog import Cog
 
 class VoiceEntry:
-    """Class to represent an entry in the voice quene."""
+    """Class to represent an entry in the standard voice quene."""
     def __init__(self, message, player):
         self.requester = message.author
         self.channel = message.channel
         self.player = player
 
     def __str__(self):
-        fmt = '*{0.title}* uploaded by {0.uploader} and requested by {1.display_name}'
+        fmt = '**{0.title}** uploaded by *{0.uploader}* and requested by *{1.display_name}*'
         duration = self.player.duration
         if duration:
-            fmt = fmt + ' [length: {0[0]}m {0[1]}s]'.format(divmod(duration, 60))
+            fmt = fmt + ' (length: {0[0]}m, {0[1]}s)'.format(divmod(duration, 60))
         return fmt.format(self.player, self.requester)
+
+class SpeechEntry:
+    """Class to represent an entry in the speech voice quene."""
+    def __init__(self, player):
+        self.player = player
 
 class VoiceState:
     """Class for handling any voice-related actions."""
@@ -72,14 +78,13 @@ class VoiceState:
             self.current.player.start()
             await self.play_next_song.wait()
 
-class Voice:
+class Voice(Cog):
     """Voice related commands.
     Works in multiple servers at once.
     """
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot, cmdfix):
         self.voice_states = {}
-        self.loop = asyncio.get_event_loop()
+        super().__init__(bot, cmdfix)
 
     def get_voice_state(self, server):
         """Get the current VoiceState object."""
@@ -341,5 +346,5 @@ class Voice:
             await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
         else:
             player.volume = 0.75
-            entry = VoiceEntry(ctx.message, player)
-            await state.songs.put(entry)
+            entry = SpeechEntry(player)
+            await state.speeches.put(entry)

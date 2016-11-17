@@ -1,17 +1,12 @@
-import asyncio
-import io
-import random
-
+"""Definition of the bot's Cosmetic module.'"""
 import discord
 from discord.ext import commands
+from .cog import Cog
 
-
-class Cosmetic:
+class Cosmetic(Cog):
     """Commands for some colorful fun!
     Includes color changing and more.
     """
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.command()
     async def role(self, role: str):

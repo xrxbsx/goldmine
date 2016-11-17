@@ -1,17 +1,16 @@
+"""Definition of the bot's Luck module.'"""
 import asyncio
 import io
 import random
 
 import discord
 from discord.ext import commands
+from .cog import Cog
 
-
-class Luck:
+class Luck(Cog):
     """Commands that require some luck to use.
     Lose the coin toss for me, will you?
     """
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.command()
     async def choose(self, *choices: str):
