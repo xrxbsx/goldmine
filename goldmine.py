@@ -6,8 +6,10 @@ import asyncio
 
 import discord
 from discord.ext import commands
+from cleverbot import Cleverbot
 
 from btoken import bot_token
+from bot_name import bname
 from modules.voice import Voice
 from modules.roleplay import Roleplay
 from modules.admin import Admin
@@ -28,13 +30,14 @@ if not discord.opus.is_loaded():
         discord.opus.load_opus('libopus')
 
 cmdfix = '!'
-description = '''Dragon5232's loyal bot written in Python, Goldmine.
+description = '''Dragon5232's loyal bot written in Python, ''' + bname + '''.
 Typically cool. Try not to expose the bugs! :P
 Enjoy, and leave comments for Dragon5232!
 Note: to find out how to use a command, type ''' + cmdfix + '''help [command name].'''
+cb = Cleverbot()
 
 logging.basicConfig(level=logging.INFO)
-bot = PBot(command_prefix=cmdfix, description=description)
+bot = PBot(command_prefix=commands.when_mentioned_or(cmdfix), description=description)
 bot.add_cog(Voice(bot, cmdfix))
 bot.add_cog(Roleplay(bot, cmdfix))
 bot.add_cog(Admin(bot, cmdfix))
