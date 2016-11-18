@@ -1,3 +1,4 @@
+"""Goldmine, Dragon5232's experimental Discord bot.'"""
 from __future__ import unicode_literals
 
 import logging
@@ -25,11 +26,11 @@ if not discord.opus.is_loaded():
     except OSError:
         discord.opus.load_opus('libopus')
 
+cmdfix = '!'
 description = '''Dragon5232's loyal bot written in Python, Goldmine.
 Typically cool. Try not to expose the bugs! :P
 Enjoy, and leave comments for Dragon5232!
-'''
-cmdfix = '!'
+Note: to find out how to use a command, type ''' + cmdfix + '''help [command name].'''
 
 logging.basicConfig(level=logging.INFO)
 bot = commands.Bot(command_prefix=cmdfix, description=description)
