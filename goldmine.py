@@ -14,6 +14,7 @@ from modules.admin import Admin
 from modules.luck import Luck
 from modules.cosmetic import Cosmetic
 from util.safe_math import eval_expr as emath
+from util.probot import ProBot as PBot
 
 if not discord.opus.is_loaded():
     # the 'opus' library here is opus.dll on windows
@@ -33,7 +34,7 @@ Enjoy, and leave comments for Dragon5232!
 Note: to find out how to use a command, type ''' + cmdfix + '''help [command name].'''
 
 logging.basicConfig(level=logging.INFO)
-bot = commands.Bot(command_prefix=cmdfix, description=description)
+bot = PBot(command_prefix=cmdfix, description=description)
 bot.add_cog(Voice(bot, cmdfix))
 bot.add_cog(Roleplay(bot, cmdfix))
 bot.add_cog(Admin(bot, cmdfix))
