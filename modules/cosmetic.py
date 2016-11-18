@@ -10,10 +10,12 @@ class Cosmetic(Cog):
 
     @commands.command()
     async def role(self, role: str):
-        """Set a public role on your account."""
+        """Set a public role on your account.
+        Syntax: role [role name]"""
         await self.bot.say('Role setting is not implemented yet!')
 
     @commands.command()
     async def color(self, role: str):
-        """Set the color of your name. Alias to role."""
+        """Set the color of your name. Alias to role.
+        Synrax: color [color name]"""
         await self.role(role) #not working

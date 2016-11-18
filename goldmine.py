@@ -70,17 +70,20 @@ The more members, the more fun, especially when they're friends like this one! :
 
 @bot.command()
 async def calc(*args):
-    """Evaluates a mathematical experssion."""
+    """Evaluates a mathematical experssion.
+    Syntax: calc [expression]"""
     await bot.say(emath(' '.join(args)))
 
 @bot.command()
 async def lmgtfy(*args):
-    """Generates a Let Me Google That For You link."""
+    """Generates a Let Me Google That For You link.
+    Syntax: lmgtfy [search terms]"""
     await bot.say('http://lmgtfy.com/?q=' + '+'.join(args))
 
 @bot.command(pass_context=True)
 async def emotes(ctx):
-    """Lists all the current custom emoji on this server."""
+    """Lists all the current custom emoji on this server.
+    Syntax: emotes"""
     await bot.say(' '.join([':'+i.name+':' for i in ctx.message.author.server.emojis]))
 
 def main():

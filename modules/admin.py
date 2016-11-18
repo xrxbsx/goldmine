@@ -17,24 +17,28 @@ class Admin(Cog):
 
     @commands.command()
     async def purge(self, channel: discord.Channel):
-        """Removes all of this bot's messages on a channel."""
+        """Removes all of this bot's messages on a channel.
+        Syntax: purge [channel name]"""
         deleted = await self.bot.purge_from(channel, limit=200, check=self.is_me)
         await self.bot.send_message(channel, 'Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command()
     async def nuke(self, channel: discord.Channel):
-        """NUKES a channel by deleting all messages!"""
+        """NUKES a channel by deleting all messages!
+        Syntax: nuke [channel name]"""
         deleted = await self.bot.purge_from(channel, limit=1000)
         await self.bot.send_message(channel, 'Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command()
     async def say(self, *args):
-        """Simply sends the input as a message. For testing."""
+        """Simply sends the input as a message. For testing.
+        Syntax: say [message]"""
         await self.bot.say(' '.join(args))
 
     @commands.command(pass_context=True)
     async def update(self, ctx):
-        """Auto-updates this bot and restarts if any code was updated."""
+        """Auto-updates this bot and restarts if any code was updated.
+        Syntax: update"""
         await self.bot.say('Trying to update...')
         try:
             gitout = subprocess.check_output(['git', 'pull', '-v'], stderr=subprocess.STDOUT).decode('utf-8')
@@ -55,6 +59,7 @@ class Admin(Cog):
 
     @commands.command()
     async def restart(self):
-        """Restarts this bot."""
+        """Restarts this bot.
+        Syntax: restart"""
         await self.bot.say('This bot is now restarting!')
         exit(0)

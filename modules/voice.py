@@ -112,7 +112,8 @@ class Voice(Cog):
 
     @commands.command(no_pm=True)
     async def join(self, *, channel: discord.Channel):
-        """Joins a voice channel."""
+        """Joins a voice channel.
+        Syntax: join [channel]"""
         try:
             await self.create_voice_client(channel)
         except discord.InvalidArgument:
@@ -124,7 +125,8 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=True)
     async def summon(self, ctx):
-        """Summons the bot to join your voice channel."""
+        """Summons the bot to join your voice channel.
+        Syntax: summon"""
         summoned_channel = ctx.message.author.voice_channel
         if summoned_channel is None:
             await self.bot.say('You are not in a voice channel.')
@@ -141,11 +143,11 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def play(self, ctx, *, song: str):
         """Plays a song.
-        If there is a song currently in the queue, then it is
-        queued until the next song is done playing.
-        This command automatically searches as well from YouTube.
+        Adds the requested song to the playlist (quene) for playing.
+        This command automatically searches from sites like YouTube.
         The list of supported sites can be found here:
         https://rg3.github.io/youtube-dl/supportedsites.html
+        Syntax: play [song/video name]
         """
         state = self.get_voice_state(ctx.message.server)
         opts = {
@@ -171,7 +173,8 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=True)
     async def volume(self, ctx, value: int):
-        """Sets the volume of the currently playing song."""
+        """Sets the volume of the currently playing song.
+        Syntax: volume [percentage, 1-100]"""
 
         state = self.get_voice_state(ctx.message.server)
         if state.is_playing():
@@ -181,7 +184,8 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=True)
     async def pause(self, ctx):
-        """Pauses the currently played song."""
+        """Pauses the currently played song.
+        Syntax: pause"""
         state = self.get_voice_state(ctx.message.server)
         if state.is_playing():
             player = state.player
@@ -189,7 +193,8 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=True)
     async def resume(self, ctx):
-        """Resumes the currently played song."""
+        """Resumes the currently played song.
+        Syntax: resume"""
         state = self.get_voice_state(ctx.message.server)
         if state.is_playing():
             player = state.player
@@ -199,6 +204,7 @@ class Voice(Cog):
     async def stop(self, ctx):
         """Stops playing audio and leaves the voice channel.
         This also clears the queue.
+        Syntax: stop
         """
         server = ctx.message.server
         state = self.get_voice_state(server)
@@ -218,6 +224,7 @@ class Voice(Cog):
     async def skip(self, ctx):
         """Vote to skip a song. The song requester can automatically skip.
         3 skip votes are needed for the song to be skipped.
+        Syntax: skip
         """
 
         state = self.get_voice_state(ctx.message.server)
@@ -242,7 +249,8 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=True)
     async def playing(self, ctx):
-        """Shows info about the currently played song."""
+        """Shows info about the currently played song.
+        Syntax: playing"""
 
         state = self.get_voice_state(ctx.message.server)
         if state.current is None:
@@ -253,7 +261,8 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=False)
     async def speak(self, ctx, *args):
-        """Uses the SVOX Pico TTS engine to speak a message."""
+        """Uses the SVOX Pico TTS engine to speak a message.
+        Syntax: speak [message]"""
         state = self.get_voice_state(ctx.message.server)
 
         if state.voice is None:
@@ -279,7 +288,9 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=False)
     async def purpleshep(self, ctx, *args):
-        """Uses the Purple Shep TTS voice to speak a message."""
+        """Uses the Purple Shep TTS voice to speak a message.
+        Note: This voice cannot speak strings higher than 300 characters.
+        Syntax: purpleshep [message]"""
         state = self.get_voice_state(ctx.message.server)
 
         if state.voice is None:
