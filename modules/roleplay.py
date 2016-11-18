@@ -142,6 +142,7 @@ class Roleplay(Cog):
             '#': ':hash:',
             '!': ':exclamation:',
             '?': ':question:',
+            '$': ':heavy_dollar_sign:',
             '-': ':heavy_minus_sign:',
             '.': ':small_blue_diamond:',
             '~': ':wavy_dash:',
