@@ -5,17 +5,24 @@ import json
 orig_store = {
     'version': 2,
     'date_format': '{0}/{1}/{2}',
-    'quote_format': '#{0}: "{1}" — {2} [{3}]',
+    'quote_format': '**#{0}**: *"{1}"* \u2014 `{2}` [{3}]',
     'quotes': [
         {
             'id': 0,
+            'quote': 'Haaaaaaaaahn!',
+            'author': 'Frisky Turtle, MrXarous',
+            'author_ids': ['000000000000000000', '141246933359394816'],
+            'date': [11, 7, 2016]
+        },
+        {
+            'id': 1,
             'quote': 'Living well is the best revenge.',
             'author': 'George Herbert',
             'author_ids': ['000000000000000000'],
             'date': [4, 3, 1593]
         },
         {
-            'id': 1,
+            'id': 2,
             'quote': 'Change your thoughts and you change your world.',
             'author': 'Norman Vincent Peale',
             'author_ids': ['000000000000000000'],

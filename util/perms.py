@@ -1,4 +1,4 @@
-from properties import bot_owner
+from properties import bot_admins
 
 def check_perms(ctx, perms_required):
     perms_satisfied = 0
@@ -16,10 +16,13 @@ def check_perms(ctx, perms_required):
             sowner_name = sender_name
     for i in perms_required:
         if i == 'bot_owner':
-            if sender_name == bot_owner:
+            if sender_name == bot_admins[0]:
                 perms_satisfied += 1
         if i == 'server_owner':
             if sender_name == sowner_name:
+                perms_satisfied += 1
+        if i == 'bot_admin':
+            if sender_name in bot_admins:
                 perms_satisfied += 1
     if perms_required.__len__() == perms_satisfied:
         return True

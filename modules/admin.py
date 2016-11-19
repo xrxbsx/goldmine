@@ -24,7 +24,7 @@ class Admin(Cog):
     async def purge(self, ctx, channel: discord.Channel):
         """Removes all of this bot's messages on a channel.
         Syntax: purge [channel name]"""
-        if not check_perms(ctx, ['bot_owner']):
+        if not check_perms(ctx, ['bot_admin']):
             await self.perm_err(ctx)
             return
         deleted = await self.bot.purge_from(channel, limit=200, check=self.is_me)
@@ -34,7 +34,7 @@ class Admin(Cog):
     async def nuke(self, ctx, channel: discord.Channel):
         """NUKES a channel by deleting all messages!
         Syntax: nuke [channel name]"""
-        if not check_perms(ctx, ['bot_owner']):
+        if not check_perms(ctx, ['bot_admin']):
             await self.perm_err(ctx)
             return
         deleted = await self.bot.purge_from(channel, limit=1000)
@@ -44,7 +44,7 @@ class Admin(Cog):
     async def update(self, ctx):
         """Auto-updates this bot and restarts if any code was updated.
         Syntax: update"""
-        if not check_perms(ctx, ['bot_owner']):
+        if not check_perms(ctx, ['bot_admin']):
             await self.perm_err(ctx)
             return
         await self.bot.say('Trying to update...')
@@ -69,7 +69,7 @@ class Admin(Cog):
     async def restart(self, ctx):
         """Restarts this bot.
         Syntax: restart"""
-        if not check_perms(ctx, ['bot_owner']):
+        if not check_perms(ctx, ['bot_admin']):
             await self.perm_err(ctx)
             return
 #        for i in self.bot.servers:

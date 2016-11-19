@@ -1,8 +1,9 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
-from sys import exc_info
+import asyncio
+import sys
+import traceback
 from discord.ext.commands import Bot
 from cleverbot import Cleverbot
-import asyncio
 
 class ProBot(Bot):
     """The brain of the bot, ProBot."""
@@ -13,5 +14,6 @@ class ProBot(Bot):
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
 
-    async def on_error(self, ev, *args, **kwargs):
-        await self.say('_EXLOG: handled ' + str(exc_info()))
+    async def on_command_error(self, exp, ctx):
+        print('Warning: caught exception in command {}'.format(ctx.command), file=sys.stderr)
+        traceback.print_exception(type(exp), exp, exp.__traceback__, file=sys.stderr)

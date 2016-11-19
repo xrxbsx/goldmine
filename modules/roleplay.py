@@ -1,6 +1,7 @@
 """Definition of the bot's Roleplay module."""
 import random
 import time
+import textwrap
 
 import discord
 from cleverbot import Cleverbot
@@ -199,11 +200,13 @@ class Roleplay(Cog):
         """Lists all the quotes found in the quote store.
         Syntax: quotelist"""
         rstore = await store.dump()
-        final_msg = '**Listing all quotes defined.**\n'
+        pager = commands.Paginator(prefix='', suffix='')
+        pager.add_line('**Listing all quotes defined.**')
         for n, i in enumerate(rstore['quotes']):
             qout = await quote.qrender(i, n)
-            final_msg += qout + '\n'
-        await self.bot.say(final_msg)
+            pager.add_line(qout)
+        for page in pager.pages:
+            await self.bot.say(page)
 
     @commands.command(pass_context=True)
     async def quoteadd(self, ctx, *args):
