@@ -45,8 +45,9 @@ async def read(*depths):
 
 def initialize():
     """Initialize the data store, if needed."""
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'storage.json'), 'w+') as storefile:
-        try:
-            json.loads('' + storefile.read())
-        except json.decoder.JSONDecodeError:
-            storefile.write(json.dumps(orig_store, indent=1, separators=(',', ':')))
+#    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'storage.json'), 'w+') as storefile:
+#        try:
+#            json.loads('' + storefile.read())
+#        except json.decoder.JSONDecodeError:
+#            storefile.write(json.dumps(orig_store, indent=1, separators=(',', ':')))
+    pass
