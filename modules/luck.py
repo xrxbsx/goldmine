@@ -1,9 +1,6 @@
 """Definition of the bot's Luck module.'"""
-import asyncio
-import io
 import random
 
-import discord
 from discord.ext import commands
 from .cog import Cog
 

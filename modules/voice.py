@@ -33,6 +33,7 @@ class VoiceState:
     """Class for handling any voice-related actions."""
     def __init__(self, bot):
         self.current = None
+        self.currents = None
         self.voice = None
         self.bot = bot
         self.play_next_song = asyncio.Event()
@@ -41,6 +42,7 @@ class VoiceState:
         self.speeches = asyncio.Queue()
         self.skip_votes = set() # a set of user_ids that voted
         self.audio_player = self.bot.loop.create_task(self.audio_player_task())
+        self.speech_player = self.bot.loop.create_task(self.speech_player_task())
 
     def is_playing(self):
         """Check if anything is currently playing."""
@@ -54,6 +56,11 @@ class VoiceState:
     def player(self):
         """Get the current player object."""
         return self.current.player
+
+    @property
+    def players(self):
+        """Get the current speech player object."""
+        return self.currents.player
 
     def skip(self):
         """Skip the currently playing song."""
@@ -78,13 +85,21 @@ class VoiceState:
             self.current.player.start()
             await self.play_next_song.wait()
 
+    async def speech_player_task(self):
+        """Handle the quene and playing of speech entries."""
+        while True:
+            self.play_next_speech.clear()
+            self.currents = await self.speeches.get()
+            self.currents.player.start()
+            await self.play_next_speech.wait()
+
 class Voice(Cog):
     """Voice related commands.
     Works in multiple servers at once.
     """
-    def __init__(self, bot, cmdfix):
+    def __init__(self, bot, cmdfix, bname):
         self.voice_states = {}
-        super().__init__(bot, cmdfix)
+        super().__init__(bot, cmdfix, bname)
 
     def get_voice_state(self, server):
         """Get the current VoiceState object."""
@@ -105,6 +120,7 @@ class Voice(Cog):
         for state in self.voice_states.values():
             try:
                 state.audio_player.cancel()
+                state.speech_player.cancel()
                 if state.voice:
                     self.bot.loop.create_task(state.voice.disconnect())
             except:
@@ -166,7 +182,7 @@ class Voice(Cog):
             fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
             await self.bot.send_message(ctx.message.channel, fmt.format(type(exp).__name__, exp))
         else:
-            player.volume = 1.0
+            player.volume = 0.7
             entry = VoiceEntry(ctx.message, player)
             await self.bot.say('Enqueued ' + str(entry))
             await state.songs.put(entry)
@@ -215,6 +231,7 @@ class Voice(Cog):
 
         try:
             state.audio_player.cancel()
+            state.speech_player.cancel()
             del self.voice_states[server.id]
             await state.voice.disconnect()
         except:
@@ -357,5 +374,6 @@ class Voice(Cog):
             await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
         else:
             player.volume = 0.75
-            entry = SpeechEntry(player)
-            await state.speeches.put(entry)
+            entry = VoiceEntry(ctx.message, player)
+            await self.bot.say('Enqueued ' + str(entry))
+            await state.songs.put(entry)

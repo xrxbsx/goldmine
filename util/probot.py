@@ -2,6 +2,7 @@
 from sys import exc_info
 from discord.ext.commands import Bot
 from cleverbot import Cleverbot
+import asyncio
 
 class ProBot(Bot):
     """The brain of the bot, ProBot."""
@@ -9,16 +10,8 @@ class ProBot(Bot):
     def __init__(self, **kwargs):
         self.cb = Cleverbot()
         super().__init__(**kwargs)
+        self.is_restart = False
+        self.loop = asyncio.get_event_loop()
+
     async def on_error(self, ev, *args, **kwargs):
-        await self.say(str(exc_info()))
-'''
-    async def on_message(self, msg):
-        """Handler for new messages sent."""
-        try:
-            myself = msg.server.me
-        except AttributeError:
-            myself = self.user
-        if myself in msg.mentions:
-            await self.send_message(msg.channel, msg.author.mention + ' ' + self.cb.ask(msg.content.strip(msg.server.me.mention)))
-        super().on_message(msg)
-'''
+        await self.say('_EXLOG: handled ' + str(exc_info()))

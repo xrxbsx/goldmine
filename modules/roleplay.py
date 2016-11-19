@@ -3,8 +3,10 @@ import random
 
 import discord
 from discord.ext import commands
-from .cog import Cog
+import util.quote as quote
+import util.datastore as store
 from cleverbot import Cleverbot
+from .cog import Cog
 
 class Roleplay(Cog):
     """Commands related to roleplay.
@@ -79,9 +81,9 @@ class Roleplay(Cog):
         '{0} passes out.'
     ]
 
-    def __init__(self, bot, cmdfix):
+    def __init__(self, bot, cmdfix, bname):
         self.cb = Cleverbot()
-        super().__init__(bot, cmdfix)
+        super().__init__(bot, cmdfix, bname)
 
     @commands.command(pass_context=True)
     async def poke(self, ctx, target: str):
@@ -169,3 +171,40 @@ class Roleplay(Cog):
         """Queries the Cleverbot service. Because why not.
         Syntax: cleverbot [message here]"""
         await self.bot.say(self.cb.ask(' '.join(args)))
+
+    @commands.command()
+    async def quote(self, *args):
+        """References a quote from the quote store.
+        Syntax: quote {optional: quote number}"""
+        temp_ref = await store.dump()
+        try:
+            qindex = args[0]
+        except IndexError:
+            qindex = random.randint(1, temp_ref['quotes'].__len__())
+        try:
+            out_msg = await quote.qrender(temp_ref['quotes'][qindex - 1], qindex - 1)
+        except IndexError:
+            out_msg = 'That quote does not exist, try again!'
+        await self.bot.say(out_msg)
+
+    @commands.command()
+    async def quotelist(self):
+        """Lists all the quotes found in the quote store.
+        Syntax: quotelist"""
+        rstore = await store.dump()
+        final_msg = '**Listing all quotes defined.**\n'
+        for n, i in enumerate(rstore['quotes']):
+            qout = await quote.qrender(i, n)
+            final_msg += qout + '\n'
+        await self.bot.say(final_msg)
+
+    @commands.command()
+    async def quoteadd(self, *args):
+        """Adds a quote to the quote store.dump
+        Syntax: quoteadd [text here]"""
+        q_template = {
+            'id': 0,
+            'quote': 'The program has encountered an internal error.',
+            'author': 'Goldmine',
+            'date': [11, 18, 2016]
+        }
