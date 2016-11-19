@@ -1,12 +1,18 @@
 """Definition of the bot's Roleplay module."""
 import random
+import time
 
 import discord
-from discord.ext import commands
-import util.quote as quote
-import util.datastore as store
 from cleverbot import Cleverbot
+from discord.ext import commands
+
+import util.datastore as store
+import util.quote as quote
+from util.perms import check_perms
+from properties import bot_name
+
 from .cog import Cog
+
 
 class Roleplay(Cog):
     """Commands related to roleplay.
@@ -178,9 +184,10 @@ class Roleplay(Cog):
         Syntax: quote {optional: quote number}"""
         temp_ref = await store.dump()
         try:
-            qindex = args[0]
+            qindx = args[0]
         except IndexError:
-            qindex = random.randint(1, temp_ref['quotes'].__len__())
+            qindx = random.randint(1, temp_ref['quotes'].__len__())
+        qindex = int(qindx)
         try:
             out_msg = await quote.qrender(temp_ref['quotes'][qindex - 1], qindex - 1)
         except IndexError:
@@ -198,13 +205,60 @@ class Roleplay(Cog):
             final_msg += qout + '\n'
         await self.bot.say(final_msg)
 
-    @commands.command()
-    async def quoteadd(self, *args):
+    @commands.command(pass_context=True)
+    async def quoteadd(self, ctx, *args):
         """Adds a quote to the quote store.dump
         Syntax: quoteadd [text here]"""
+        fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
         q_template = {
             'id': 0,
-            'quote': 'The program has encountered an internal error.',
-            'author': 'Goldmine',
-            'date': [11, 18, 2016]
+            'quote': 'The bot has encountered an internal error.',
+            'author': bot_name,
+            'author_ids': [self.bot.user.id],
+            'date': fmt_time
         }
+        mauthor = ctx.message.author
+        q_template['quote'] = ' '.join(args)
+        q_template['author'] = mauthor.display_name
+        if mauthor.display_name != mauthor.name:
+            q_template['author'] += ' (' + mauthor.name + ')'
+        q_template['author_ids'] = [mauthor.id]
+        rstore = await store.dump()
+        q_template['id'] = len(rstore['quotes']) # +1 for next id, but len() counts from 1
+        rstore['quotes'].extend([q_template])
+        await store.write(rstore)
+        await self.bot.say('The quote specified has been successfully added!')
+
+    @commands.command(pass_context=True)
+    async def quotemod(self, ctx, qindex1: int, *qraw):
+        """Modifies an existing quote.
+        Syntax: quotemod [quote number] [new text here]"""
+        rstore = await store.dump()
+        q_template = rstore['quotes'][qindex1 - 1]
+        mauthor = ctx.message.author
+        q_template['quote'] = ' '.join(qraw)
+        if mauthor.id not in q_template['author_ids']:
+            q_template['author'] += ', ' + mauthor.display_name
+            if mauthor.display_name != mauthor.name:
+                q_template['author'] += ' (' + mauthor.name + ')'
+        q_template['author_ids'].extend([mauthor.id])
+        q_template['date'] = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
+        rstore = await store.dump() # keep store as fresh as possible
+        rstore['quotes'][qindex1 - 1] = q_template
+        await store.write(rstore)
+        await self.bot.say('The quote specified has been successfully modified!')
+
+    @commands.command(pass_context=True)
+    async def quotedel(self, ctx, qindex: int):
+        """Deletes an existing quote. You may only delete your own quotes unless you are the bot owner.
+        Syntax: quotedel [quote number]"""
+        rstore = await store.dump()
+        q_target = rstore['quotes'][qindex - 1]
+        mauthor = ctx.message.author
+        if (mauthor.id == q_target['author_ids'][0]) or (check_perms(ctx, ['bot_owner'])):
+            rstore = await store.dump() # keep store as fresh as possible
+            del rstore['quotes'][qindex - 1]
+            await store.write(rstore)
+            await self.bot.say('The quote specified has been successfully deleted!')
+        else:
+            await self.bot.say('The quote specified could not be deleted because you do not own it, and are not the bot owner. Sorry!')

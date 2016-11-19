@@ -1,26 +1,33 @@
 {
-    "date_format": "{0}/{1}/{2}",
-    "version": 1,
-    "quotes": [
-        {
-            "author": "George Herbert",
-            "quote": "Living well is the best revenge.",
-            "id": 0,
-            "date": [
-                4,
-                3,
-                1593
-            ]
-        },
-        {
-            "author": "Norman Vincent Peale",
-            "quote": "Change your thoughts and you change your world.",
-            "id": 1,
-            "date": [
-                5,
-                31,
-                1898
-            ]
-        }
-    ]
+ "quotes":[
+  {
+   "date":[
+    4,
+    3,
+    1593
+   ],
+   "id":0,
+   "author_ids":[
+    "000000000000000000"
+   ],
+   "author":"George Herbert",
+   "quote":"Living well is the best revenge."
+  },
+  {
+   "date":[
+    5,
+    31,
+    1898
+   ],
+   "id":1,
+   "author_ids":[
+    "000000000000000000"
+   ],
+   "author":"Norman Vincent Peale",
+   "quote":"Change your thoughts and you change your world."
+  }
+ ],
+ "date_format":"{0}/{1}/{2}",
+ "version":2,
+ "quote_format":"#{0}: \"{1}\" \u2014 {2} [{3}]"
 }
