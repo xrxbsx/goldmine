@@ -8,14 +8,8 @@ class Cosmetic(Cog):
     Includes color changing and more.
     """
 
-    @commands.command()
+    @commands.command(aliases=['color'])
     async def role(self, role: str):
         """Set a public role on your account.
         Syntax: role [role name]"""
         await self.bot.say('Role setting is not implemented yet!')
-
-    @commands.command()
-    async def color(self, role: str):
-        """Set the color of your name. Alias to role.
-        Synrax: color [color name]"""
-        await self.role(role) #not working

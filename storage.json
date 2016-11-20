@@ -1,326 +1,331 @@
 {
- "version":2,
+ "quote_format":"**#{0}**: *\"{1}\"* \u2014 `{2}` [{3}]",
  "quotes":[
   {
-   "author_ids":[
-    "000000000000000000",
-    "141246933359394816"
-   ],
-   "id":0,
-   "quote":"Haaaaaaaaahn!",
-   "author":"Frisky Turtle, MrXarous",
    "date":[
     11,
     7,
     2016
-   ]
-  },
-  {
+   ],
    "id":0,
    "author_ids":[
-    "000000000000000000"
+    "000000000000000000",
+    "141246933359394816"
    ],
-   "quote":"Living well is the best revenge.",
-   "author":"George Herbert",
+   "author":"Frisky Turtle, MrXarous",
+   "quote":"Haaaaaaaaahn!"
+  },
+  {
    "date":[
     4,
     3,
     1593
-   ]
-  },
-  {
-   "id":1,
+   ],
+   "id":0,
    "author_ids":[
     "000000000000000000"
    ],
-   "quote":"Change your thoughts and you change your world.",
-   "author":"Norman Vincent Peale",
+   "author":"George Herbert",
+   "quote":"Living well is the best revenge."
+  },
+  {
    "date":[
     5,
     31,
     1898
-   ]
+   ],
+   "id":1,
+   "author_ids":[
+    "000000000000000000"
+   ],
+   "author":"Norman Vincent Peale",
+   "quote":"Change your thoughts and you change your world."
   },
   {
+   "date":[
+    11,
+    18,
+    2016
+   ],
    "id":2,
    "author_ids":[
     "160567046642335746",
     "160567046642335746"
    ],
-   "quote":"My face is pretty cool.",
    "author":"Dragon5232",
+   "quote":"My face is pretty cool."
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":3,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"You should punch your mouse.",
    "author":"Dragon5232",
+   "quote":"You should punch your mouse."
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":4,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Pythons slither in your brain.",
    "author":"Dragon5232",
-   "date":[
-    11,
-    18,
-    2016
-   ]
+   "quote":"Pythons slither in your brain."
   },
   {
+   "date":[
+    11,
+    19,
+    2016
+   ],
    "id":5,
    "author_ids":[
     "160567046642335746",
     "245387962089472002",
     "219550353518100480"
    ],
-   "quote":"You Rock!",
    "author":"Dragon5232, morninghost, beefs (beefywhale)",
+   "quote":"You Rock!"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":6,
    "author_ids":[
     "160567046642335746",
     "219550353518100480"
    ],
-   "quote":"Hello World!",
    "author":"ProDragon (Dragon5232), beefs (beefywhale)",
-   "date":[
-    11,
-    19,
-    2016
-   ]
+   "quote":"Hello World!"
   },
   {
+   "date":[
+    11,
+    18,
+    2016
+   ],
    "id":7,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"To delete 1",
    "author":"ProDragon (Dragon5232)",
+   "quote":"To delete 1"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":8,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"To be deleted maybe",
    "author":"ProDragon (Dragon5232)",
+   "quote":"To be deleted maybe"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":9,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Not to be maybe dleeeeeted.",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Not to be maybe dleeeeeted."
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":10,
    "author_ids":[
     "245387962089472002"
    ],
-   "quote":"Python rocks",
    "author":"morninghost",
+   "quote":"Python rocks"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":11,
    "author_ids":[
     "245387962089472002",
     "160567046642335746"
    ],
-   "quote":"I love Python (typo corrected).",
    "author":"morninghost, ProDragon (Dragon5232)",
+   "quote":"I love Python (typo corrected)."
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":12,
    "author_ids":[
     "245387962089472002",
     "160567046642335746"
    ],
-   "quote":"Goldmine chatbot kinda rocks... ;-;",
    "author":"Mg (morninghost), ProDragon (Dragon5232)",
+   "quote":"Goldmine chatbot kinda rocks... ;-;"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":13,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"next 2 b delet ed",
    "author":"ProDragon (Dragon5232)",
+   "quote":"next 2 b delet ed"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":14,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Delete 1",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Delete 1"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":15,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Delete 2",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Delete 2"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":17,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Delete 4",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Delete 4"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":18,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Delete 5",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Delete 5"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":19,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Delete 6",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Delete 6"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":20,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Delete 7",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Delete 7"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":20,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Delete replace 1",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Delete replace 1"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":21,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"Next delete hehee",
    "author":"ProDragon (Dragon5232)",
+   "quote":"Next delete hehee"
+  },
+  {
    "date":[
     11,
     18,
     2016
-   ]
-  },
-  {
+   ],
    "id":22,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"another one kek",
    "author":"ProDragon (Dragon5232)",
-   "date":[
-    11,
-    18,
-    2016
-   ]
+   "quote":"another one kek"
   },
   {
+   "date":[
+    11,
+    19,
+    2016
+   ],
    "id":24,
    "author_ids":[
     "245387962089472002",
@@ -328,292 +333,264 @@
     "160567046642335746",
     "219550353518100480"
    ],
-   "quote":"RIP befy killed this quote \ud83d\ude22",
    "author":"Mg (morninghost), beefs (beefywhale), dragon (Dragon5232)",
+   "quote":"RIP befy killed this quote \ud83d\ude22"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":24,
    "author_ids":[
     "160567046642335746",
     "219550353518100480",
     "160567046642335746"
    ],
-   "quote":"Dragon5232 is the best person! \ud83d\ude0f",
    "author":"dragon (Dragon5232), beefs (beefywhale)",
+   "quote":"Dragon5232 is the best person! \ud83d\ude0f"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":25,
    "author_ids":[
     "160567046642335746",
     "160567046642335746"
    ],
-   "quote":"2391 edited :p",
    "author":"dragon (Dragon5232)",
+   "quote":"2391 edited :p"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":26,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":27,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":28,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":29,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":30,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":31,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":32,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":33,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":34,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":35,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":36,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":37,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":38,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":39,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391!quoteadd 2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391!quoteadd 2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":40,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
+   ],
    "id":41,
    "author_ids":[
     "160567046642335746"
    ],
-   "quote":"2391",
    "author":"dragon (Dragon5232)",
+   "quote":"2391"
+  },
+  {
    "date":[
     11,
     19,
     2016
-   ]
-  },
-  {
-   "id":43,
-   "author_ids":[
-    "160567046642335746"
    ],
-   "quote":"Best Insults Ever! oh so you dont like it becaue you sold your copy of minecraft to a hobo for a leftover half of a french fry made in 1996 by a mega shulker bum, because you're a fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled kangaroo sitting on a mutated alien dog that carries the genes of dodos and alien elephants with the history of a platypusBest Insults Ever! oh so you dont like it becaue you sold your copy of minecraft to a hobo for a leftover half of a french fry made in 1996 by a mega shulker bum, because you're a fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled kangaroo sitting on a mutated alien dog that carries the genes of dodos and alien elephants with the history of a platypus",
-   "author":"dragon (Dragon5232)",
-   "date":[
-    11,
-    19,
-    2016
-   ]
-  },
-  {
-   "author_ids":[
-    "160567046642335746",
-    "245387962089472002"
-   ],
-   "id":44,
-   "quote":"```Oh, so you dont like it becaue you sold your copy of minecraft to a hobo for a leftover half of a french fry made in 1996 by a mega shulker bum, because you're a fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled kangaroo sitting on a mutated alien dog that carries the genes of dodos and alien elephants with the history of a platypus? Good to hear \ud83d\ude0f",
-   "author":"dragon (Dragon5232), Mg (morninghost)",
-   "date":[
-    11,
-    19,
-    2016
-   ]
-  },
-  {
    "id":45,
    "author_ids":[
-    "245387962089472002"
+    "245387962089472002",
+    "160567046642335746"
    ],
-   "quote":"hehe i will mess up the format```see i told you",
-   "author":"Mg (morninghost)",
-   "date":[
-    11,
-    19,
-    2016
-   ]
+   "author":"Mg (morninghost), dragon (Dragon5232)",
+   "quote":"Oh, so you dont like it becaue you sold your copy of minecraft to a hobo for a leftover half of a french fry made in 1996 by a mega shulker bum, because you're a fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled kangaroo sitting on a mutated alien dog that carries the genes of dodos and alien elephants with the history of a platypus? Good to hear \ud83d\ude0f"
   }
  ],
- "quote_format":"**#{0}**: *\"{1}\"* \u2014 `{2}` [{3}]",
- "date_format":"{0}/{1}/{2}"
+ "bot_admins":[
+  "Dragon5232#1841"
+ ],
+ "date_format":"{0}/{1}/{2}",
+ "version":2
 }
