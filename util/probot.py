@@ -1,6 +1,8 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
 import asyncio
+import discord
 import discord.ext.commands as commands
+from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
 from cleverbot import Cleverbot
 from properties import command_prefix as cmdfix
 from properties import bot_name as bname
@@ -39,7 +41,10 @@ class ProBot(commands.Bot):
         'hoi',
         'what',
         'wot',
-        'wut'
+        'wut',
+        'shut',
+        'watch',
+        'behave'
     ]
 
     def __init__(self, **kwargs):
@@ -52,9 +57,14 @@ class ProBot(commands.Bot):
         """Send a message to the context's message origin.'"""
         self.send_message(ctx.message.channel, msg)
 
+    async def askcb(self, query):
+        """A method of querying Cleverbot safe for async."""
+        blocking_cb = self.loop.run_in_executor(None, self.cb.ask, query)
+        return await blocking_cb
+
     async def on_command_error(self, exp, ctx):
         cnf_fmt = '{0.mention} The command you tried to execute, `{2}{1}`, does not exist. Type `{2}help` for help.'
-        npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a full channel.'
+        npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a channel.'
         ccd_fmt = '{0.mention} Sorry, the `{2}{1}` command is currently disabled. Try again later!'
         cpe_fmt = '{0.mention} Sorry, you don\'t have **permission** to execute `{2}{1}`!'
         cproc = ctx.message.content.split(' ')[0]
@@ -69,15 +79,16 @@ class ProBot(commands.Bot):
             await self.send_message(ctx.message.channel, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
         else:
             await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
-            print(str(exp))
+            print('Warning: ' + str(exp))
 
     async def auto_cb_convo(self, msg, kickstart):
+        await self.send_typing(msg.channel)
         lmsg = msg.content.lower()
-        reply_bot = self.cb.ask(lmsg.strip(kickstart + ' '))
+        reply_bot = self.askcb(lmsg.strip(kickstart + ' '))
         await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
         while '?' in reply_bot:
             reply = await self.wait_for_message(author=msg.author)
-            reply_bot = self.cb.ask(reply)
+            reply_bot = self.askcb(reply)
             await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
 
     async def on_message(self, msg):
@@ -85,14 +96,86 @@ class ProBot(commands.Bot):
             myself = msg.server.me
         except AttributeError:
             myself = self.user
-        if myself in msg.mentions:
-            await self.auto_cb_convo(msg, self.bot.user.mention)
-        elif msg.content.lower().startswith(bname.lower() + ' '):
-            nmsg = msg.content.lower().strip(bname.lower() + ' ')
-            for i in self.auto_convo_starters:
-                if nmsg.startswith(i + ' '):
-                    await self.auto_cb_convo(msg, bname.lower() + ' ')
-                elif nmsg.endswith('?'):
-                    await self.auto_cb_convo(msg, bname.lower() + ' ')
+        if msg.author != myself:
+            if myself in msg.mentions:
+                await self.auto_cb_convo(msg, self.user.mention)
+            elif msg.channel.is_private:
+                if msg.content.startswith(cmdfix):
+                    await self.send_typing(msg.channel)
+                    await self.process_commands(msg)
+                else:
+                    await self.send_typing(msg.channel)
+                    await self.send_message(msg.channel, ':speech_balloon: ' + self.askcb(msg.content))
+            elif msg.content.lower().startswith(bname.lower() + ' '):
+                nmsg = msg.content.lower().strip(bname.lower() + ' ')
+                for i in self.auto_convo_starters:
+                    if nmsg.startswith(i + ' '):
+                        await self.auto_cb_convo(msg, bname.lower() + ' ')
+                    elif nmsg.endswith('?'):
+                        await self.auto_cb_convo(msg, bname.lower() + ' ')
+            else:
+                if msg.content.startswith(cmdfix):
+                    await self.send_typing(msg.channel)
+                    await self.process_commands(msg)
+
+    async def process_commands(self, message):
+        """|coro|
+        This function processes the commands that have been registered
+        to the bot and other groups. Without this coroutine, none of the
+        commands will be triggered.
+        By default, this coroutine is called inside the :func:`on_message`
+        event. If you choose to override the :func:`on_message` event, then
+        you should invoke this coroutine as well.
+        Warning
+        --------
+        This function is necessary for :meth:`say`, :meth:`whisper`,
+        :meth:`type`, :meth:`reply`, and :meth:`upload` to work due to the
+        way they are written. It is also required for the :func:`on_command`
+        and :func:`on_command_completion` events.
+        Parameters
+        -----------
+        message : discord.Message
+            The message to process commands for.
+        """
+        _internal_channel = message.channel
+        _internal_author = message.author
+
+        view = StringView(message.content)
+        if self._skip_check(message.author, self.user):
+            return
+
+        prefix = await self._get_prefix(message)
+        invoked_prefix = prefix
+
+        if not isinstance(prefix, (tuple, list)):
+            if not view.skip_string(prefix):
+                return
         else:
-            await self.process_commands(msg)
+            invoked_prefix = discord.utils.find(view.skip_string, prefix)
+            if invoked_prefix is None:
+                return
+
+        # invoker = command name
+        invoker = view.get_word()
+        tmp = {
+            'bot': self,
+            'invoked_with': invoker,
+            'message': message,
+            'view': view,
+            'prefix': invoked_prefix
+        }
+        ctx = Context(**tmp)
+        del tmp
+
+        if invoker in self.commands:
+            command = self.commands[invoker]
+            self.dispatch('command', command, ctx)
+            try:
+                await command.invoke(ctx)
+            except CommandError as e:
+                ctx.command.dispatch_error(e, ctx)
+            else:
+                self.dispatch('command_completion', command, ctx)
+        elif invoker:
+            exc = CommandNotFound('Command "{}" is not found'.format(invoker))
+            self.dispatch('command_error', exc, ctx)

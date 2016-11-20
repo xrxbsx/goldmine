@@ -56,10 +56,8 @@ restart = False
 @bot.event
 async def on_ready():
     """On_ready event for when the bot logs into Discord."""
-    print(bname + ' has logged into Discord as')
-    print('Username: ' + bot.user.name)
-    print('ID: ' + bot.user.id)
-    print('-----------------------------------')
+    print(bname + ' has logged into Discord, ID ' + bot.user.id)
+    await bot.change_presence(game=discord.Game(name='Use !help'))
 
 @bot.event
 async def on_member_join(member: discord.Member):

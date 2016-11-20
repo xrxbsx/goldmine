@@ -11,6 +11,7 @@ import util.datastore as store
 import util.quote as quote
 from util.perms import check_perms
 from properties import bot_name
+from properties import command_prefix as cmdfix
 
 from .cog import Cog
 
@@ -63,7 +64,7 @@ class Roleplay(Cog):
         'normally snipes {0}',
         'uses katana to slice through {0}',
         'deadly stares at {0}',
-        'uses a trebuchet to shoot a 95kb projectile over 300 meters at {0}',
+        'uses a trebuchet to shoot a 95kg projectile over 300 meters at {0}',
         'snaps neck from {0}',
         'pours lava over {0}',
         'dumps acid above {0}',
@@ -92,29 +93,23 @@ class Roleplay(Cog):
         self.cb = Cleverbot()
         super().__init__(bot, cmdfix, bname)
 
-    @commands.command(pass_context=True)
-    async def poke(self, ctx, target: str):
-        """Pokes someone... with random results!
-        Syntax: poke [person]"""
-        await self.bot.say('*' + ctx.message.author.display_name + '* pokes *' +
+    async def rand_member(self, ctx):
+        """Choose a random member from the message's server."""
+        satisfied = False
+        while not satisfied:
+            rmem = random.choice(ctx.message.server.members)
+            satisfied = bool(str(rmem.status) == 'online')
+        return rmem
+
+    @commands.command(pass_context=True, aliases=['boop', 'poke', 'hit'])
+    async def slap(self, ctx, target: str):
+        """Slaps someone like a boss, for the win.
+        Syntax: slap [person]"""
+        keystr = '* ' + ctx.message.content.split(' ')[0].strip(cmdfix) + 's *'
+        await self.bot.say('*' + ctx.message.author.display_name + keystr +
                            target + '* **' + random.choice(self.adjs) + '**.')
 
-    @commands.command(pass_context=True)
-    async def boop(self, ctx, target: str):
-        """Boops someone with possibly satisfying results.
-        Syntax: boop [person]"""
-        await self.bot.say('*' + ctx.message.author.display_name + '* boops *' +
-                           target + '* **' + random.choice(self.adjs) + '**.')
-
-    @commands.command(pass_context=True)
-    async def stab(self, ctx, target: str):
-        """Floran besst sssstabber! Painful, too.
-        Syntax: stab [person]"""
-        await self.bot.say('*' + ctx.message.author.display_name + '* ' +
-                           random.choice(self.fights).format(target) + '. '
-                           + random.choice(self.death).format(target))
-
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['stab'])
     async def attack(self, ctx, target: str):
         """Hurts someone with determination in the shot.
         Syntax: attack [person]"""

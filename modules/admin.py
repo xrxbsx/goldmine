@@ -4,7 +4,7 @@ import subprocess
 
 import discord
 from discord.ext import commands
-from util.perms import echeck_perms
+from util.perms import echeck_perms, check_perms
 import util.datastore as store
 from .cog import Cog
 
@@ -25,9 +25,7 @@ class Admin(Cog):
     async def purge(self, ctx, channel: discord.Channel):
         """Removes all of this bot's messages on a channel.
         Syntax: purge [channel name]"""
-        if not await echeck_perms(ctx, ['bot_admin']):
-            await self.perm_err(ctx)
-            return
+        await echeck_perms(ctx, ['bot_admin'])
         deleted = await self.bot.purge_from(channel, limit=200, check=self.is_me)
         await self.bot.send_message(channel, 'Deleted {} message(s)'.format(len(deleted)))
 
@@ -35,9 +33,7 @@ class Admin(Cog):
     async def nuke(self, ctx, channel: discord.Channel):
         """NUKES a channel by deleting all messages!
         Syntax: nuke [channel name]"""
-        if not await echeck_perms(ctx, ['bot_admin']):
-            await self.perm_err(ctx)
-            return
+        await echeck_perms(ctx, ['bot_admin'])
         deleted = await self.bot.purge_from(channel, limit=1000)
         await self.bot.send_message(channel, 'Deleted {} message(s)'.format(len(deleted)))
 
@@ -45,9 +41,7 @@ class Admin(Cog):
     async def update(self, ctx):
         """Auto-updates this bot and restarts if any code was updated.
         Syntax: update"""
-        if not await echeck_perms(ctx, ['bot_admin']):
-            await self.perm_err(ctx)
-            return
+        await echeck_perms(ctx, ['bot_admin'])
         await self.bot.say('Trying to update...')
         try:
             gitout = subprocess.check_output(['git', 'pull', '-v'], stderr=subprocess.STDOUT).decode('utf-8')
@@ -64,15 +58,13 @@ class Admin(Cog):
             await self.bot.say('Bot was already up-to-date, not restarting.')
         else:
             await self.bot.say('Bot was able to update, now restarting.')
-            ctx.invoke(self.restart)
+            await self.bot.commands['restart'].invoke(ctx)
 
     @commands.command(pass_context=True)
     async def restart(self, ctx):
         """Restarts this bot.
         Syntax: restart"""
-        if not await echeck_perms(ctx, ['bot_admin']):
-            await self.perm_err(ctx)
-            return
+        await echeck_perms(ctx, ['bot_admin'])
 #        for i in self.bot.servers:
 #            await self.bot.send_message(i.default_channel, 'This bot (' + self.bname + ') is now restarting!')
         await self.bot.say('This bot (' + self.bname + ') is now restarting!')
@@ -84,9 +76,7 @@ class Admin(Cog):
     async def eref(self, ctx, *rawtxt: str):
         """Evaluate an object in command scope.
         Syntax: eref [string to reference]"""
-        if not await echeck_perms(ctx, ['bot_owner']):
-            await self.perm_err(ctx)
-            return
+        await echeck_perms(ctx, ['bot_admin'])
         rstore = await store.dump()
         await self.bot.say(str(eval(' '.join(rawtxt))))
 
@@ -94,16 +84,16 @@ class Admin(Cog):
     async def admintest(self, ctx):
         """Check to see if you're registered as a bot admin.
         Syntax: admintest'"""
-        if await echeck_perms(ctx, ['bot_admin']):
+        if await check_perms(ctx, ['bot_admin']):
             await self.bot.say(ctx.message.author.mention + ' You are a bot admin! :smiley:')
         else:
-            await self.bot.say(ctx.message.author.mention + ' You not are a bot admin! :slight_frown:')
+            await self.bot.say(ctx.message.author.mention + ' You are not a bot admin! :slight_frown:')
 
     @commands.command(pass_context=True)
     async def addadmin(self, ctx, target: discord.Member):
         """Add a user to the bot admin list.
         Syntax: addadmin [user]"""
-        if await echeck_perms(ctx, ['bot_admin']):
+        if await check_perms(ctx, ['bot_admin']):
             aentry = str(target)
             rstore = await store.dump()
             if aentry not in rstore['bot_admins']:
@@ -119,7 +109,7 @@ class Admin(Cog):
     async def rmadmin(self, ctx, target: discord.Member):
         """Remove a user from the bot admin list.
         Syntax: rmadmin [user]"""
-        if await echeck_perms(ctx, ['bot_admin']):
+        if await check_perms(ctx, ['bot_admin']):
             aentry = str(target)
             rstore = await store.dump()
             try:
