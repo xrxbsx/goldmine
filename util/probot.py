@@ -48,7 +48,9 @@ class ProBot(commands.Bot):
         'uh',
         'y',
         'tell',
-        'gre'
+        'gre',
+        'why',
+        'd'
     ]
 
     def __init__(self, **kwargs):
