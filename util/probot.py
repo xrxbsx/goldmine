@@ -4,9 +4,9 @@ import discord
 import discord.ext.commands as commands
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
 from cleverbot import Cleverbot
-from properties import command_prefix as cmdfix
 from properties import bot_name as bname
 from util.perms import CommandPermissionError
+from util.datastore import get_cmdfix, get_prop
 
 class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
@@ -18,18 +18,11 @@ class ProBot(commands.Bot):
         'you',
         'u',
         'ur',
-        'youre',
-        'your',
-        'you\'re',
-        'you are',
         'ready',
         'begin',
         'lets',
         'go',
-        'pls',
-        'plz',
-        'plez',
-        'please',
+        'p',
         'can',
         'could',
         'would',
@@ -44,7 +37,16 @@ class ProBot(commands.Bot):
         'wut',
         'shut',
         'watch',
-        'behave'
+        'behave',
+        'test',
+        'testing',
+        'stop',
+        'stahp',
+        'ask',
+        'ho',
+        'um',
+        'uh',
+        'y'
     ]
 
     def __init__(self, **kwargs):
@@ -63,6 +65,7 @@ class ProBot(commands.Bot):
         return await blocking_cb
 
     async def on_command_error(self, exp, ctx):
+        cmdfix = await get_cmdfix(ctx.message)
         cnf_fmt = '{0.mention} The command you tried to execute, `{2}{1}`, does not exist. Type `{2}help` for help.'
         npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a channel.'
         ccd_fmt = '{0.mention} Sorry, the `{2}{1}` command is currently disabled. Try again later!'
@@ -81,22 +84,39 @@ class ProBot(commands.Bot):
             await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
             print('Warning: ' + str(exp))
 
+    async def casein(self, substr, clist):
+        """Return if a substring is found in any of clist."""
+        for i in clist:
+            if substr in i:
+                return True
+        return False
+
+    def bdel(self, s, r): return s[len(r):]
+
     async def auto_cb_convo(self, msg, kickstart):
+        """The auto conversation manager."""
         await self.send_typing(msg.channel)
         lmsg = msg.content.lower()
-        reply_bot = self.askcb(lmsg.strip(kickstart + ' '))
+        reply = lmsg
+        reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' '))
         await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
-        while '?' in reply_bot:
-            reply = await self.wait_for_message(author=msg.author)
-            reply_bot = self.askcb(reply)
+        while await self.casein('?', [reply_bot, reply]):
+            rep = await self.wait_for_message(author=msg.author)
+            reply = rep.content
+            reply_bot = await self.askcb(reply)
             await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
 
     async def on_message(self, msg):
+        cmdfix = await get_cmdfix(msg)
         try:
             myself = msg.server.me
         except AttributeError:
             myself = self.user
-        if msg.author != myself:
+        if msg.author.id != self.user.id:
+            if not msg.channel.is_private:
+                int_name = await get_prop(msg, 'bot_name')
+                if msg.server.me.display_name != int_name:
+                    await self.change_nickname(msg.server.me, int_name)
             if myself in msg.mentions:
                 await self.auto_cb_convo(msg, self.user.mention)
             elif msg.channel.is_private:
@@ -105,14 +125,19 @@ class ProBot(commands.Bot):
                     await self.process_commands(msg)
                 else:
                     await self.send_typing(msg.channel)
-                    await self.send_message(msg.channel, ':speech_balloon: ' + self.askcb(msg.content))
+                    cb_reply = await self.askcb(msg.content)
+                    await self.send_message(msg.channel, ':speech_balloon: ' + cb_reply)
             elif msg.content.lower().startswith(bname.lower() + ' '):
-                nmsg = msg.content.lower().strip(bname.lower() + ' ')
+                nmsg = self.bdel(msg.content.lower(), bname.lower())
                 for i in self.auto_convo_starters:
-                    if nmsg.startswith(i + ' '):
+                    if nmsg.startswith(' ' + i):
                         await self.auto_cb_convo(msg, bname.lower() + ' ')
                     elif nmsg.endswith('?'):
                         await self.auto_cb_convo(msg, bname.lower() + ' ')
+                    elif nmsg.startswith(', '):
+                        await self.auto_cb_convo(msg, bname.lower() + ', ')
+                    elif nmsg.startswith('... '):
+                        await self.auto_cb_convo(msg, bname.lower() + '... ')
             else:
                 if msg.content.startswith(cmdfix):
                     await self.send_typing(msg.channel)

@@ -1,6 +1,7 @@
 """Functions for handling the Data Store."""
 import os
 import json
+from properties import command_prefix as cmdfix
 
 orig_store = {
     'version': 2,
@@ -58,3 +59,40 @@ def initialize():
 #        except json.decoder.JSONDecodeError:
 #            storefile.write(json.dumps(orig_store, indent=1, separators=(',', ':')))
     pass
+
+async def get_props_s(msg):
+    """Get the server properties of a message."""
+    rs = await dump()
+    try:
+        return rs['properties']['by_server'][str(msg.server.id)]
+    except KeyError:
+        rs['properties']['by_server'][str(msg.server.id)] = {}
+        await write(rs)
+        return {}
+
+async def get_props_p(msg):
+    """Get the user properties of a message."""
+    rs = await dump()
+    try:
+        return rs['properties']['by_user'][str(msg.author.id)]
+    except KeyError:
+        rs['properties']['by_user'][str(msg.author.id)] = {}
+        await write(rs)
+        return {}
+
+async def get_prop(msg, prop: str):
+    """Get the final property referenced in msg's scope."""
+    try:
+        thing = await get_props_p(msg)
+        return thing[prop]
+    except KeyError:
+        try:
+            thing = await get_props_s(msg)
+            return thing[prop]
+        except KeyError:
+            rs = await dump()
+            return rs['properties']['global'][prop]
+
+async def get_cmdfix(msg):
+    """Easy method to retrieve the command prefix in current scope."""
+    return await get_prop(msg, 'command_prefix')

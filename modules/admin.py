@@ -22,20 +22,20 @@ class Admin(Cog):
         await self.bot.say(ctx.message.author.mention + ' You don\'t have enough **permissions** to execute that command!')
 
     @commands.command(pass_context=True)
-    async def purge(self, ctx, channel: discord.Channel):
+    async def purge(self, ctx):
         """Removes all of this bot's messages on a channel.
-        Syntax: purge [channel name]"""
+        Syntax: purge"""
         await echeck_perms(ctx, ['bot_admin'])
-        deleted = await self.bot.purge_from(channel, limit=200, check=self.is_me)
-        await self.bot.send_message(channel, 'Deleted {} message(s)'.format(len(deleted)))
+        deleted = await self.bot.purge_from(ctx.message.channel, limit=500, check=self.is_me)
+        await self.bot.send_message(ctx.message.channel, 'Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command(pass_context=True)
-    async def nuke(self, ctx, channel: discord.Channel):
+    async def nuke(self, ctx):
         """NUKES a channel by deleting all messages!
-        Syntax: nuke [channel name]"""
+        Syntax: nuke"""
         await echeck_perms(ctx, ['bot_admin'])
-        deleted = await self.bot.purge_from(channel, limit=1000)
-        await self.bot.send_message(channel, 'Deleted {} message(s)'.format(len(deleted)))
+        deleted = await self.bot.purge_from(ctx.message.channel, limit=1300)
+        await self.bot.send_message(ctx.message.channel, 'Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command(pass_context=True)
     async def update(self, ctx):
@@ -131,3 +131,17 @@ class Admin(Cog):
         for i in rstore['bot_admins']:
             alist += i + '\n'
         await self.bot.say('The following people are bot admins:\n' + alist)
+
+    @commands.command(pass_context=True)
+    async def getprop(self, ctx, pname: str):
+        """Fetch a property from the datastore.
+        Syntax: getprop [property name]"""
+        pout = await store.get_prop(ctx.message, pname)
+        await self.bot.say(pout)
+
+    @commands.command(pass_context=True)
+    async def setprop(self, ctx, pname: str, value: str):
+        """Set the value of a property on server level.
+        Syntax: setprop [property name] [value]"""
+        pout = await store.get_prop(ctx.message, pname)
+        await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
