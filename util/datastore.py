@@ -65,7 +65,7 @@ async def get_props_s(msg):
     rs = await dump()
     try:
         return rs['properties']['by_server'][str(msg.server.id)]
-    except KeyError:
+    except (KeyError, AttributeError):
         rs['properties']['by_server'][str(msg.server.id)] = {}
         await write(rs)
         return {}
@@ -75,7 +75,7 @@ async def get_props_p(msg):
     rs = await dump()
     try:
         return rs['properties']['by_user'][str(msg.author.id)]
-    except KeyError:
+    except (KeyError, AttributeError):
         rs['properties']['by_user'][str(msg.author.id)] = {}
         await write(rs)
         return {}
@@ -85,11 +85,11 @@ async def get_prop(msg, prop: str):
     try:
         thing = await get_props_p(msg)
         return thing[prop]
-    except KeyError:
+    except (KeyError, AttributeError):
         try:
             thing = await get_props_s(msg)
             return thing[prop]
-        except KeyError:
+        except (KeyError, AttributeError):
             rs = await dump()
             return rs['properties']['global'][prop]
 

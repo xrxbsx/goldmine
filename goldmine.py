@@ -5,8 +5,9 @@ import sys
 while True:
     import core
     retval = core.main()
-    if retval:
-        del core
-        del sys.modules['core']
+    if retval: # restart
+#        del core
+#        del sys.modules['core']
+        exit(0)
     else:
         exit(0)

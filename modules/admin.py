@@ -143,5 +143,18 @@ class Admin(Cog):
     async def setprop(self, ctx, pname: str, value: str):
         """Set the value of a property on server level.
         Syntax: setprop [property name] [value]"""
-        pout = await store.get_prop(ctx.message, pname)
+        await echeck_perms(ctx, ['bot_admin'])
+        rstore = await store.dump()
+        rstore['properties']['by_server'][str(ctx.message.server.id)][pname] = value
+        await store.write(rstore)
+        await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
+
+    @commands.command(pass_context=True, aliases=['rsetprop'])
+    async def rawsetprop(self, ctx, pname: str, value: str):
+        """Set the value of a property on any level.
+        Syntax: rawsetprop [scope] [property name] [value]"""
+        await echeck_perms(ctx, ['bot_admin'])
+        rstore = await store.dump()
+        rstore['properties']['by_server'][str(ctx.message.server.id)][pname] = value
+        await store.write(rstore)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))

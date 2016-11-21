@@ -131,10 +131,10 @@ class Roleplay(Cog):
         await self.bot.say('Hey there, ' + ctx.message.author.mention + '!')
 
     @commands.command(pass_context=True)
-    async def mention(self, ctx, target: str):
+    async def mention(self, ctx, target: discord.Member):
         """Make the bot mention someone. Useful for testing.
         Syntax: mention [mention, nickname, DiscordTag, or username]"""
-        await self.bot.say('Hey there, ' + target + '!')
+        await self.bot.say('Hey there, ' + target.mention + '!')
 
     @commands.command()
     async def emotisay(self, *args):
@@ -260,3 +260,10 @@ class Roleplay(Cog):
             await self.bot.say('The quote specified has been successfully deleted!')
         else:
             await self.bot.say('The quote specified could not be deleted because you do not own it, and are not the bot owner. Sorry!')
+
+    @commands.command(pass_context=True)
+    async def soon(self, ctx):
+        """Feel the loading of 10000 years, aka Soon™.
+        Syntax: soon"""
+        with open('assets/soon.gif', 'rb') as image:
+            await self.bot.send_file(ctx.message.channel, image, filename='soon.gif')

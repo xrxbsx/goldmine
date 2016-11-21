@@ -72,14 +72,18 @@ class ProBot(commands.Bot):
         cpe_fmt = '{0.mention} Sorry, you don\'t have **permission** to execute `{2}{1}`!'
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
+        print(type(exp))
         if isinstance(exp, commands.CommandNotFound):
             await self.send_message(ctx.message.channel, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.NoPrivateMessage):
             await self.send_message(ctx.message.channel, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.DisabledCommand):
             await self.send_message(ctx.message.channel, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
-        elif isinstance(exp, CommandPermissionError):
-            await self.send_message(ctx.message.channel, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
+        elif isinstance(exp, commands.CommandInvokeError):
+            if str(exp).startswith('Command raised an exception: CommandPermissionError: '):
+                await self.send_message(ctx.message.channel, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            else:
+                await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
         else:
             await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
             print('Warning: ' + str(exp))
@@ -112,36 +116,37 @@ class ProBot(commands.Bot):
             myself = msg.server.me
         except AttributeError:
             myself = self.user
-        if msg.author.id != self.user.id:
-            if not msg.channel.is_private:
-                int_name = await get_prop(msg, 'bot_name')
-                if msg.server.me.display_name != int_name:
-                    await self.change_nickname(msg.server.me, int_name)
-            if myself in msg.mentions:
-                await self.auto_cb_convo(msg, self.user.mention)
-            elif msg.channel.is_private:
-                if msg.content.startswith(cmdfix):
-                    await self.send_typing(msg.channel)
-                    await self.process_commands(msg)
+        if msg.author.id != myself.id:
+            if not msg.author.bot:
+                if not msg.channel.is_private:
+                    int_name = await get_prop(msg, 'bot_name')
+                    if msg.server.me.display_name != int_name:
+                        await self.change_nickname(msg.server.me, int_name)
+                if myself in msg.mentions:
+                    await self.auto_cb_convo(msg, self.user.mention)
+                elif msg.channel.is_private:
+                    if msg.content.startswith(cmdfix):
+                        await self.send_typing(msg.channel)
+                        await self.process_commands(msg)
+                    else:
+                        await self.send_typing(msg.channel)
+                        cb_reply = await self.askcb(msg.content)
+                        await self.send_message(msg.channel, ':speech_balloon: ' + cb_reply)
+                elif msg.content.lower().startswith(bname.lower() + ' '):
+                    nmsg = self.bdel(msg.content.lower(), bname.lower())
+                    for i in self.auto_convo_starters:
+                        if nmsg.startswith(' ' + i):
+                            await self.auto_cb_convo(msg, bname.lower() + ' ')
+                        elif nmsg.endswith('?'):
+                            await self.auto_cb_convo(msg, bname.lower() + ' ')
+                        elif nmsg.startswith(', '):
+                            await self.auto_cb_convo(msg, bname.lower() + ', ')
+                        elif nmsg.startswith('... '):
+                            await self.auto_cb_convo(msg, bname.lower() + '... ')
                 else:
-                    await self.send_typing(msg.channel)
-                    cb_reply = await self.askcb(msg.content)
-                    await self.send_message(msg.channel, ':speech_balloon: ' + cb_reply)
-            elif msg.content.lower().startswith(bname.lower() + ' '):
-                nmsg = self.bdel(msg.content.lower(), bname.lower())
-                for i in self.auto_convo_starters:
-                    if nmsg.startswith(' ' + i):
-                        await self.auto_cb_convo(msg, bname.lower() + ' ')
-                    elif nmsg.endswith('?'):
-                        await self.auto_cb_convo(msg, bname.lower() + ' ')
-                    elif nmsg.startswith(', '):
-                        await self.auto_cb_convo(msg, bname.lower() + ', ')
-                    elif nmsg.startswith('... '):
-                        await self.auto_cb_convo(msg, bname.lower() + '... ')
-            else:
-                if msg.content.startswith(cmdfix):
-                    await self.send_typing(msg.channel)
-                    await self.process_commands(msg)
+                    if msg.content.startswith(cmdfix):
+                        await self.send_typing(msg.channel)
+                        await self.process_commands(msg)
 
     async def process_commands(self, message):
         """|coro|
