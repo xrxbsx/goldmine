@@ -5,243 +5,240 @@
   "Anonymous fish 110#1920"
  ],
  "date_format":"{0}/{1}/{2}",
- "quotes":[
-  {
-   "author":"Frisky Turtle, MrXarous",
-   "quote":"Haaaaaaaaahn!",
-   "id":0,
-   "date":[
-    11,
-    7,
-    2016
-   ],
-   "author_ids":[
-    "000000000000000000",
-    "141246933359394816"
-   ]
-  },
-  {
-   "author":"George Herbert",
-   "quote":"Living well is the best revenge.",
-   "id":0,
-   "date":[
-    4,
-    3,
-    1593
-   ],
-   "author_ids":[
-    "000000000000000000"
-   ]
-  },
-  {
-   "author":"Norman Vincent Peale",
-   "quote":"Change your thoughts and you change your world.",
-   "id":1,
-   "date":[
-    5,
-    31,
-    1898
-   ],
-   "author_ids":[
-    "000000000000000000"
-   ]
-  },
-  {
-   "author":"Dragon5232",
-   "quote":"My face is pretty cool.",
-   "id":2,
-   "date":[
-    11,
-    18,
-    2016
-   ],
-   "author_ids":[
-    "160567046642335746",
-    "160567046642335746"
-   ]
-  },
-  {
-   "author":"Dragon5232",
-   "quote":"You should punch your mouse.",
-   "id":3,
-   "date":[
-    11,
-    18,
-    2016
-   ],
-   "author_ids":[
-    "160567046642335746"
-   ]
-  },
-  {
-   "author":"Dragon5232",
-   "quote":"Pythons slither in your brain.",
-   "id":4,
-   "date":[
-    11,
-    18,
-    2016
-   ],
-   "author_ids":[
-    "160567046642335746"
-   ]
-  },
-  {
-   "author":"ProDragon (Dragon5232), beefs (beefywhale)",
-   "quote":"Hello World!",
-   "id":6,
-   "date":[
-    11,
-    19,
-    2016
-   ],
-   "author_ids":[
-    "160567046642335746",
-    "219550353518100480"
-   ]
-  },
-  {
-   "author":"ProDragon (Dragon5232)",
-   "quote":"Not to be maybe dleeeeeted.",
-   "id":9,
-   "date":[
-    11,
-    18,
-    2016
-   ],
-   "author_ids":[
-    "160567046642335746"
-   ]
-  },
-  {
-   "author":"Mg (morninghost), beefs (beefywhale), dragon (Dragon5232)",
-   "quote":"RIP befy killed this quote \ud83d\ude22",
-   "id":24,
-   "date":[
-    11,
-    19,
-    2016
-   ],
-   "author_ids":[
-    "245387962089472002",
-    "219550353518100480",
-    "160567046642335746",
-    "219550353518100480"
-   ]
-  },
-  {
-   "author":"dragon (Dragon5232), beefs (beefywhale)",
-   "quote":"Dragon5232 is the best person! \ud83d\ude0f",
-   "id":24,
-   "date":[
-    11,
-    19,
-    2016
-   ],
-   "author_ids":[
-    "160567046642335746",
-    "219550353518100480",
-    "160567046642335746"
-   ]
-  },
-  {
-   "author":"Mg (morninghost), dragon (Dragon5232)",
-   "quote":"Oh, so you dont like it becaue you sold your copy of minecraft to a hobo for a leftover half of a french fry made in 1996 by a mega shulker bum, because you're a fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled kangaroo sitting on a mutated alien dog that carries the genes of dodos and alien elephants with the history of a platypus? Good to hear \ud83d\ude0f",
-   "id":45,
-   "date":[
-    11,
-    19,
-    2016
-   ],
-   "author_ids":[
-    "245387962089472002",
-    "160567046642335746"
-   ]
-  },
-  {
-   "author":"Anonymous fish 110",
-   "quote":"ANONYMOUS FISH",
-   "id":44,
-   "date":[
-    11,
-    21,
-    2016
-   ],
-   "author_ids":[
-    "248143000453120012"
-   ]
-  }
- ],
- "first_start":false,
- "quote_format":"**#{0}**: *\"{1}\"* \u2014 `{2}` [{3}]",
  "properties":{
-  "by_channel":{
-   "245387841432059904":{},
-   "239772188649979904:243544328507490305":{},
-   "243544328507490305":{},
-   "250110951066435586":{}
-  },
-  "global":{
-   "profile":{
-    "level":1,
-    "exp":1,
-    "total_exp":1
-   },
-   "set_nick_to_name":true,
-   "command_prefix":"$",
-   "bot_name":"Goldmine"
-  },
   "by_server":{
    "245387841432059904":{},
-   "245040839984807936":{
-    "by_server":"bot_name",
-    "bot_name":"goldie"
-   },
    "239772188649979904":{
     "bot_name":"bot-dev"
+   },
+   "245040839984807936":{
+    "bot_name":"goldie"
    },
    "250304680159215616":{
     "bot_name":"goldie"
    }
   },
+  "global":{
+   "bot_name":"Goldmine",
+   "command_prefix":"$",
+   "set_nick_to_name":true,
+   "profile":{
+    "exp":0,
+    "level":0
+   }
+  },
   "by_user":{
+   "239775420470394897":{},
+   "202925134229536769":{},
+   "222125122020966400":{},
+   "140737323141693440":{},
    "160567046642335746":{
-    "profile":{
-     "level":1,
-     "exp":230,
-     "total_exp":230
-    },
+    "test":"123",
     "name":"Dragon5232",
     "command_prefix":"$",
-    "test":"123",
-    "nick":"dragon"
-   },
-   "140307918200242176":{},
-   "202925134229536769":{},
-   "248143000453120012":{},
-   "159985870458322944":{},
-   "134133271750639616":{},
-   "219550353518100480":{
-    "profile":{
-     "level":1,
-     "exp":125,
-     "total_exp":125
+    "nick":"dragon",
+    "profile_239772188649979904":{
+     "exp":643,
+     "level":3
     },
-    "command_prefix":"$",
-    "test":"456"
+    "profile_245387841432059904":{
+     "exp":75,
+     "level":1
+    }
    },
-   "239775420470394897":{},
-   "245387962089472002":{},
-   "222125122020966400":{},
-   "177735619668213760":{},
+   "159985870458322944":{},
    "250089482848567297":{},
-   "140737323141693440":{}
+   "219550353518100480":{
+    "test":"456",
+    "command_prefix":"$",
+    "profile_239772188649979904":{
+     "exp":380,
+     "level":3
+    }
+   },
+   "177735619668213760":{},
+   "140307918200242176":{},
+   "134133271750639616":{},
+   "248143000453120012":{},
+   "245387962089472002":{}
+  },
+  "by_channel":{
+   "245387841432059904:245387841432059904":{},
+   "239772188649979904:243544328507490305":{},
+   "250429124244406283":{},
+   "245387841432059904":{},
+   "250110951066435586":{},
+   "243544328507490305":{}
   }
  },
- "levels":{
-  "1":{
-   "exp_required":100
+ "quotes":[
+  {
+   "author_ids":[
+    "000000000000000000",
+    "141246933359394816"
+   ],
+   "date":[
+    11,
+    7,
+    2016
+   ],
+   "author":"Frisky Turtle, MrXarous",
+   "quote":"Haaaaaaaaahn!",
+   "id":0
+  },
+  {
+   "author_ids":[
+    "000000000000000000"
+   ],
+   "date":[
+    4,
+    3,
+    1593
+   ],
+   "author":"George Herbert",
+   "quote":"Living well is the best revenge.",
+   "id":0
+  },
+  {
+   "author_ids":[
+    "000000000000000000"
+   ],
+   "date":[
+    5,
+    31,
+    1898
+   ],
+   "author":"Norman Vincent Peale",
+   "quote":"Change your thoughts and you change your world.",
+   "id":1
+  },
+  {
+   "author_ids":[
+    "160567046642335746",
+    "160567046642335746"
+   ],
+   "date":[
+    11,
+    18,
+    2016
+   ],
+   "author":"Dragon5232",
+   "quote":"My face is pretty cool.",
+   "id":2
+  },
+  {
+   "author_ids":[
+    "160567046642335746"
+   ],
+   "date":[
+    11,
+    18,
+    2016
+   ],
+   "author":"Dragon5232",
+   "quote":"You should punch your mouse.",
+   "id":3
+  },
+  {
+   "author_ids":[
+    "160567046642335746"
+   ],
+   "date":[
+    11,
+    18,
+    2016
+   ],
+   "author":"Dragon5232",
+   "quote":"Pythons slither in your brain.",
+   "id":4
+  },
+  {
+   "author_ids":[
+    "160567046642335746",
+    "219550353518100480"
+   ],
+   "date":[
+    11,
+    19,
+    2016
+   ],
+   "author":"ProDragon (Dragon5232), beefs (beefywhale)",
+   "quote":"Hello World!",
+   "id":6
+  },
+  {
+   "author_ids":[
+    "160567046642335746"
+   ],
+   "date":[
+    11,
+    18,
+    2016
+   ],
+   "author":"ProDragon (Dragon5232)",
+   "quote":"Not to be maybe dleeeeeted.",
+   "id":9
+  },
+  {
+   "author_ids":[
+    "245387962089472002",
+    "219550353518100480",
+    "160567046642335746",
+    "219550353518100480"
+   ],
+   "date":[
+    11,
+    19,
+    2016
+   ],
+   "author":"Mg (morninghost), beefs (beefywhale), dragon (Dragon5232)",
+   "quote":"RIP befy killed this quote \ud83d\ude22",
+   "id":24
+  },
+  {
+   "author_ids":[
+    "160567046642335746",
+    "219550353518100480",
+    "160567046642335746"
+   ],
+   "date":[
+    11,
+    19,
+    2016
+   ],
+   "author":"dragon (Dragon5232), beefs (beefywhale)",
+   "quote":"Dragon5232 is the best person! \ud83d\ude0f",
+   "id":24
+  },
+  {
+   "author_ids":[
+    "245387962089472002",
+    "160567046642335746"
+   ],
+   "date":[
+    11,
+    19,
+    2016
+   ],
+   "author":"Mg (morninghost), dragon (Dragon5232)",
+   "quote":"Oh, so you dont like it becaue you sold your copy of minecraft to a hobo for a leftover half of a french fry made in 1996 by a mega shulker bum, because you're a fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled fragment of a shulker bum which is a nanoscopic fraction of a microscopic fragment of a genius that was a functional fraction of a dodo bum with sprinkled numbers and shredded homework with dog slobber that has dodo genes and the curse of the dodo marks with shulker sauce on top covered with a sprinkled kangaroo sitting on a mutated alien dog that carries the genes of dodos and alien elephants with the history of a platypus? Good to hear \ud83d\ude0f",
+   "id":45
+  },
+  {
+   "author_ids":[
+    "248143000453120012"
+   ],
+   "date":[
+    11,
+    21,
+    2016
+   ],
+   "author":"Anonymous fish 110",
+   "quote":"ANONYMOUS FISH",
+   "id":44
   }
- },
- "version":3
+ ],
+ "quote_format":"**#{0}**: *\"{1}\"* \u2014 `{2}` [{3}]",
+ "version":3,
+ "first_start":false
 }

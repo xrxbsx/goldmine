@@ -1,12 +1,12 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
 import asyncio
-import discord
+from math import floor
 import discord.ext.commands as commands
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
 from cleverbot import Cleverbot
 from properties import bot_name as bname
-from util.perms import CommandPermissionError
-from util.datastore import get_cmdfix, get_prop, set_prop
+from util.datastore import get_cmdfix, get_prop, set_prop, write, dump
+import util.ranks as rank
 
 class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
@@ -59,6 +59,7 @@ class ProBot(commands.Bot):
         super().__init__(**kwargs)
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
+        self.auto_convos = []
 
     async def sctx(self, ctx, msg):
         """Send a message to the context's message origin.'"""
@@ -73,7 +74,7 @@ class ProBot(commands.Bot):
         cmdfix = await get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
-        print(type(exp))
+        print(ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.CommandNotFound):
             await self.send_message(ctx.message.channel, self.cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.NoPrivateMessage):
@@ -87,7 +88,6 @@ class ProBot(commands.Bot):
                 await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
         else:
             await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
-            print('Warning: ' + str(exp))
 
     async def casein(self, substr, clist):
         """Return if a substring is found in any of clist."""
@@ -100,16 +100,20 @@ class ProBot(commands.Bot):
 
     async def auto_cb_convo(self, msg, kickstart):
         """The auto conversation manager."""
-        await self.send_typing(msg.channel)
-        lmsg = msg.content.lower()
-        reply = lmsg
-        reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' '))
-        await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
-        while await self.casein('?', [reply_bot, reply]):
-            rep = await self.wait_for_message(author=msg.author)
-            reply = rep.content
-            reply_bot = await self.askcb(reply)
+        absid = msg.server.id + msg.channel.id + msg.author.id
+        if absid not in self.auto_convos:
+            await self.send_typing(msg.channel)
+            self.auto_convos.append(absid)
+            lmsg = msg.content.lower()
+            reply = lmsg
+            reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' '))
             await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
+            while await self.casein('?', [reply_bot, reply]):
+                rep = await self.wait_for_message(author=msg.author)
+                reply = rep.content
+                reply_bot = await self.askcb(reply)
+                await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
+            self.auto_convos.remove(absid)
 
     async def on_message(self, msg):
         cmdfix = await get_cmdfix(msg)
@@ -121,12 +125,17 @@ class ProBot(commands.Bot):
             if not msg.author.bot:
                 if not msg.channel.is_private:
                     int_name = await get_prop(msg, 'bot_name')
-                    prof = await get_prop(msg, 'profile')
                     if msg.server.me.display_name != int_name:
                         await self.change_nickname(msg.server.me, int_name)
-                    prof['exp'] += 1
-                    prof['total_exp'] += 1
-                    await set_prop(msg, 'by_user', 'profile', prof)
+                    if not msg.content.startswith(cmdfix):
+                        prof_name = 'profile_' + msg.server.id
+                        prof = await get_prop(msg, prof_name)
+                        prof['exp'] += 1
+                        new_level = rank.xp_level(prof['exp'])[0]
+                        if new_level > prof['level']:
+                            await self.send_message(msg.channel, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
+                        prof['level'] = new_level
+                        await set_prop(msg, 'by_user', prof_name, prof)
                 if myself in msg.mentions:
                     await self.auto_cb_convo(msg, self.user.mention)
                 elif msg.channel.is_private:
@@ -135,7 +144,7 @@ class ProBot(commands.Bot):
                         await self.send_message(msg.channel, self.ece_fmt.format(msg.author, '', cmdfix))
                     elif msg.content.startswith(cmdfix):
                         await self.send_typing(msg.channel)
-                        await self.process_commands(msg, cmdfix)
+                        await self.sprocess_commands(msg, cmdfix)
                     else:
                         await self.send_typing(msg.channel)
                         cb_reply = await self.askcb(msg.content)
@@ -157,9 +166,9 @@ class ProBot(commands.Bot):
                         await self.send_message(msg.channel, self.ece_fmt.format(msg.author, '', cmdfix))
                     elif msg.content.startswith(cmdfix):
                         await self.send_typing(msg.channel)
-                        await self.process_commands(msg, cmdfix)
+                        await self.sprocess_commands(msg, cmdfix)
 
-    async def process_commands(self, message, prefix):
+    async def sprocess_commands(self, message, prefix):
         """|coro|
         This function processes the commands that have been registered
         to the bot and other groups. Without this coroutine, none of the

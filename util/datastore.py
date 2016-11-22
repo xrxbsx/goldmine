@@ -35,7 +35,11 @@ orig_store = {
         'global': {
             'bot_name': 'Goldmine',
             'command_prefix': '!',
-            'set_nick_to_name': True
+            'set_nick_to_name': True,
+            'profile': {
+                'level': 0,
+                'exp': 0
+            }
         },
         'by_user': {},
         'by_channel': {},
@@ -75,9 +79,9 @@ async def get_props_s(msg):
     """Get the server properties of a message."""
     rs = await dump()
     try:
-        return rs['properties']['by_server'][str(msg.server.id)]
+        return rs['properties']['by_server'][msg.server.id]
     except (KeyError, AttributeError):
-        rs['properties']['by_server'][str(msg.server.id)] = {}
+        rs['properties']['by_server'][msg.server.id] = {}
         await write(rs)
         return {}
 
@@ -85,9 +89,9 @@ async def get_props_u(msg):
     """Get the user properties of a message."""
     rs = await dump()
     try:
-        return rs['properties']['by_user'][str(msg.author.id)]
+        return rs['properties']['by_user'][msg.author.id]
     except (KeyError, AttributeError):
-        rs['properties']['by_user'][str(msg.author.id)] = {}
+        rs['properties']['by_user'][msg.author.id] = {}
         await write(rs)
         return {}
 
@@ -95,9 +99,9 @@ async def get_props_c(msg):
     """Get the channel properties of a message."""
     rs = await dump()
     try:
-        return rs['properties']['by_channel'][str(msg.channel.id)]
+        return rs['properties']['by_channel'][msg.server.id +':'+ msg.channel.id]
     except (KeyError, AttributeError):
-        rs['properties']['by_channel'][str(msg.channel.id)] = {}
+        rs['properties']['by_channel'][msg.server.id +':'+ msg.channel.id] = {}
         await write(rs)
         return {}
 
@@ -115,8 +119,14 @@ async def get_prop(msg, prop: str):
                 thing = await get_props_s(msg)
                 return thing[prop]
             except (KeyError, AttributeError):
-                rs = await dump()
-                return rs['properties']['global'][prop]
+                try:
+                    rs = await dump()
+                    return rs['properties']['global'][prop]
+                except (KeyError, AttributeError):
+                    if prop.startswith('profile_'):
+                        return rs['properties']['global']['profile']
+                    else:
+                        raise KeyError(str)
 
 async def get_cmdfix(msg):
     """Easy method to retrieve the command prefix in current scope."""
@@ -131,11 +141,11 @@ async def set_prop(msg, scope: str, prop: str, content):
         raise CommandInvokeError(AttributeError('Invalid scope specified. Valid scopes are by_user, by_channel, by_server, and global.'))
     else:
         if scope == 'by_user':
-            t_scope[str(msg.author.id)][prop] = content
+            t_scope[msg.author.id][prop] = content
         elif scope == 'by_channel':
-            t_scope[str(msg.channel.id)][prop] = content
+            t_scope[msg.channel.id][prop] = content
         elif scope == 'by_server':
-            t_scope[str(msg.server.id)][prop] = content
+            t_scope[msg.server.id][prop] = content
         elif scope == 'global':
             t_scope[prop] = content
         else:

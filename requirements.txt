@@ -1,4 +1,3 @@
 aiohttp
-websockets
 discord.py[voice]
 cleverbot
