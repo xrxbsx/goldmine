@@ -68,7 +68,7 @@ If you need any help, contact an admin, moderator, or helper with your :question
 Remember to use the custom emotes: {2} for extra fun! You can access my help with {3}help.
 '''
     await bot.send_message(member.server, fmt.format(member, member.server,
-                                                     ' '.join([':'+i+':' for i in cemotes]), cmdfix))
+                                                     ' '.join([str(i) for i in cemotes]), cmdfix))
 
 @bot.event
 async def on_member_remove(member: discord.Member):
@@ -95,7 +95,7 @@ async def lmgtfy(*args):
 async def emotes(ctx):
     """Lists all the current custom emoji on this server.
     Syntax: emotes"""
-    await bot.say(' '.join([':'+i.name+':' for i in ctx.message.author.server.emojis]))
+    await bot.say(' '.join([str(i) for i in ctx.message.author.server.emojis]))
 
 def runbot(loop):
     """Start the bot and handle Ctrl-C."""

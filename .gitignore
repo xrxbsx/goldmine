@@ -100,3 +100,6 @@ btoken.py
 
 # IntelliJ Idea
 .idea
+
+# Private bot resources
+storage.json

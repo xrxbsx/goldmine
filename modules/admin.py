@@ -143,18 +143,23 @@ class Admin(Cog):
     async def setprop(self, ctx, pname: str, value: str):
         """Set the value of a property on server level.
         Syntax: setprop [property name] [value]"""
-        await echeck_perms(ctx, ['bot_admin'])
-        rstore = await store.dump()
-        rstore['properties']['by_server'][str(ctx.message.server.id)][pname] = value
-        await store.write(rstore)
+        await echeck_perms(ctx, ['server_admin'])
+        await store.set_prop(ctx.message, 'by_server', pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
 
+    @commands.command(pass_context=True, aliases=['usersetprop', 'psetprop'])
+    async def usetprop(self, ctx, pname: str, value: str):
+        """Set the value of a property on user level.
+        Syntax: setprop [property name] [value]"""
+        await store.set_prop(ctx.message, 'by_user', pname, value)
+        await self.bot.say('Successfully set `{0}` as `{1}` for {2.mention}!'.format(pname, value, ctx.message.author))
+
     @commands.command(pass_context=True, aliases=['rsetprop'])
-    async def rawsetprop(self, ctx, pname: str, value: str):
+    async def rawsetprop(self, ctx, scope: str, pname: str, value: str):
         """Set the value of a property on any level.
         Syntax: rawsetprop [scope] [property name] [value]"""
         await echeck_perms(ctx, ['bot_admin'])
-        rstore = await store.dump()
-        rstore['properties']['by_server'][str(ctx.message.server.id)][pname] = value
-        await store.write(rstore)
+        await store.set_prop(ctx.message, scope, pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
+
+#    @commands.command(pass_context=True, )

@@ -2,9 +2,10 @@
 import os
 import json
 from properties import command_prefix as cmdfix
+from discord.ext.commands import CommandInvokeError
 
 orig_store = {
-    'version': 2,
+    'version': 3,
     'date_format': '{0}/{1}/{2}',
     'quote_format': '**#{0}**: *"{1}"* \u2014 `{2}` [{3}]',
     'quotes': [
@@ -29,7 +30,17 @@ orig_store = {
             'author_ids': ['000000000000000000'],
             'date': [5, 31, 1898]
         }
-    ]
+    ],
+    'properties': {
+        'global': {
+            'bot_name': 'Goldmine',
+            'command_prefix': '!',
+            'set_nick_to_name': True
+        },
+        'by_user': {},
+        'by_channel': {},
+        'by_server': {}
+    }
 }
 
 async def dump():
@@ -70,7 +81,7 @@ async def get_props_s(msg):
         await write(rs)
         return {}
 
-async def get_props_p(msg):
+async def get_props_u(msg):
     """Get the user properties of a message."""
     rs = await dump()
     try:
@@ -80,19 +91,54 @@ async def get_props_p(msg):
         await write(rs)
         return {}
 
+async def get_props_c(msg):
+    """Get the channel properties of a message."""
+    rs = await dump()
+    try:
+        return rs['properties']['by_channel'][str(msg.channel.id)]
+    except (KeyError, AttributeError):
+        rs['properties']['by_channel'][str(msg.channel.id)] = {}
+        await write(rs)
+        return {}
+
 async def get_prop(msg, prop: str):
     """Get the final property referenced in msg's scope."""
-    try:
-        thing = await get_props_p(msg)
+    try: # User
+        thing = await get_props_u(msg)
         return thing[prop]
     except (KeyError, AttributeError):
-        try:
-            thing = await get_props_s(msg)
+        try: # Channel
+            thing = await get_props_c(msg)
             return thing[prop]
         except (KeyError, AttributeError):
-            rs = await dump()
-            return rs['properties']['global'][prop]
+            try: # Server
+                thing = await get_props_s(msg)
+                return thing[prop]
+            except (KeyError, AttributeError):
+                rs = await dump()
+                return rs['properties']['global'][prop]
 
 async def get_cmdfix(msg):
     """Easy method to retrieve the command prefix in current scope."""
     return await get_prop(msg, 'command_prefix')
+
+async def set_prop(msg, scope: str, prop: str, content):
+    """Set a property... absolutely."""
+    rstore = await dump()
+    try:
+        t_scope = rstore['properties'][scope]
+    except (KeyError, AttributeError):
+        raise CommandInvokeError(AttributeError('Invalid scope specified. Valid scopes are by_user, by_channel, by_server, and global.'))
+    else:
+        if scope == 'by_user':
+            t_scope[str(msg.author.id)][prop] = content
+        elif scope == 'by_channel':
+            t_scope[str(msg.channel.id)][prop] = content
+        elif scope == 'by_server':
+            t_scope[str(msg.server.id)][prop] = content
+        elif scope == 'global':
+            t_scope[prop] = content
+        else:
+            raise CommandInvokeError(AttributeError('Invalid scope specified. Valid scopes are by_user, by_channel, by_server, and global.'))
+        rstore['properties'][scope] = t_scope
+        await write(rstore)

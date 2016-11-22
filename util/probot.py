@@ -6,20 +6,16 @@ from discord.ext.commands.bot import Context, StringView, CommandError, CommandN
 from cleverbot import Cleverbot
 from properties import bot_name as bname
 from util.perms import CommandPermissionError
-from util.datastore import get_cmdfix, get_prop
+from util.datastore import get_cmdfix, get_prop, set_prop
 
 class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
 
     auto_convo_starters = [
-        'do',
-        'oh',
-        'are',
-        'you',
-        'u',
-        'ur',
-        'ready',
-        'begin',
+        'do', 'oh',
+        'are', 'you',
+        'u', 'ur',
+        'ready', 'begin',
         'lets',
         'go',
         'p',
@@ -52,6 +48,11 @@ class ProBot(commands.Bot):
         'why',
         'd'
     ]
+    cnf_fmt = '{0.mention} The command you tried to execute, `{2}{1}`, does not exist. Type `{2}help` for help.'
+    npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a channel.'
+    ccd_fmt = '{0.mention} Sorry, the `{2}{1}` command is currently disabled. Try again later!'
+    cpe_fmt = '{0.mention} Sorry, you don\'t have **permission** to execute `{2}{1}`!'
+    ece_fmt = '{0.mention} Hey, we don\'t have empty commands here! Try `{2}help` instead of `{2}` for help.'
 
     def __init__(self, **kwargs):
         self.cb = Cleverbot()
@@ -70,22 +71,18 @@ class ProBot(commands.Bot):
 
     async def on_command_error(self, exp, ctx):
         cmdfix = await get_cmdfix(ctx.message)
-        cnf_fmt = '{0.mention} The command you tried to execute, `{2}{1}`, does not exist. Type `{2}help` for help.'
-        npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a channel.'
-        ccd_fmt = '{0.mention} Sorry, the `{2}{1}` command is currently disabled. Try again later!'
-        cpe_fmt = '{0.mention} Sorry, you don\'t have **permission** to execute `{2}{1}`!'
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
         print(type(exp))
         if isinstance(exp, commands.CommandNotFound):
-            await self.send_message(ctx.message.channel, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            await self.send_message(ctx.message.channel, self.cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.NoPrivateMessage):
-            await self.send_message(ctx.message.channel, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            await self.send_message(ctx.message.channel, self.npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.DisabledCommand):
-            await self.send_message(ctx.message.channel, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            await self.send_message(ctx.message.channel, self.ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandInvokeError):
             if str(exp).startswith('Command raised an exception: CommandPermissionError: '):
-                await self.send_message(ctx.message.channel, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
+                await self.send_message(ctx.message.channel, self.cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
         else:
@@ -124,14 +121,21 @@ class ProBot(commands.Bot):
             if not msg.author.bot:
                 if not msg.channel.is_private:
                     int_name = await get_prop(msg, 'bot_name')
+                    prof = await get_prop(msg, 'profile')
                     if msg.server.me.display_name != int_name:
                         await self.change_nickname(msg.server.me, int_name)
+                    prof['exp'] += 1
+                    prof['total_exp'] += 1
+                    await set_prop(msg, 'by_user', 'profile', prof)
                 if myself in msg.mentions:
                     await self.auto_cb_convo(msg, self.user.mention)
                 elif msg.channel.is_private:
-                    if msg.content.startswith(cmdfix):
+                    if msg.content.split('\n')[0] == cmdfix:
                         await self.send_typing(msg.channel)
-                        await self.process_commands(msg)
+                        await self.send_message(msg.channel, self.ece_fmt.format(msg.author, '', cmdfix))
+                    elif msg.content.startswith(cmdfix):
+                        await self.send_typing(msg.channel)
+                        await self.process_commands(msg, cmdfix)
                     else:
                         await self.send_typing(msg.channel)
                         cb_reply = await self.askcb(msg.content)
@@ -148,11 +152,14 @@ class ProBot(commands.Bot):
                         elif nmsg.startswith('... '):
                             await self.auto_cb_convo(msg, bname.lower() + '... ')
                 else:
-                    if msg.content.startswith(cmdfix):
+                    if msg.content.split('\n')[0] == cmdfix:
                         await self.send_typing(msg.channel)
-                        await self.process_commands(msg)
+                        await self.send_message(msg.channel, self.ece_fmt.format(msg.author, '', cmdfix))
+                    elif msg.content.startswith(cmdfix):
+                        await self.send_typing(msg.channel)
+                        await self.process_commands(msg, cmdfix)
 
-    async def process_commands(self, message):
+    async def process_commands(self, message, prefix):
         """|coro|
         This function processes the commands that have been registered
         to the bot and other groups. Without this coroutine, none of the
@@ -170,46 +177,31 @@ class ProBot(commands.Bot):
         -----------
         message : discord.Message
             The message to process commands for.
+        prefix : str
+            Command prefix to use in context.
         """
-        _internal_channel = message.channel
-        _internal_author = message.author
-
         view = StringView(message.content)
-        if self._skip_check(message.author, self.user):
-            return
-
-        prefix = await self._get_prefix(message)
-        invoked_prefix = prefix
-
-        if not isinstance(prefix, (tuple, list)):
-            if not view.skip_string(prefix):
-                return
-        else:
-            invoked_prefix = discord.utils.find(view.skip_string, prefix)
-            if invoked_prefix is None:
-                return
-
-        # invoker = command name
-        invoker = view.get_word()
+        view.skip_string(prefix)
+        cmd = view.get_word()
         tmp = {
             'bot': self,
-            'invoked_with': invoker,
+            'invoked_with': cmd,
             'message': message,
             'view': view,
-            'prefix': invoked_prefix
+            'prefix': prefix
         }
         ctx = Context(**tmp)
         del tmp
 
-        if invoker in self.commands:
-            command = self.commands[invoker]
+        if cmd in self.commands:
+            command = self.commands[cmd]
             self.dispatch('command', command, ctx)
             try:
                 await command.invoke(ctx)
-            except CommandError as e:
-                ctx.command.dispatch_error(e, ctx)
+            except CommandError as exp:
+                ctx.command.dispatch_error(exp, ctx)
             else:
                 self.dispatch('command_completion', command, ctx)
-        elif invoker:
-            exc = CommandNotFound('Command "{}" is not found'.format(invoker))
+        else:
+            exc = CommandNotFound('Command "{}" is not found'.format(cmd))
             self.dispatch('command_error', exc, ctx)

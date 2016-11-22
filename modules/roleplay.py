@@ -11,7 +11,6 @@ import util.datastore as store
 import util.quote as quote
 from util.perms import check_perms
 from properties import bot_name
-from properties import command_prefix as cmdfix
 
 from .cog import Cog
 
@@ -88,6 +87,9 @@ class Roleplay(Cog):
         '{0} is in shock.',
         '{0} passes out.'
     ]
+    weird_faces = [
+        "'~~~__***=***__~~~'"
+    ]
 
     def __init__(self, bot, cmdfix, bname):
         self.cb = Cleverbot()
@@ -105,6 +107,7 @@ class Roleplay(Cog):
     async def slap(self, ctx, target: str):
         """Slaps someone like a boss, for the win.
         Syntax: slap [person]"""
+        cmdfix = await store.get_cmdfix(ctx.message.content)
         keystr = '* ' + ctx.message.content.split(' ')[0].strip(cmdfix) + 's *'
         await self.bot.say('*' + ctx.message.author.display_name + keystr +
                            target + '* **' + random.choice(self.adjs) + '**.')
@@ -121,7 +124,9 @@ class Roleplay(Cog):
     async def charlie(self, *args):
         """Ask a question... Charlie Charlie are you there?
         Syntax: charlie [question to ask, without punctuation]"""
-        await self.bot.say('*Charlie Charlie* ' + ' '.join(args) + "?\n**" +
+        istr = ' '.join(args)
+        aq = '' if istr.endswith('?') else '?'
+        await self.bot.say('*Charlie Charlie* ' + istr + aq + "\n**" +
                            random.choice(['Yes', 'No']) + '**')
 
     @commands.command(pass_context=True)
@@ -253,7 +258,8 @@ class Roleplay(Cog):
         rstore = await store.dump()
         q_target = rstore['quotes'][qindex - 1]
         mauthor = ctx.message.author
-        if (mauthor.id == q_target['author_ids'][0]) or (check_perms(ctx, ['bot_owner'])):
+        _pcheck = await check_perms(ctx, ['bot_owner'])
+        if (mauthor.id == q_target['author_ids'][0]) or (_pcheck):
             rstore = await store.dump() # keep store as fresh as possible
             del rstore['quotes'][qindex - 1]
             await store.write(rstore)
@@ -267,3 +273,9 @@ class Roleplay(Cog):
         Syntax: soon"""
         with open('assets/soon.gif', 'rb') as image:
             await self.bot.send_file(ctx.message.channel, image, filename='soon.gif')
+
+    @commands.command(aliases=['wface', 'weirdface', 'weird', 'weird_face'])
+    async def face(self):
+        """Give you a random face. Because really, why not?
+        Syntax: face"""
+        await self.bot.say(random.choice(self.weird_faces))
