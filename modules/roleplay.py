@@ -10,7 +10,6 @@ from discord.ext import commands
 import util.datastore as store
 import util.quote as quote
 from util.perms import check_perms
-from properties import bot_name
 
 from .cog import Cog
 
@@ -91,9 +90,9 @@ class Roleplay(Cog):
         "'~~~__***=***__~~~'"
     ]
 
-    def __init__(self, bot, cmdfix, bname):
+    def __init__(self, bot):
         self.cb = Cleverbot()
-        super().__init__(bot, cmdfix, bname)
+        super().__init__(bot)
 
     async def rand_member(self, ctx):
         """Choose a random member from the message's server."""
@@ -213,10 +212,11 @@ class Roleplay(Cog):
         """Adds a quote to the quote store.dump
         Syntax: quoteadd [text here]"""
         fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
+        bname = await store.get_prop(ctx.message, 'bot_name')
         q_template = {
             'id': 0,
             'quote': 'The bot has encountered an internal error.',
-            'author': bot_name,
+            'author': bname,
             'author_ids': [self.bot.user.id],
             'date': fmt_time
         }

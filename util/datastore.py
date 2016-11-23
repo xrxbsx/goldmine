@@ -1,7 +1,6 @@
 """Functions for handling the Data Store."""
 import os
 import json
-from properties import command_prefix as cmdfix
 from discord.ext.commands import CommandInvokeError
 
 orig_store = {

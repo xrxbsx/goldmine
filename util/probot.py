@@ -1,11 +1,10 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
 import asyncio
-from math import floor
+import discord
 import discord.ext.commands as commands
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
 from cleverbot import Cleverbot
-from properties import bot_name as bname
-from util.datastore import get_cmdfix, get_prop, set_prop, write, dump
+from util.datastore import get_cmdfix, get_prop, set_prop
 import util.ranks as rank
 
 class ProBot(commands.Bot):
@@ -19,18 +18,9 @@ class ProBot(commands.Bot):
         'lets',
         'go',
         'p',
-        'can',
-        'could',
-        'would',
-        'will',
-        'hi',
-        'hello',
-        'hey',
-        'heya',
-        'hoi',
-        'what',
-        'wot',
-        'wut',
+        'c',
+        'h',
+        'w',
         'shut',
         'watch',
         'behave',
@@ -44,22 +34,46 @@ class ProBot(commands.Bot):
         'uh',
         'y',
         'tell',
-        'gre',
         'why',
-        'd'
+        'd',
+        'g'
+    ]
+    q_replies = [
+        'What is the answer then.',
+        'Why.',
+        'Yes or no.',
+        'You tell me.',
+        'Erare humanum est.',
+        'Hi.',
+        'Hello.'
     ]
     cnf_fmt = '{0.mention} The command you tried to execute, `{2}{1}`, does not exist. Type `{2}help` for help.'
     npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a channel.'
     ccd_fmt = '{0.mention} Sorry, the `{2}{1}` command is currently disabled. Try again later!'
-    cpe_fmt = '{0.mention} Sorry, you don\'t have **permission** to execute `{2}{1}`!'
+    cpe_fmt = '{0.mention} Sorry, you don\'t have enough **permissions** to execute `{2}{1}`!'
     ece_fmt = '{0.mention} Hey, we don\'t have empty commands here! Try `{2}help` instead of `{2}` for help.'
 
     def __init__(self, **kwargs):
         self.cb = Cleverbot()
-        super().__init__(**kwargs)
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
         self.auto_convos = []
+        self.game = {
+            'name': 'Dragon Essence',
+            'type': 1,
+            'url': 'https://www.twitch.tv/dragon5232'
+        }
+        self.status = 'dnd'
+        self.presence = {}
+        super().__init__(**kwargs)
+
+    async def update_presence(self):
+        """Generate an updated presence and change it."""
+        self.presence = {
+            'game': discord.Game(**self.game),
+            'status': discord.Status(self.status)
+        }
+        await self.change_presence(**self.presence)
 
     async def sctx(self, ctx, msg):
         """Send a message to the context's message origin.'"""
@@ -82,7 +96,7 @@ class ProBot(commands.Bot):
         elif isinstance(exp, commands.DisabledCommand):
             await self.send_message(ctx.message.channel, self.ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandInvokeError):
-            if str(exp).startswith('Command raised an exception: CommandPermissionError: '):
+            if str(exp).startswith('Command raised an exception: CommandPermissionError: ' + cmdfix):
                 await self.send_message(ctx.message.channel, self.cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
@@ -96,10 +110,12 @@ class ProBot(commands.Bot):
                 return True
         return False
 
-    def bdel(self, s, r): return s[len(r):]
+    @staticmethod
+    def bdel(s, r): return s[len(r):]
 
     async def auto_cb_convo(self, msg, kickstart):
         """The auto conversation manager."""
+        if self.status == 'invisible': return
         absid = msg.server.id + msg.channel.id + msg.author.id
         if absid not in self.auto_convos:
             await self.send_typing(msg.channel)
@@ -108,15 +124,21 @@ class ProBot(commands.Bot):
             reply = lmsg
             reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' '))
             await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
-            while await self.casein('?', [reply_bot, reply]):
+            while (await self.casein('?', [reply_bot, reply])) or (reply_bot in self.q_replies):
                 rep = await self.wait_for_message(author=msg.author)
                 reply = rep.content
                 reply_bot = await self.askcb(reply)
                 await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
             self.auto_convos.remove(absid)
 
+    async def on_ready(self):
+        """On_ready event for when the bot logs into Discord."""
+        print('Bot has logged into Discord, ID ' + self.user.id)
+        await self.update_presence()
+
     async def on_message(self, msg):
         cmdfix = await get_cmdfix(msg)
+        bname = await get_prop(msg, 'bot_name')
         try:
             myself = msg.server.me
         except AttributeError:
@@ -130,13 +152,18 @@ class ProBot(commands.Bot):
                     if not msg.content.startswith(cmdfix):
                         prof_name = 'profile_' + msg.server.id
                         prof = await get_prop(msg, prof_name)
-                        prof['exp'] += 1
+                        prof['exp'] += 2
                         new_level = rank.xp_level(prof['exp'])[0]
                         if new_level > prof['level']:
                             await self.send_message(msg.channel, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
                         await set_prop(msg, 'by_user', prof_name, prof)
-                if myself in msg.mentions:
+                if self.status == 'invisible':
+                    if msg.content.lower().startswith(cmdfix + 'resume'):
+                        self.status = 'dnd'
+                        await self.update_presence()
+                        await self.send_message(msg.channel, 'Successfully **resumed** the bot\'s command and conversation processing!')
+                elif myself in msg.mentions:
                     await self.auto_cb_convo(msg, self.user.mention)
                 elif msg.channel.is_private:
                     if msg.content.split('\n')[0] == cmdfix:
@@ -168,6 +195,11 @@ class ProBot(commands.Bot):
                         await self.send_typing(msg.channel)
                         await self.sprocess_commands(msg, cmdfix)
 
+    async def suspend(self):
+        """Suspend the bot."""
+        self.status = 'invisible'
+        await self.update_presence()
+
     async def sprocess_commands(self, message, prefix):
         """|coro|
         This function processes the commands that have been registered
@@ -189,6 +221,9 @@ class ProBot(commands.Bot):
         prefix : str
             Command prefix to use in context.
         """
+        if self.status == 'invisible': return
+        _internal_channel = message.channel
+        _internal_author = message.author
         view = StringView(message.content)
         view.skip_string(prefix)
         cmd = view.get_word()
@@ -203,7 +238,7 @@ class ProBot(commands.Bot):
         del tmp
 
         if cmd in self.commands:
-            command = self.commands[cmd]
+            command = self.commands[cmd.lower()]
             self.dispatch('command', command, ctx)
             try:
                 await command.invoke(ctx)
@@ -214,3 +249,17 @@ class ProBot(commands.Bot):
         else:
             exc = CommandNotFound('Command "{}" is not found'.format(cmd))
             self.dispatch('command_error', exc, ctx)
+
+    async def send_typing(self, destination):
+        """|coro|
+        Send a *typing* status to the destination.
+        *Typing* status will go away after 10 seconds, or after a message is sent.
+        The destination parameter follows the same rules as :meth:`send_message`.
+        Parameters
+        ----------
+        destination
+            The location to send the typing update.
+        """
+        if self.status == 'invisible': return
+        channel_id, guild_id = await self._resolve_destination(destination)
+        await self.http.send_typing(channel_id)

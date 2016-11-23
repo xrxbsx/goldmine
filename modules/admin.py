@@ -17,15 +17,11 @@ class Admin(Cog):
         """Checks if author of a message is this bot."""
         return mem.author == self.bot.user
 
-    async def perm_err(self, ctx):
-        """Returns a permission error in the chat."""
-        await self.bot.say(ctx.message.author.mention + ' You don\'t have enough **permissions** to execute that command!')
-
     @commands.command(pass_context=True)
     async def purge(self, ctx):
         """Removes all of this bot's messages on a channel.
         Syntax: purge"""
-        await echeck_perms(ctx, ['bot_admin'])
+        await echeck_perms(ctx, ['server_admin'])
         deleted = await self.bot.purge_from(ctx.message.channel, limit=500, check=self.is_me)
         await self.bot.send_message(ctx.message.channel, 'Deleted {} message(s)'.format(len(deleted)))
 
@@ -33,7 +29,7 @@ class Admin(Cog):
     async def nuke(self, ctx):
         """NUKES a channel by deleting all messages!
         Syntax: nuke"""
-        await echeck_perms(ctx, ['bot_admin'])
+        await echeck_perms(ctx, ['server_admin'])
         deleted = await self.bot.purge_from(ctx.message.channel, limit=1300)
         await self.bot.send_message(ctx.message.channel, 'Deleted {} message(s)'.format(len(deleted)))
 
@@ -58,7 +54,7 @@ class Admin(Cog):
             await self.bot.say('Bot was already up-to-date, not restarting.')
         else:
             await self.bot.say('Bot was able to update, now restarting.')
-            await self.bot.commands['restart'].invoke(ctx)
+            await self.restart.invoke(ctx)
 
     @commands.command(pass_context=True)
     async def restart(self, ctx):
@@ -72,7 +68,7 @@ class Admin(Cog):
         self.bot.is_restart = True
         self.loop.stop()
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, hidden=True)
     async def eref(self, ctx, *rawtxt: str):
         """Evaluate an object in command scope.
         Syntax: eref [string to reference]"""
@@ -161,5 +157,13 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_admin'])
         await store.set_prop(ctx.message, scope, pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
+
+    @commands.command(pass_context=True)
+    async def suspend(self, ctx):
+        """Temporarily suspend the bot's command and conversation features.
+        Syntax: suspend'"""
+        await echeck_perms(ctx, ['bot_owner'])
+        await self.bot.suspend()
+        await self.bot.say('Successfully **suspended** the bot\'s command and conversation processing!')
 
 #    @commands.command(pass_context=True, )

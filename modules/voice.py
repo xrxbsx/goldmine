@@ -97,9 +97,9 @@ class Voice(Cog):
     """Voice related commands.
     Works in multiple servers at once.
     """
-    def __init__(self, bot, cmdfix, bname):
+    def __init__(self, bot):
         self.voice_states = {}
-        super().__init__(bot, cmdfix, bname)
+        super().__init__(bot)
 
     def get_voice_state(self, server):
         """Get the current VoiceState object."""
@@ -209,7 +209,7 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=True)
     async def resume(self, ctx):
-        """Resumes the currently played song.
+        """Resumes the current song OR resume suspended bot features.
         Syntax: resume"""
         state = self.get_voice_state(ctx.message.server)
         if state.is_playing():

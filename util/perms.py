@@ -1,4 +1,5 @@
 """Permission handling code."""
+import asyncio
 from properties import bot_owner
 import util.datastore as store
 from discord.ext.commands import CommandError
@@ -25,14 +26,18 @@ async def check_perms(ctx, perms_required):
             sowner_name = sender_name
     for i in perms_required:
         if i == 'bot_owner':
-            if sender_name == bot_owner:
-                perms_satisfied += 1
+            pass
         if i == 'server_owner':
             if sender_name == sowner_name:
                 perms_satisfied += 1
         if i == 'bot_admin':
             if (sender_name in rstore['bot_admins']) or (sender_name == bot_owner):
                 perms_satisfied += 1
+        if i == 'server_admin':
+            if sender.server_permissions.manage_server:
+                perms_satisfied += 1
+    if sender_name == bot_owner:
+        return True
     return bool(perms_required.__len__() == perms_satisfied)
 
 async def echeck_perms(ctx, perms_required):
