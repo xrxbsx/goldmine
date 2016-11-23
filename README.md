@@ -24,6 +24,7 @@ Just click this link: [Click to add GOLDMINE and CO. to your server](https://dis
 You might want to set the command prefix and/or bot name for your server. To do so, simply make sure you're a server admin (Manage Server permission), and type: 
  - `!setprop bot_name MyAwesomeBot` for bot name, replacing **MyAwesomeBot** with your desired name.
  - `!setprop command_prefix $` for command prefix, replacing **$** with your desired prefix.
+
 ###Manual (Private Instance)
 ####This method is more reliable, but harder to set up.
 Simply run `python3 -m pip install -U -r requirements.txt` to install all the dependencies of this bot.
