@@ -116,7 +116,7 @@ class ProBot(commands.Bot):
     async def auto_cb_convo(self, msg, kickstart):
         """The auto conversation manager."""
         if self.status == 'invisible': return
-        absid = msg.server.id + msg.channel.id + msg.author.id
+        absid = msg.server.id + ':' + msg.channel.id + ':' + msg.author.id
         if absid not in self.auto_convos:
             await self.send_typing(msg.channel)
             self.auto_convos.append(absid)

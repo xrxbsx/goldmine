@@ -47,6 +47,7 @@ class Utility(Cog):
         avatar_link = (au if au else target.default_avatar_url)
         d_name = target.display_name
         t_roles = target.roles
+        t_game = target.game
         try:
             t_roles.remove(target.server.default_role)
         except ValueError:
@@ -61,4 +62,5 @@ class Utility(Cog):
         r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt), inline=True)
         r_embed.add_field(name='Roles', value=', '.join([str(i) for i in t_roles]), inline=True)
         r_embed.add_field(name='Status', value=status_map[str(target.status)])
+        r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing!'))
         await self.bot.send_message(ctx.message.channel, embed=r_embed)

@@ -63,9 +63,10 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_admin'])
 #        for i in self.bot.servers:
 #            await self.bot.send_message(i.default_channel, 'This bot (' + self.bname + ') is now restarting!')
-        await self.bot.say('This bot (' + self.bname + ') is now restarting!')
+        await self.bot.say('This bot is now restarting! Hopefully I come back alive :)')
         print('This bot is now restarting!')
         self.bot.is_restart = True
+        await self.bot.logout()
         self.loop.stop()
 
     @commands.command(pass_context=True, hidden=True)

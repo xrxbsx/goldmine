@@ -377,3 +377,10 @@ class Voice(Cog):
             entry = VoiceEntry(ctx.message, player)
             await self.bot.say('Enqueued ' + str(entry))
             await state.songs.put(entry)
+
+    @commands.command(pass_context=True)
+    async def dump_voice(self, ctx):
+        state = self.get_voice_state(ctx.message.server)
+        v1 = await state.voice.poll_voice_ws()
+        print(type(v1))
+        print(str(v1))
