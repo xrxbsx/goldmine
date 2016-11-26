@@ -7,6 +7,13 @@ from cleverbot import Cleverbot
 from util.datastore import get_cmdfix, get_prop, set_prop
 import util.ranks as rank
 
+class CleverQuery():
+    def __init__(self, channel_to, query, prefix, suffix):
+        self.destination = channel_to
+        self.prefix = prefix
+        self.suffix = suffix
+        self.query = query
+
 class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
 
@@ -66,7 +73,26 @@ class ProBot(commands.Bot):
         self.status = 'dnd'
         self.presence = {}
         self.cb_free = True
+        self.main_cb_queue = asyncio.Queue() # For cleverbot
+        self.alt_cb_queue = asyncio.Queue() # For cleverbutts
+        self.main_cb_executor = self.loop.create_task(self.cb_task(self.main_cb_queue))
+        self.alt_cb_executor = self.loop.create_task(self.cb_task(self.alt_cb_queue))
         super().__init__(**kwargs)
+
+    async def cb_task(self, queue):
+        """Handle the answering of all Cleverbot queries."""
+        while True:
+            queue.clear()
+            current = await queue.get()
+            cb_args = [
+                current.destination,
+                current.query,
+                current.prefix,
+                current.suffix,
+                queue
+            ]
+            await self.cb_ask(*cb_args)
+            await queue.wait()
 
     async def update_presence(self):
         """Generate an updated presence and change it."""
@@ -80,6 +106,12 @@ class ProBot(commands.Bot):
         """Send a message to the context's message origin.'"""
         self.send_message(ctx.message.channel, msg)
 
+    async def cb_ask(self, dest, query, prefix, suffix, queue):
+        blocking_cb = self.loop.run_in_executor(None, self.cb.ask, query)
+        reply_bot = await blocking_cb
+        await self.send_message(dest, prefix + query + suffix)
+        await asyncio.sleep(2)
+        queue.set()
     async def askcb(self, query):
         """A method of querying Cleverbot safe for async."""
         blocking_cb = self.loop.run_in_executor(None, self.cb.ask, query)
@@ -123,13 +155,17 @@ class ProBot(commands.Bot):
             self.auto_convos.append(absid)
             lmsg = msg.content.lower()
             reply = lmsg
-            reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' '))
-            await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
+            reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' ')) #ORIG
+            await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot) #ORIG
+#            cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
+#            await self.main_cb_queue.put(cb_query) #NEW
             while (await self.casein('?', [reply_bot, reply])) or (reply_bot in self.q_replies):
                 rep = await self.wait_for_message(author=msg.author)
                 reply = rep.content
-                reply_bot = await self.askcb(reply)
-                await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot)
+#                cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
+#                await self.main_cb_queue.put(cb_query) #NEW
+                reply_bot = await self.askcb(reply) #ORIG
+                await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot) #ORIG
             self.auto_convos.remove(absid)
 
     async def on_ready(self):
@@ -149,11 +185,7 @@ class ProBot(commands.Bot):
                 if str(msg.channel) == 'cleverbutts':
                     if self.cb_free:
                         await self.send_typing(msg.channel)
-                        reply_bot = await self.askcb(self.bdel(msg.content, ''))
-                        await self.send_message(msg.channel, reply_bot)
-                        self.cb_free = False
-                        await asyncio.sleep(2)
-                        self.cb_free = True
+                        await self.alt_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
             else:
                 if not msg.channel.is_private:
                     int_name = await get_prop(msg, 'bot_name')
