@@ -182,6 +182,7 @@ class ProBot(commands.Bot):
         if msg.author.id != myself.id:
             if msg.author.bot:
                 if str(msg.channel) == 'cleverbutts':
+                    if self.status == 'invisible': return
                     await self.send_typing(msg.channel)
                     await self.alt_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
             else:
