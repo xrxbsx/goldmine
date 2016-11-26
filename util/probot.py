@@ -184,7 +184,7 @@ class ProBot(commands.Bot):
                 if str(msg.channel) == 'cleverbutts':
                     if self.status == 'invisible': return
                     await self.send_typing(msg.channel)
-                    await self.alt_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
+                    await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
             else:
                 if not msg.channel.is_private:
                     int_name = await get_prop(msg, 'bot_name')
