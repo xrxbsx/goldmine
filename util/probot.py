@@ -205,7 +205,7 @@ class ProBot(commands.Bot):
                         await self.send_typing(msg.channel)
                         await self.sprocess_commands(msg, cmdfix)
         else:
-            if msg.content == 'CLEVERBUTTS #Kickstart CB-AI1':
+            if msg.content == 'cleverbutts kickstart main':
                 if str(msg.channel) == 'cleverbutts':
                     await self.send_message(msg.channel, 'Hi, how are you doing?')
 
