@@ -150,9 +150,6 @@ class ProBot(commands.Bot):
                     await self.send_message(msg.channel, reply_bot)
             else:
                 if not msg.channel.is_private:
-                    if msg.content == 'CLEVERBUTTS #Kickstart CB-AI1':
-                        if str(msg.channel) == 'cleverbutts':
-                            await self.send_message(msg.channel, 'Hi, how are you doing?')
                     int_name = await get_prop(msg, 'bot_name')
                     if msg.server.me.display_name != int_name:
                         await self.change_nickname(msg.server.me, int_name)
@@ -201,6 +198,10 @@ class ProBot(commands.Bot):
                     elif msg.content.startswith(cmdfix):
                         await self.send_typing(msg.channel)
                         await self.sprocess_commands(msg, cmdfix)
+        else:
+            if msg.content == 'CLEVERBUTTS #Kickstart CB-AI1':
+                if str(msg.channel) == 'cleverbutts':
+                    await self.send_message(msg.channel, 'Hi, how are you doing?')
 
     async def suspend(self):
         """Suspend the bot."""
