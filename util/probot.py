@@ -182,6 +182,9 @@ class ProBot(commands.Bot):
         if msg.author.id != myself.id:
             if msg.author.bot:
                 if str(msg.channel) == 'cleverbutts':
+                    if msg.content == 'cleverbutts kickstart main':
+                        await self.send_message(msg.channel, 'Hi, how are you doing?')
+                        return
                     if self.status == 'invisible': return
                     await self.send_typing(msg.channel)
                     #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
@@ -240,9 +243,7 @@ class ProBot(commands.Bot):
                         await self.send_typing(msg.channel)
                         await self.sprocess_commands(msg, cmdfix)
         else:
-            if msg.content == 'cleverbutts kickstart main':
-                if str(msg.channel) == 'cleverbutts':
-                    await self.send_message(msg.channel, 'Hi, how are you doing?')
+            pass
 
     async def suspend(self):
         """Suspend the bot."""
