@@ -72,7 +72,6 @@ class ProBot(commands.Bot):
         }
         self.status = 'dnd'
         self.presence = {}
-        self.cb_free = True
         self.main_cb_queue = asyncio.Queue() # For cleverbot
         self.alt_cb_queue = asyncio.Queue() # For cleverbutts
         self.main_cb_executor = self.loop.create_task(self.cb_task(self.main_cb_queue))
@@ -183,9 +182,8 @@ class ProBot(commands.Bot):
         if msg.author.id != myself.id:
             if msg.author.bot:
                 if str(msg.channel) == 'cleverbutts':
-                    if self.cb_free:
-                        await self.send_typing(msg.channel)
-                        await self.alt_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
+                    await self.send_typing(msg.channel)
+                    await self.alt_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
             else:
                 if not msg.channel.is_private:
                     int_name = await get_prop(msg, 'bot_name')
