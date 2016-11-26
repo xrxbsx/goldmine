@@ -152,7 +152,7 @@ class ProBot(commands.Bot):
                         reply_bot = await self.askcb(self.bdel(msg.content, ''))
                         await self.send_message(msg.channel, reply_bot)
                         self.cb_free = False
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(2)
                         self.cb_free = True
             else:
                 if not msg.channel.is_private:
