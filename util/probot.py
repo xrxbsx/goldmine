@@ -180,11 +180,11 @@ class ProBot(commands.Bot):
         except AttributeError:
             myself = self.user
         if msg.author.id != myself.id:
+            if str(msg.channel) == 'cleverbutts':
+                if msg.content == 'cleverbutts kickstart main':
+                    await self.send_message(msg.channel, 'Hi, how are you doing?')
+                    return
             if msg.author.bot:
-                if str(msg.channel) == 'cleverbutts':
-                    if msg.content == 'cleverbutts kickstart main':
-                        await self.send_message(msg.channel, 'Hi, how are you doing?')
-                        return
                     if self.status == 'invisible': return
                     await self.send_typing(msg.channel)
                     #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
