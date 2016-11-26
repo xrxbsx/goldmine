@@ -65,6 +65,7 @@ class ProBot(commands.Bot):
         }
         self.status = 'dnd'
         self.presence = {}
+        self.cb_free = True
         super().__init__(**kwargs)
 
     async def update_presence(self):
@@ -146,8 +147,13 @@ class ProBot(commands.Bot):
         if msg.author.id != myself.id:
             if msg.author.bot:
                 if str(msg.channel) == 'cleverbutts':
-                    reply_bot = await self.askcb(self.bdel(msg.content, ''))
-                    await self.send_message(msg.channel, reply_bot)
+                    if self.cb_free:
+                        await self.send_typing(msg.channel)
+                        reply_bot = await self.askcb(self.bdel(msg.content, ''))
+                        await self.send_message(msg.channel, reply_bot)
+                        self.cb_free = False
+                        await asyncio.sleep(1)
+                        self.cb_free = True
             else:
                 if not msg.channel.is_private:
                     int_name = await get_prop(msg, 'bot_name')
