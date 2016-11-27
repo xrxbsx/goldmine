@@ -167,6 +167,7 @@ class ProBot(commands.Bot):
 #                await self.main_cb_queue.put(cb_query) #NEW
                 reply_bot = await self.askcb(reply) #ORIG
                 await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot) #ORIG
+                tmp = await self.casein('?', [reply_bot, reply])
             self.auto_convos.remove(absid)
 
     async def on_ready(self):
