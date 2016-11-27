@@ -123,7 +123,7 @@ class ProBot(commands.Bot):
         cmdfix = await get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
-        print(ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
+        print('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.CommandNotFound):
             await self.send_message(ctx.message.channel, self.cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.NoPrivateMessage):
