@@ -301,7 +301,8 @@ class Voice(Cog):
     async def getform(self, session, url, data):
         with async_timeout.timeout(10):
             async with session.post(url, data=data) as response:
-                return await response.text()
+                tmp = await response.text()
+                return tmp
 
     @commands.command(pass_context=True, no_pm=False)
     async def purpleshep(self, ctx, *args):
