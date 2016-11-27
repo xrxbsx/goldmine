@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #cd "$(dirname \"$0\")"
-PYPY_PATH="~/pypy33/bin/pypy3"
+PYPY_PATH="~/pypy33/bin"
 export PATH="$PYPY_PATH:$PATH"
 while true
 do
