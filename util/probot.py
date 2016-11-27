@@ -114,7 +114,8 @@ class ProBot(commands.Bot):
     async def askcb(self, query):
         """A method of querying Cleverbot safe for async."""
         blocking_cb = self.loop.run_in_executor(None, self.cb.ask, query)
-        return await blocking_cb
+        tmp = await blocking_cb
+        return tmp
 
     async def on_command_error(self, exp, ctx):
         cmdfix = await get_cmdfix(ctx.message)

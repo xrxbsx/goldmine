@@ -129,7 +129,8 @@ async def get_prop(msg, prop: str):
 
 async def get_cmdfix(msg):
     """Easy method to retrieve the command prefix in current scope."""
-    return await get_prop(msg, 'command_prefix')
+    tmp = await get_prop(msg, 'command_prefix')
+    return tmp
 
 async def set_prop(msg, scope: str, prop: str, content):
     """Set a property... absolutely."""
