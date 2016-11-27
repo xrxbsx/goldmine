@@ -1,8 +1,10 @@
 #!/bin/bash
 
-cd "$(dirname \"$0\")"
+#cd "$(dirname \"$0\")"
+PYPY_PATH='~/pypy33/bin/pypy3'
 while true
 do
+    sleep 5
     echo "Launching bot"
     $PYPY_PATH goldmine.py
     echo "Clearing changes since last commit"
