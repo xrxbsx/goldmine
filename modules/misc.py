@@ -1,7 +1,7 @@
 """Definition of the bot's Miscellaneous module.'"""
+import asyncio
 from discord.ext import commands
 from .cog import Cog
-
 
 class Misc(Cog):
     """Random commands that can be useful here and there.

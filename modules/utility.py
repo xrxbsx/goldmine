@@ -1,4 +1,5 @@
 """Definition of the bot's Utility module.'"""
+import asyncio
 import discord
 from discord.ext import commands
 from util.safe_math import eval_expr as emath

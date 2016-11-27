@@ -1,4 +1,5 @@
 """Definition of the bot's Cosmetic module.'"""
+import asyncio
 import discord
 from discord.ext import commands
 import util.datastore as store

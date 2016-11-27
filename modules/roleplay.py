@@ -1,4 +1,5 @@
 """Definition of the bot's Roleplay module."""
+import asyncio
 import random
 import time
 import textwrap

@@ -1,4 +1,5 @@
 """Definition of the bot's Luck module.'"""
+import asyncio
 import random
 
 from discord.ext import commands
