@@ -1,3 +1,5 @@
 aiohttp
 discord.py[voice]
 cleverbot
+youtube_dl
+async_timeout
