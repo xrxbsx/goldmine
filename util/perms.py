@@ -42,5 +42,6 @@ async def check_perms(ctx, perms_required):
 
 async def echeck_perms(ctx, perms_required):
     """Easy wrapper for permission checking."""
-    if not await check_perms(ctx, perms_required):
+    tmp = await check_perms(ctx, perms_required)
+    if not tmp:
         raise CommandPermissionError(message=ctx.message.content)

@@ -82,7 +82,8 @@ class Admin(Cog):
     async def admintest(self, ctx):
         """Check to see if you're registered as a bot admin.
         Syntax: admintest'"""
-        if await check_perms(ctx, ['bot_admin']):
+        tmp = await check_perms(ctx, ['bot_admin'])
+        if tmp:
             await self.bot.say(ctx.message.author.mention + ' You are a bot admin! :smiley:')
         else:
             await self.bot.say(ctx.message.author.mention + ' You are not a bot admin! :slight_frown:')
@@ -91,7 +92,8 @@ class Admin(Cog):
     async def addadmin(self, ctx, target: discord.Member):
         """Add a user to the bot admin list.
         Syntax: addadmin [user]"""
-        if await check_perms(ctx, ['bot_admin']):
+        tmp = await check_perms(ctx, ['bot_admin'])
+        if tmp:
             aentry = str(target)
             rstore = await store.dump()
             if aentry not in rstore['bot_admins']:
@@ -107,7 +109,8 @@ class Admin(Cog):
     async def rmadmin(self, ctx, target: discord.Member):
         """Remove a user from the bot admin list.
         Syntax: rmadmin [user]"""
-        if await check_perms(ctx, ['bot_admin']):
+        tmp = await check_perms(ctx, ['bot_admin'])
+        if tmp:
             aentry = str(target)
             rstore = await store.dump()
             try:
