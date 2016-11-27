@@ -1,5 +1,7 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
 import asyncio
+import random
+import math
 import discord
 import discord.ext.commands as commands
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
@@ -181,17 +183,17 @@ class ProBot(commands.Bot):
         except AttributeError:
             myself = self.user
         if msg.author.id != myself.id:
-            if str(msg.channel) == 'cleverbutts':
-                if msg.content == 'cleverbutts kickstart main':
-                    await self.send_message(msg.channel, 'Hi, how are you doing?')
-                    return
             if msg.author.bot:
                 if self.status == 'invisible': return
                 if str(msg.channel) == 'cleverbutts':
+                    await asyncio.sleep((random.random() - 0.2) * 2)
                     await self.send_typing(msg.channel)
                     #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
                     reply_bot = await self.askcb(msg.content)
-                    await asyncio.sleep(2)
+                    s_duration = (((len(reply_bot) / 10) * 1.5) + random.random()) - 0.2
+                    await asyncio.sleep(s_duration / 2)
+                    await self.send_typing(msg.channel)
+                    await asyncio.sleep((s_duration / 2) - 0.4)
                     await self.send_message(msg.channel, reply_bot)
                     await asyncio.sleep(1)
             else:
@@ -202,12 +204,16 @@ class ProBot(commands.Bot):
                     if not msg.content.startswith(cmdfix):
                         prof_name = 'profile_' + msg.server.id
                         prof = await get_prop(msg, prof_name)
-                        prof['exp'] += 2
+                        prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
                         new_level = rank.xp_level(prof['exp'])[0]
                         if new_level > prof['level']:
                             await self.send_message(msg.channel, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
                         await set_prop(msg, 'by_user', prof_name, prof)
+                    if str(msg.channel) == 'cleverbutts':
+                        if msg.content.lower() == 'kickstart':
+                            await self.send_message(msg.channel, 'Hi, how are you doing?')
+                            return
                 if self.status == 'invisible':
                     if msg.content.lower().startswith(cmdfix + 'resume'):
                         self.status = 'dnd'

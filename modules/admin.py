@@ -1,6 +1,7 @@
 """Definition of the bot's Admin module.'"""
 from __future__ import print_function
 import asyncio
+import random
 import subprocess
 
 import discord
