@@ -136,7 +136,7 @@ class ProBot(commands.Bot):
         else:
             await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
 
-    async def casein(self, substr, clist):
+    def casein(self, substr, clist):
         """Return if a substring is found in any of clist."""
         for i in clist:
             if substr in i:
@@ -159,15 +159,13 @@ class ProBot(commands.Bot):
             await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot) #ORIG
 #            cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
 #            await self.main_cb_queue.put(cb_query) #NEW
-            tmp = await self.casein('?', [reply_bot, reply])
-            while tmp or (reply_bot in self.q_replies):
+            while (self.casein('?', [reply_bot, reply])) or (reply_bot in self.q_replies):
                 rep = await self.wait_for_message(author=msg.author)
                 reply = rep.content
 #                cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
 #                await self.main_cb_queue.put(cb_query) #NEW
                 reply_bot = await self.askcb(reply) #ORIG
                 await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot) #ORIG
-                tmp = await self.casein('?', [reply_bot, reply])
             self.auto_convos.remove(absid)
 
     async def on_ready(self):
