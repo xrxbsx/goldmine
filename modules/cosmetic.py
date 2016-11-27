@@ -122,7 +122,8 @@ cool right?'''
         pager = commands.Paginator(prefix='', suffix='')
         pager.add_line('**Listing all character sets defined with samples.**')
         for i in self.al_aliases:
-            pager.add_line('**{0}**: `{1}`'.format(i, await self.stylize(i, 'abcdefghijklmnopqrstuvwxyz')))
+            tmp = await self.stylize(i, 'abcdefghijklmnopqrstuvwxyz')
+            pager.add_line('**{0}**: `{1}`'.format(i, tmp))
         pager.add_line('**Invoke with `[p]character_set_name [message here]`.**')
         for page in pager.pages:
             await self.bot.say(page)

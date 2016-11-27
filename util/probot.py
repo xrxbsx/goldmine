@@ -159,7 +159,8 @@ class ProBot(commands.Bot):
             await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot) #ORIG
 #            cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
 #            await self.main_cb_queue.put(cb_query) #NEW
-            while (await self.casein('?', [reply_bot, reply])) or (reply_bot in self.q_replies):
+            tmp = await self.casein('?', [reply_bot, reply])
+            while tmp or (reply_bot in self.q_replies):
                 rep = await self.wait_for_message(author=msg.author)
                 reply = rep.content
 #                cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
