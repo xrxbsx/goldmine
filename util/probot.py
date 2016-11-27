@@ -185,7 +185,8 @@ class ProBot(commands.Bot):
                     await self.send_message(msg.channel, 'Hi, how are you doing?')
                     return
             if msg.author.bot:
-                    if self.status == 'invisible': return
+                if self.status == 'invisible': return
+                if str(msg.channel) == 'cleverbutts':
                     await self.send_typing(msg.channel)
                     #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
                     reply_bot = await self.askcb(msg.content)
