@@ -295,9 +295,10 @@ class ProBot(commands.Bot):
         }
         ctx = Context(**tmp)
         del tmp
+        cl = cmd.lower()
 
-        if cmd in self.commands:
-            command = self.commands[cmd.lower()]
+        if cl in self.commands:
+            command = self.commands[cl]
             self.dispatch('command', command, ctx)
             try:
                 await command.invoke(ctx)
