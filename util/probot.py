@@ -186,7 +186,7 @@ class ProBot(commands.Bot):
             if msg.author.bot:
                 if self.status == 'invisible': return
                 if str(msg.channel) == 'cleverbutts':
-                    await asyncio.sleep((random.random() - 0.2) * 2)
+                    await asyncio.sleep((random.random()) * 2)
                     await self.send_typing(msg.channel)
                     #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
                     reply_bot = await self.askcb(msg.content)
@@ -210,6 +210,7 @@ class ProBot(commands.Bot):
                             await self.send_message(msg.channel, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
                         await set_prop(msg, 'by_user', prof_name, prof)
+                    if self.status == 'invisible': return
                     if str(msg.channel) == 'cleverbutts':
                         if msg.content.lower() == 'kickstart':
                             await self.send_message(msg.channel, 'Hi, how are you doing?')
