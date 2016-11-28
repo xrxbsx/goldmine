@@ -95,7 +95,7 @@ cool right?'''
             icount = 1
         await self.bot.send_message(ctx.message.channel, embed=r_embed)
 
-    @commands.command()
+    @commands.command(aliases=['rev', 'mirror'])
     async def reverse(self, *rmsg):
         await self.bot.say(':repeat: ' + ' '.join(rmsg)[::-1])
 

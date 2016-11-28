@@ -62,7 +62,7 @@ class Roleplay(Cog):
         'noscopes {0}',
         'normally snipes {0}',
         'uses katana to slice through {0}',
-        'deadly stares at {0}',
+        'deadily stares at {0}',
         'uses a trebuchet to shoot a 95kg projectile over 300 meters at {0}',
         'snaps neck from {0}',
         'pours lava over {0}',
@@ -88,19 +88,79 @@ class Roleplay(Cog):
         '{0} passes out.'
     ]
     weird_faces = [
-        "'~~~__***=***__~~~'"
+        "'~~~__***=***__~~~'",
+        '''```──────────▄▄▄▄▄▄▄▄▄▄▄──────────
+─────▄▄▀▀▀▀──────────▀▀▄▄──────
+───▄▀───────────────────▀▀▄────
+──█────────────────────────█───
+─█─────────────────────▄▀▀▀▀▀█▄
+█▀────────────────────█────▄███
+█─────────────────────█────▀███
+█─────▄▀▀██▀▄─────────█───────█
+█────█──████─█─────────▀▄▄▄▄▄█─
+█────█──▀██▀─█───────────────█─
+█────█───────█──────────────▄▀─
+█────▀▄─────▄▀──▄▄▄▄▄▄▄▄▄───█──
+█──────▀▀▀▀▀────█─█─█─█─█──▄▀──
+─█──────────────▀▄█▄█▄█▀──▄▀───
+──█──────────────────────▄▀────
+───▀▀▀▄──────────▄▄▄▄▄▄▀▀──────
+────▄▀─────────▀▀──▄▀──────────
+──▄▀───────────────█───────────
+─▄▀────────────────█──▄▀▀▀█▀▀▄─
+─█────█──█▀▀▀▄─────█▀▀────█──█─
+▄█────▀▀▀────█─────█────▀▀───█─
+█▀▄──────────█─────█▄────────█─
+█──▀▀▀▀▀█▄▄▄▄▀─────▀█▀▀▀▄▄▄▄▀──
+█───────────────────▀▄─────────```''',
+        '''```░░░░░░░░░░▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄░░░░░░░░░
+░░░░░░░░▄▀░░░░░░░░░░░░▄░░░░░░░▀▄░░░░░░░
+░░░░░░░░█░░▄░░░░▄░░░░░░░░░░░░░░█░░░░░░░
+░░░░░░░░█░░░░░░░░░░░░▄█▄▄░░▄░░░█░▄▄▄░░░
+░▄▄▄▄▄░░█░░░░░░▀░░░░▀█░░▀▄░░░░░█▀▀░██░░
+░██▄▀██▄█░░░▄░░░░░░░██░░░░▀▀▀▀▀░░░░██░░
+░░▀██▄▀██░░░░░░░░▀░██▀░░░░░░░░░░░░░▀██░
+░░░░▀████░▀░░░░▄░░░██░░░▄█░░░░▄░▄█░░██░
+░░░░░░░▀█░░░░▄░░░░░██░░░░▄░░░▄░░▄░░░██░
+░░░░░░░▄█▄░░░░░░░░░░░▀▄░░▀▀▀▀▀▀▀▀░░▄▀░░
+░░░░░░█▀▀█████████▀▀▀▀████████████▀░░░░
+░░░░░░████▀░░███▀░░░░░░▀███░░▀██▀░░░░░░
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░```''',
+        '''```▒▒▒▒▒▒▒▒█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█
+▒▒▒▒▒▒▒█░▒▒▒▒▒▒▒▓▒▒▓▒▒▒▒▒▒▒░█
+▒▒▒▒▒▒▒█░▒▒▓▒▒▒▒▒▒▒▒▒▄▄▒▓▒▒░█░▄▄
+▒▒▄▀▀▄▄█░▒▒▒▒▒▒▓▒▒▒▒█░░▀▄▄▄▄▄▀░░█
+▒▒█░░░░█░▒▒▒▒▒▒▒▒▒▒▒█░░░░░░░░░░░█
+▒▒▒▀▀▄▄█░▒▒▒▒▓▒▒▒▓▒█░░░█▒░░░░█▒░░█
+▒▒▒▒▒▒▒█░▒▓▒▒▒▒▓▒▒▒█░░░░░░░▀░░░░░█
+▒▒▒▒▒▄▄█░▒▒▒▓▒▒▒▒▒▒▒█░░█▄▄█▄▄█░░█
+▒▒▒▒█░░░█▄▄▄▄▄▄▄▄▄▄█░█▄▄▄▄▄▄▄▄▄█
+▒▒▒▒█▄▄█░░█▄▄█░░░░░░█▄▄█░░█▄▄█```''',
+        '''```▀▄▀▀▀▀▄▀▄░░░░░░░░░
+░█░░░░░░░░▀▄░░░░░░▄░
+█░░▀░░▀░░░░░▀▄▄░░█░█
+█░▄░█▀░▄░░░░░░░▀▀░░█
+█░░▀▀▀▀░░░░░░░░░░░░█
+█░░░░░░░░░░░░░░░░░░█
+█░░░░░░░░░░░░░░░░░░█
+░█░░▄▄░░▄▄▄▄░░▄▄░░█░
+░█░▄▀█░▄▀░░█░▄▀█░▄▀░
+░░▀░░░▀░░░░░▀░░░▀░░░```'''
     ]
 
     def __init__(self, bot):
         self.cb = Cleverbot()
         super().__init__(bot)
 
+    @commands.command(pass_context=True, name='rmember', aliases=['randmember', 'randommember', 'randmem', 'rmem'])
     async def rand_member(self, ctx):
         """Choose a random member from the message's server."""
         satisfied = False
+        m_list = [i[1] for i in list(enumerate(ctx.message.server.members))]
         while not satisfied:
-            rmem = random.choice(ctx.message.server.members)
+            rmem = random.choice(m_list)
             satisfied = bool(str(rmem.status) == 'online')
+        await ctx.bot.say(rmem.mention)
         return rmem
 
     @commands.command(pass_context=True, aliases=['boop', 'poke', 'hit'])
@@ -141,7 +201,7 @@ class Roleplay(Cog):
         Syntax: mention [mention, nickname, DiscordTag, or username]"""
         await self.bot.say('Hey there, ' + target.mention + '!')
 
-    @commands.command()
+    @commands.command(aliases=['emote', 'csay'])
     async def emotisay(self, *args):
         """Make the bot mention someone. Useful for testing.
         Syntax: emotisay [your text here]"""
@@ -173,13 +233,13 @@ class Roleplay(Cog):
                 chars[i] = cmap[s]
         await self.bot.say(str(''.join(chars)))
 
-    @commands.command()
+    @commands.command(aliases=['cb', 'ask', 'ai', 'bot'])
     async def cleverbot(self, *args):
         """Queries the Cleverbot service. Because why not.
         Syntax: cleverbot [message here]"""
         await self.bot.say(self.cb.ask(' '.join(args)))
 
-    @commands.command()
+    @commands.command(aliases=['randquote', 'getquote'])
     async def quote(self, *args):
         """References a quote from the quote store.
         Syntax: quote {optional: quote number}"""
@@ -195,7 +255,7 @@ class Roleplay(Cog):
             out_msg = 'That quote does not exist, try again!'
         await self.bot.say(out_msg)
 
-    @commands.command()
+    @commands.command(aliases=['quotes', 'listquote', 'quoteslist', 'listquotes', 'dumpquotes', 'quotedump', 'quotesdump'])
     async def quotelist(self):
         """Lists all the quotes found in the quote store.
         Syntax: quotelist"""
@@ -208,7 +268,7 @@ class Roleplay(Cog):
         for page in pager.pages:
             await self.bot.say(page)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['newquote', 'quotenew', 'addquote', 'makequote', 'quotemake', 'createquote', 'quotecreate'])
     async def quoteadd(self, ctx, *args):
         """Adds a quote to the quote store.dump
         Syntax: quoteadd [text here]"""
@@ -233,7 +293,7 @@ class Roleplay(Cog):
         await store.write(rstore)
         await self.bot.say('The quote specified has been successfully added!')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['quoteedit', 'modquote', 'editquote'])
     async def quotemod(self, ctx, qindex1: int, *qraw):
         """Modifies an existing quote.
         Syntax: quotemod [quote number] [new text here]"""
@@ -252,7 +312,7 @@ class Roleplay(Cog):
         await store.write(rstore)
         await self.bot.say('The quote specified has been successfully modified!')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['rmquote', 'quoterm', 'delquote'])
     async def quotedel(self, ctx, qindex: int):
         """Deletes an existing quote. You may only delete your own quotes unless you are the bot owner.
         Syntax: quotedel [quote number]"""
@@ -268,14 +328,14 @@ class Roleplay(Cog):
         else:
             await self.bot.say('The quote specified could not be deleted because you do not own it, and are not the bot owner. Sorry!')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['gif', 'soontm', 'tm'])
     async def soon(self, ctx):
         """Feel the loading of 10000 years, aka Soon™.
         Syntax: soon"""
         with open('assets/soon.gif', 'rb') as image:
             await self.bot.send_file(ctx.message.channel, image, filename='soon.gif')
 
-    @commands.command(aliases=['wface', 'weirdface', 'weird', 'weird_face'])
+    @commands.command(aliases=['wface', 'weirdface', 'weird', 'weird_face', 'mystery', 'neato', 'neat', 'random'])
     async def face(self):
         """Give you a random face. Because really, why not?
         Syntax: face"""

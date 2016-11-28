@@ -8,7 +8,7 @@ class Misc(Cog):
     This can be... truly random. Don't be scared! :smile:
     """
 
-    @commands.command()
+    @commands.command(aliases=['g'])
     async def lmgtfy(self, *args):
         """Generates a Let Me Google That For You link.
         Syntax: lmgtfy [search terms]"""
