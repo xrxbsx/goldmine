@@ -1,5 +1,6 @@
 """Definition of the bot's Utility module.'"""
 import asyncio
+import time
 import discord
 from discord.ext import commands
 from util.safe_math import eval_expr as emath
@@ -65,3 +66,46 @@ class Utility(Cog):
         r_embed.add_field(name='Status', value=status_map[str(target.status)])
         r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing!'))
         await self.bot.send_message(ctx.message.channel, embed=r_embed)
+
+    @commands.command(pass_context=True, aliases=['gm'])
+    async def info(self, ctx):
+        """Get bot info."""
+        ch_fmt = '''Total: {0}
+Text: {1}
+Voice: {2}
+DM: {3}
+Group DM: {4}'''
+        absfmt = '%a %b %d, %Y %I:%M %p UTC'
+        status_map = {
+            'online': 'Online',
+            'offline': 'Offline',
+            'idle': 'Idle',
+            'dnd': 'Do Not Disturb'
+        }
+        target = self.bot.user
+        au = target.avatar_url
+        avatar_link = (au if au else target.default_avatar_url)
+        ach = list(self.bot.get_all_channels())
+        chlist = [len(ach), 0, 0, 0, 0]
+        for i in ach:
+            at = str(i.type)
+            if at == 'text':
+                chlist[1] += 1
+            elif at == 'voice':
+                chlist[2] += 1
+            elif at == 'private':
+                chlist[3] += 1
+            elif at == 'group':
+                chlist[4] += 1
+        emb = discord.Embed()
+        emb.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
+        emb.set_thumbnail(url=avatar_link) #top right
+        emb.set_footer(text='Made in Python 3.3+', icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
+        emb.add_field(name='Servers Accessible', value=len(self.bot.servers), inline=True)
+        emb.add_field(name='Author', value='Dragon5232#1841', inline=True)
+        emb.add_field(name='Library', value='discord.py', inline=True)
+        emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())), inline=True)
+        emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]), inline=True)
+        emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()), inline=True)
+        emb.add_field(name='ID', value=target.id, inline=True)
+        await self.bot.send_message(ctx.message.channel, embed=emb)

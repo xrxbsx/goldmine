@@ -335,8 +335,8 @@ class Roleplay(Cog):
         with open('assets/soon.gif', 'rb') as image:
             await self.bot.send_file(ctx.message.channel, image, filename='soon.gif')
 
-    @commands.command(aliases=['wface', 'weirdface', 'weird', 'weird_face', 'mystery', 'neato', 'neat', 'random'])
-    async def face(self):
+    @commands.command(pass_context=True, aliases=['wface', 'weirdface', 'weird', 'weird_face', 'mystery', 'neato', 'neat', 'random'])
+    async def face(self, ctx):
         """Give you a random face. Because really, why not?
         Syntax: face"""
-        await self.bot.say(random.choice(self.weird_faces))
+        await self.bot.send_message(ctx.message.channel, random.choice(self.weird_faces))

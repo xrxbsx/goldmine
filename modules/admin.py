@@ -74,11 +74,18 @@ class Admin(Cog):
 
     @commands.command(pass_context=True, hidden=True)
     async def eref(self, ctx, *rawtxt: str):
-        """Evaluate an object in command scope.
+        """Evaluate some code in command scope.
         Syntax: eref [string to reference]"""
         await echeck_perms(ctx, ['bot_admin'])
         rstore = await store.dump()
         await self.bot.say(str(eval(' '.join(rawtxt))))
+    @commands.command(pass_context=True, hidden=True)
+    async def seref(self, ctx, *rawtxt: str):
+        """Evaluate a statement in command scope.
+        Syntax:s eref [string to reference]"""
+        await echeck_perms(ctx, ['bot_admin'])
+        rstore = await store.dump()
+        await self.bot.say(str(exec(' '.join(rawtxt))))
 
     @commands.command(pass_context=True)
     async def admintest(self, ctx):
