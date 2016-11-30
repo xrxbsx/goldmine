@@ -3,6 +3,7 @@ import asyncio
 import os
 import json
 from discord.ext.commands import CommandInvokeError
+from properties import storage_backend
 
 orig_store = {
     'version': 3,
@@ -47,19 +48,29 @@ orig_store = {
     }
 }
 
+f_exts = {
+    'json': 'json'
+}
+
+async def get_dir():
+    return os.path.dirname(os.path.realpath(__file__))
+
 async def dump():
     """Dump the entire data store's contents.'"""
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'storage.json'), 'r') as storefile:
+    c_dir = await get_dir()
+    with open(os.path.join(c_dir, '..', 'storage.' + f_exts[storage_backend]), 'r') as storefile:
         return json.loads('' + storefile.read())
 
 async def write(newstore):
     """Write a new dictionary as the data store."""
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'storage.json'), 'w') as storefile:
+    c_dir = await get_dir()
+    with open(os.path.join(c_dir, '..', 'storage.' + f_exts[storage_backend]), 'w') as storefile:
         storefile.write(json.dumps(newstore, indent=1, separators=(',', ':')))
 
 async def reset():
     """Reset the data store to the stock values."""
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'storage.json'), 'w') as storefile:
+    c_dir = await get_dir()
+    with open(os.path.join(c_dir, '..', 'storage.' + f_exts[storage_backend]), 'w') as storefile:
         storefile.write(json.dumps(orig_store, indent=1, separators=(',', ':')))
 
 async def read(*depths):
