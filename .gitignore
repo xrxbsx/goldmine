@@ -104,3 +104,7 @@ btoken.py
 # Private bot resources
 storage.json
 st2.json
+
+# KDevelop
+.kdev4
+*.kdev4
