@@ -1,5 +1,6 @@
 """Definition of the bot's Cosmetic module.'"""
 import asyncio
+import random
 import discord
 from discord.ext import commands
 import util.datastore as store
@@ -75,7 +76,8 @@ TOTAL EXPERIENCE: {4}**
             'title': 'This is the title',
             'description': '''This is the description
 Testing multi line
-cool right?'''
+cool right?''',
+            'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
         r_embed = discord.Embed(**embed_data)
         r_embed.set_thumbnail(url='https://discordapp.com/api/guilds/245387841432059904/icons/305ad4227eec49760731f38117c49af6.jpg') #top right

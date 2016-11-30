@@ -1,6 +1,7 @@
 """Definition of the bot's Utility module.'"""
 import asyncio
 import time
+import random
 import discord
 from discord.ext import commands
 from util.safe_math import eval_expr as emath
@@ -54,7 +55,7 @@ class Utility(Cog):
             t_roles.remove(target.server.default_role)
         except ValueError:
             pass
-        r_embed = discord.Embed()
+        r_embed = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         r_embed.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
         r_embed.set_thumbnail(url=avatar_link) #top right
         r_embed.set_footer(text=str(target), icon_url=avatar_link)
@@ -97,7 +98,7 @@ Group DM: {4}'''
                 chlist[3] += 1
             elif at == 'group':
                 chlist[4] += 1
-        emb = discord.Embed()
+        emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
         emb.set_footer(text='Made in Python 3.3+', icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
