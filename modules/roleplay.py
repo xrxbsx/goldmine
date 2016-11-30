@@ -365,6 +365,11 @@ class Roleplay(Cog):
     async def emotispam(self, ctx):
         await echeck_perms(ctx, ['bot_admin'])
         _em = self.emojis
-        for i in range(1, math.ceil(len(self.emojis) / 2000)):
+        r = list(range(1, math.ceil(len(self.emojis) / 2000)))
+        print('r ' + str(r))
+        for i in r:
+            print('i ' + str(i))
             await self.bot.say(_em[:2000])
+            print('PRE EM ' + _em[:2000])
             _em = _em[2000:]
+            print('POST EM ' + _em)

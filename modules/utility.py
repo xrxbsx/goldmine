@@ -63,7 +63,7 @@ class Utility(Cog):
         r_embed.add_field(name='User ID', value=target.id, inline=True)
         r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt), inline=True)
         r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt), inline=True)
-        r_embed.add_field(name='Roles', value=', '.join([str(i) for i in t_roles]), inline=True)
+        r_embed.add_field(name='Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no roles!', inline=True)
         r_embed.add_field(name='Status', value=status_map[str(target.status)])
         r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing!'))
         await self.bot.send_message(ctx.message.channel, embed=r_embed)
