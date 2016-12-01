@@ -4,49 +4,7 @@ import os
 import json
 from discord.ext.commands import CommandInvokeError
 from properties import storage_backend
-
-orig_store = {
-    'version': 3,
-    'date_format': '{0}/{1}/{2}',
-    'quote_format': '**#{0}**: *"{1}"* \u2014 `{2}` [{3}]',
-    'quotes': [
-        {
-            'id': 0,
-            'quote': 'Haaaaaaaaahn!',
-            'author': 'Frisky Turtle, MrXarous',
-            'author_ids': ['000000000000000000', '141246933359394816'],
-            'date': [11, 7, 2016]
-        },
-        {
-            'id': 1,
-            'quote': 'Living well is the best revenge.',
-            'author': 'George Herbert',
-            'author_ids': ['000000000000000000'],
-            'date': [4, 3, 1593]
-        },
-        {
-            'id': 2,
-            'quote': 'Change your thoughts and you change your world.',
-            'author': 'Norman Vincent Peale',
-            'author_ids': ['000000000000000000'],
-            'date': [5, 31, 1898]
-        }
-    ],
-    'properties': {
-        'global': {
-            'bot_name': 'Goldmine',
-            'command_prefix': '!',
-            'set_nick_to_name': True,
-            'profile': {
-                'level': 0,
-                'exp': 0
-            }
-        },
-        'by_user': {},
-        'by_channel': {},
-        'by_server': {}
-    }
-}
+from util.const import orig_store
 
 f_exts = {
     'json': 'json'

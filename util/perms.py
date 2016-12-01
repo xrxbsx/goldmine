@@ -12,31 +12,31 @@ async def check_perms(ctx, perms_required):
     """Check permissions required for an action."""
     perms_satisfied = 0
     sender = ctx.message.author
-    sender_name = str(sender)
+    sender_id = sender.id
     rstore = await store.dump()
     try:
         sowner = ctx.message.server.owner
-        sowner_name = str(sowner)
+        sowner_id = sowner.id
     except AttributeError: # if in a DM (PrivateChannel)
         sowner = ctx.message.channel.owner
         try:
-            sowner_name = str(sowner)
+            sowner_id = sowner.id
         except AttributeError: # if in a non-group DM (PrivateChannel)
             sowner = sender
-            sowner_name = sender_name
+            sowner_id = sender_id
     for i in perms_required:
         if i == 'bot_owner':
             pass
         if i == 'server_owner':
-            if sender_name == sowner_name:
+            if sender_id == sowner_id:
                 perms_satisfied += 1
         if i == 'bot_admin':
-            if (sender_name in rstore['bot_admins']) or (sender_name == bot_owner):
+            if (sender_id in rstore['bot_admins']) or (sender_id == bot_owner):
                 perms_satisfied += 1
         if i == 'server_admin':
             if sender.server_permissions.manage_server:
                 perms_satisfied += 1
-    if sender_name == bot_owner:
+    if sender_id == bot_owner:
         return True
     return bool(perms_required.__len__() == perms_satisfied)
 

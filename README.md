@@ -34,6 +34,6 @@ bot_token = 'INSERT_YOUR_TOKEN_HERE'
 ```
 Replace INSERT_YOUR_TOKEN_HERE with your actual token. Make sure you keep the quotes, though!
 
-Then, you'll want to replace the owner with your DiscordTag. To do this, open `properties.py` in a text editor and edit `bot_owner = 'Dragon5232#1841'` to match your Discord tag. Example: MyUsername#1234 - make sure you get the distriminator number tag right, though.
+Then, you'll want to replace the owner with your DiscordTag. To do this, open `properties.py` in a text editor and edit `bot_owner = '160567046642335746'` to match your Discord user ID. Example: 012345678901234567 - make sure you don't leave out any numbers, though. There should be 18.
 
 ####Now simply run `python3 goldmine.py` and your bot is good to go!

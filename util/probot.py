@@ -8,6 +8,7 @@ from discord.ext.commands.bot import Context, StringView, CommandError, CommandN
 from cleverbot import Cleverbot
 from util.datastore import get_cmdfix, get_prop, set_prop
 import util.ranks as rank
+from util.const import *
 
 class CleverQuery():
     def __init__(self, channel_to, query, prefix, suffix):
@@ -18,49 +19,6 @@ class CleverQuery():
 
 class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
-
-    auto_convo_starters = [
-        'do', 'oh',
-        'are', 'you',
-        'u', 'ur',
-        'ready', 'begin',
-        'lets',
-        'go',
-        'p',
-        'c',
-        'h',
-        'w',
-        'shut',
-        'watch',
-        'behave',
-        'test',
-        'testing',
-        'stop',
-        'stahp',
-        'ask',
-        'ho',
-        'um',
-        'uh',
-        'y',
-        'tell',
-        'why',
-        'd',
-        'g'
-    ]
-    q_replies = [
-        'What is the answer then.',
-        'Why.',
-        'Yes or no.',
-        'You tell me.',
-        'Erare humanum est.',
-        'Hi.',
-        'Hello.'
-    ]
-    cnf_fmt = '{0.mention} The command you tried to execute, `{2}{1}`, does not exist. Type `{2}help` for help.'
-    npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a channel.'
-    ccd_fmt = '{0.mention} Sorry, the `{2}{1}` command is currently disabled. Try again later!'
-    cpe_fmt = '{0.mention} Sorry, you don\'t have enough **permissions** to execute `{2}{1}`!'
-    ece_fmt = '{0.mention} Hey, we don\'t have empty commands here! Try `{2}help` instead of `{2}` for help.'
 
     def __init__(self, **kwargs):
         self.cb = Cleverbot()
@@ -119,24 +77,32 @@ class ProBot(commands.Bot):
         tmp = await blocking_cb
         return tmp
 
+    async def send(self, *apass, **kwpass):
+        await self.send_message(*apass, **kwpass)
+    async def msend(self, msg, *apass, **kwpass):
+        await self.send_message(msg.channel, *apass, **kwpass)
+    async def csend(self, ctx, *apass, **kwpass):
+        await self.send_message(ctx.message.channel, *apass, **kwpass)
+
     async def on_command_error(self, exp, ctx):
         cmdfix = await get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
+        c_key = self.bdel(str(exp), 'Command has raised an exception: ')
         print('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.CommandNotFound):
-            await self.send_message(ctx.message.channel, self.cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.NoPrivateMessage):
-            await self.send_message(ctx.message.channel, self.npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.DisabledCommand):
-            await self.send_message(ctx.message.channel, self.ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandInvokeError):
-            if str(exp).startswith('Command raised an exception: CommandPermissionError: ' + cmdfix):
-                await self.send_message(ctx.message.channel, self.cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            if c_key.startswith('CommandPermissionError: ' + cmdfix):
+                await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
             else:
-                await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
+                await self.csend(ctx, 'An internal error has occured!```' + c_key + '```')
         else:
-            await self.send_message(ctx.message.channel, 'An internal error has occured!```' + str(exp) + '```')
+            await self.csend(ctx, 'An internal error has occured!```' + c_key + '```')
 
     def casein(self, substr, clist):
         """Return if a substring is found in any of clist."""
@@ -158,16 +124,16 @@ class ProBot(commands.Bot):
             lmsg = msg.content.lower()
             reply = lmsg
             reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' ')) #ORIG
-            await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot) #ORIG
+            await self.msend(msg, msg.author.mention + ' ' + reply_bot) #ORIG
 #            cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
 #            await self.main_cb_queue.put(cb_query) #NEW
-            while (self.casein('?', [reply_bot, reply])) or (reply_bot in self.q_replies):
+            while self.casein('?', [reply_bot, reply]) or (reply_bot in q_replies):
                 rep = await self.wait_for_message(author=msg.author)
                 reply = rep.content
 #                cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
 #                await self.main_cb_queue.put(cb_query) #NEW
                 reply_bot = await self.askcb(reply) #ORIG
-                await self.send_message(msg.channel, msg.author.mention + ' ' + reply_bot) #ORIG
+                await self.msend(msg, msg.author.mention + ' ' + reply_bot) #ORIG
             self.auto_convos.remove(absid)
 
     async def on_ready(self):
@@ -194,7 +160,7 @@ class ProBot(commands.Bot):
                     await asyncio.sleep(s_duration / 2)
                     await self.send_typing(msg.channel)
                     await asyncio.sleep((s_duration / 2) - 0.4)
-                    await self.send_message(msg.channel, reply_bot)
+                    await self.msend(msg, reply_bot)
                     await asyncio.sleep(1)
             else:
                 if not msg.channel.is_private:
@@ -207,35 +173,35 @@ class ProBot(commands.Bot):
                         prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
                         new_level = rank.xp_level(prof['exp'])[0]
                         if new_level > prof['level']:
-                            await self.send_message(msg.channel, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
+                            await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
                         await set_prop(msg, 'by_user', prof_name, prof)
                     if self.status == 'invisible': return
                     if str(msg.channel) == 'cleverbutts':
                         if msg.content.lower() == 'kickstart':
-                            await self.send_message(msg.channel, 'Hi, how are you doing?')
+                            await self.msend(msg, 'Hi, how are you doing?')
                             return
                 if self.status == 'invisible':
                     if msg.content.lower().startswith(cmdfix + 'resume'):
                         self.status = 'dnd'
                         await self.update_presence()
-                        await self.send_message(msg.channel, 'Successfully **resumed** the bot\'s command and conversation processing!')
+                        await self.msend(msg, 'Successfully **resumed** the bot\'s command and conversation processing!')
                 elif myself in msg.mentions:
                     await self.auto_cb_convo(msg, self.user.mention)
                 elif msg.channel.is_private:
                     if msg.content.split('\n')[0] == cmdfix:
                         await self.send_typing(msg.channel)
-                        await self.send_message(msg.channel, self.ece_fmt.format(msg.author, '', cmdfix))
+                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
                     elif msg.content.startswith(cmdfix):
                         await self.send_typing(msg.channel)
                         await self.sprocess_commands(msg, cmdfix)
                     else:
                         await self.send_typing(msg.channel)
                         cb_reply = await self.askcb(msg.content)
-                        await self.send_message(msg.channel, ':speech_balloon: ' + cb_reply)
+                        await self.msend(msg, ':speech_balloon: ' + cb_reply)
                 elif msg.content.lower().startswith(bname.lower() + ' '):
                     nmsg = self.bdel(msg.content.lower(), bname.lower())
-                    for i in self.auto_convo_starters:
+                    for i in auto_convo_starters:
                         if nmsg.startswith(' ' + i):
                             await self.auto_cb_convo(msg, bname.lower() + ' ')
                         elif nmsg.endswith('?'):
@@ -247,7 +213,7 @@ class ProBot(commands.Bot):
                 else:
                     if msg.content.split('\n')[0] == cmdfix:
                         await self.send_typing(msg.channel)
-                        await self.send_message(msg.channel, self.ece_fmt.format(msg.author, '', cmdfix))
+                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
                     elif msg.content.startswith(cmdfix):
                         await self.send_typing(msg.channel)
                         await self.sprocess_commands(msg, cmdfix)

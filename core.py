@@ -17,6 +17,7 @@ from modules.misc import Misc as Miscellaneous
 from modules.utility import Utility
 from util.probot import ProBot as PBot
 from util.datastore import initialize as init_store
+from util.const import description
 
 if not discord.opus.is_loaded():
     # the 'opus' library here is opus.dll on windows
@@ -29,10 +30,6 @@ if not discord.opus.is_loaded():
     except OSError:
         discord.opus.load_opus('libopus')
 
-description = '''Dragon5232's loyal bot written in Python. Have fun!
-Typically cool. Try not to expose the bugs! :P
-Enjoy, and leave comments for Dragon5232 please!
-Note: to find out how to use a command, type help [command name].'''
 cb = Cleverbot()
 
 logging.basicConfig(level=logging.INFO)

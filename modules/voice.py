@@ -1,6 +1,7 @@
 """Definition of the bot's Voice module.'"""
 import asyncio
 import io
+import random
 import subprocess
 import re
 import textwrap
@@ -8,6 +9,7 @@ import discord
 from discord.ext import commands
 import aiohttp
 import async_timeout
+from util.const import sem_cells
 from .cog import Cog
 
 class VoiceEntry:
@@ -18,11 +20,23 @@ class VoiceEntry:
         self.player = player
 
     def __str__(self):
-        fmt = '**{0.title}** uploaded by *{0.uploader}* and requested by *{1.display_name}*'
-        duration = self.player.duration
-        if duration:
-            fmt = fmt + ' (length: {0[0]}m, {0[1]}s)'.format(divmod(duration, 60))
-        return fmt.format(self.player, self.requester)
+        fmt = '**{0}**'
+        p = self.player
+        tags = []
+        url_r = r'http:\/\/[A-Z0-9\-]*.acapela-group.com\/MESSAGES\/[0-9]{33,}\/AcapelaGroup_WebDemo_HTML\/sounds\/[0-9]{6,10}_[a-z0-9]{10,15}\.mp3'
+        if re.match(url_r, p.url):
+            fmt = fmt.format('Purple Shep speech line :smiley:')
+        else:
+            fmt = fmt.format(p.title)
+        if p.uploader:
+            tags.append('uploader *{0}*'.format(p.uploader))
+        if self.requester:
+            tags.append('requester *{0}*'.format(self.requester.display_name))
+        if p.duration:
+            tags.append('duration *{0[0]}m, {0[1]}s*'.format(divmod(p.duration, 60)))
+        if tags:
+            fmt += ' - ' + ', '.join(tags)
+        return fmt
 
 class SpeechEntry:
     """Class to represent an entry in the speech voice quene."""
@@ -83,7 +97,20 @@ class VoiceState:
             self.current = await self.songs.get()
             await self.bot.send_message(self.current.channel, 'Now playing ' + str(self.current))
             self.current.player.start()
-            await self.play_next_song.wait()
+            k_str = 'JUKEBOX FOR **' + self.current.player.title + '**\n'
+            juke_m = await self.bot.send_message(self.current.channel, k_str)
+            juke_cells = [':red_circle:', ':large_blue_circle:', ':green_heart:', ':diamond_shape_with_a_dot_inside:']
+            sq_dia = 10
+            while not self.play_next_song.is_set(): # :red_circle: :large_blue_circle: :green_heart:
+                lines = []
+                for i in range(sq_dia):
+                    cells = []
+                    for i in range(sq_dia):
+                        cells.append(random.choice(sem_cells))
+                    lines.append(' '.join(cells))
+                await self.bot.edit_message(juke_m, k_str + '\n'.join(lines))
+                await asyncio.sleep(1.05)
+            await self.bot.edit_message(juke_m, juke_m.content + '\nSorry, nothing here anymore!\n**FINISHED PLAYING SONG!**')
 
     async def speech_player_task(self):
         """Handle the quene and playing of speech entries."""
@@ -133,11 +160,11 @@ class Voice(Cog):
         try:
             await self.create_voice_client(channel)
         except discord.InvalidArgument:
-            await self.bot.say('This is not a voice channel...')
+            await self.bot.say('That\'s not a voice channel!')
         except discord.ClientException:
-            await self.bot.say('Already in a voice channel...')
+            await self.bot.say('Already in a voice channel.')
         else:
-            await self.bot.say('Ready to play audio in ' + channel.name)
+            await self.bot.say('Ready to play audio in **' + channel.name + '**!')
 
     @commands.command(pass_context=True, no_pm=True)
     async def summon(self, ctx):
@@ -145,7 +172,7 @@ class Voice(Cog):
         Syntax: summon"""
         summoned_channel = ctx.message.author.voice_channel
         if summoned_channel is None:
-            await self.bot.say('You are not in a voice channel.')
+            await self.bot.say('You aren\'t in a voice channel.')
             return False
 
         state = self.get_voice_state(ctx.message.server)
@@ -176,16 +203,14 @@ class Voice(Cog):
             if not success:
                 return
 
-        try:
-            player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
-        except Exception as exp:
-            fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
-            await self.bot.send_message(ctx.message.channel, fmt.format(type(exp).__name__, exp))
-        else:
-            player.volume = 0.7
-            entry = VoiceEntry(ctx.message, player)
-            await self.bot.say('Enqueued ' + str(entry))
-            await state.songs.put(entry)
+        player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
+
+        player.volume = 0.7
+        entry = VoiceEntry(ctx.message, player)
+        was_empty = state.songs.empty()
+        await state.songs.put(entry)
+        if was_empty:
+            await self.bot.say('Quened ' + str(entry) + '!')
 
     @commands.command(pass_context=True, no_pm=True)
     async def volume(self, ctx, value: int):
@@ -234,7 +259,9 @@ class Voice(Cog):
             state.speech_player.cancel()
             del self.voice_states[server.id]
             await state.voice.disconnect()
+            await self.bot.say('Stopped.')
         except:
+            await self.bot.say('Couldn\'t stop.')
             pass
 
     @commands.command(pass_context=True, no_pm=True)
@@ -262,7 +289,7 @@ class Voice(Cog):
             else:
                 await self.bot.say('Skip vote added, currently at [{}/3]'.format(total_votes))
         else:
-            await self.bot.say('You have already voted to skip this song.')
+            await self.bot.say('You\'ve already voted to skip this song.')
 
     @commands.command(pass_context=True, no_pm=True)
     async def playing(self, ctx):
@@ -287,16 +314,12 @@ class Voice(Cog):
             if not success:
                 return
 
-        try:
-            stream = io.BytesIO(subprocess.check_output(['pico2wave', '-w', '/tmp/pipe.wav', ' '.join(args)]))
-            state.voice.encoder_options(sample_rate=16000, channels=1)
-            player = state.voice.create_stream_player(stream)
-        except Exception as e:
-            fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
-            await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
-        else:
-            player.volume = 1.0
-            player.start()
+        stream = io.BytesIO(subprocess.check_output(['pico2wave', '-w', '/tmp/pipe.wav', ' '.join(args)]))
+        state.voice.encoder_options(sample_rate=16000, channels=1)
+        player = state.voice.create_stream_player(stream)
+
+        player.volume = 1.0
+        player.start()
 
     async def getform(self, session, url, data):
         with async_timeout.timeout(10):
@@ -307,7 +330,6 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=False)
     async def purpleshep(self, ctx, *args):
         """Uses the Purple Shep TTS voice to speak a message.
-        Note: This voice cannot speak strings higher than 300 characters.
         Syntax: purpleshep [message]"""
         state = self.get_voice_state(ctx.message.server)
 
@@ -317,71 +339,25 @@ class Voice(Cog):
                 return
 
         opts = {
-            'default_search': 'auto',
             'quiet': True,
         }
         intxt = ' '.join(args)
+        payload = {
+            'MyLanguages': 'sonid10',
+            'MySelectedVoice': 'WillFromAfar (emotive voice)',
+            'MyTextForTTS': intxt,
+            't': '1',
+            'SendToVaaS': ''
+        }
 
-        try:
-            async with aiohttp.ClientSession(loop=self.loop) as session:
-                payload = {
-                    'MyLanguages': 'sonid10',
-                    '0': 'Leila',
-                    '1': 'Laia',
-                    '2': 'Eliska',
-                    '3': 'Mette',
-                    '4': 'Zoe',
-                    '5': 'Jasmijn',
-                    '6': 'Tyler',
-                    '7': 'Deepa',
-                    '8': 'Rhona',
-                    '9': 'Rachel',
-                    'MySelectedVoice': 'WillFromAfar (emotive voice)',
-                    '11': 'Hanna',
-                    '12': 'Sanna',
-                    '13': 'Manon-be',
-                    '14': 'Louise',
-                    '15': 'Manon',
-                    '16': 'Claudia',
-                    '17': 'Dimitris',
-                    '18': 'Fabiana',
-                    '19': 'Sakura',
-                    '20': 'Minji',
-                    '21': 'Lulu',
-                    '22': 'Bente',
-                    '23': 'Monika',
-                    '24': 'Marcia',
-                    '25': 'Celia',
-                    '26': 'Alyona',
-                    '27': 'Biera',
-                    '28': 'Ines',
-                    '29': 'Rodrigo',
-                    '30': 'Elin',
-                    '31': 'Samuel',
-                    '32': 'Kal',
-                    '33': 'Mia',
-                    '34': 'Ipek',
-                    'MyTextForTTS': intxt,
-                    't': '1',
-                    'SendToVaaS': ''
-                }
-                rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
-                keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
-            keyline = keyout.split("'")[1]
-            await self.bot.say('Now playing the following string:\n```' + ' '.join(args) + '```\n...with the Purple Shep TTS voice. Direct link to sound file:\n<' + keyline + '>\n**Note: There may be quite a *delay* before you hear the voice. Please be patient, and give it up to *15* seconds.**')
-            player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
-        except Exception as e:
-            fmt = 'An error occurred while processing this request: ```py\n{}: {}\n```'
-            await self.bot.send_message(ctx.message.channel, fmt.format(type(e).__name__, e))
-        else:
-            player.volume = 0.75
-            entry = VoiceEntry(ctx.message, player)
-            await self.bot.say('Enqueued ' + str(entry))
-            await state.songs.put(entry)
+        async with aiohttp.ClientSession(loop=self.loop) as session:
+            rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
+        keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
+        keyline = keyout.split("'")[1]
+        await self.bot.say('Now speaking:```' + ' '.join(args) + '```**It may take up to *15 seconds* to quene.**')
+        player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
 
-    @commands.command(pass_context=True)
-    async def dump_voice(self, ctx):
-        state = self.get_voice_state(ctx.message.server)
-        v1 = await state.voice.poll_voice_ws()
-        print(type(v1))
-        print(str(v1))
+        player.volume = 0.75
+        entry = VoiceEntry(ctx.message, player)
+        await state.songs.put(entry)
+        await self.bot.say('Quened **Purple Shep speech**! :smiley:')

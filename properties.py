@@ -1,2 +1,2 @@
-bot_owner = 'Dragon5232#1841'
+bot_owner = '160567046642335746'
 storage_backend = 'json'
