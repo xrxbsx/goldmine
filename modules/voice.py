@@ -97,20 +97,21 @@ class VoiceState:
             self.current = await self.songs.get()
             await self.bot.send_message(self.current.channel, 'Now playing ' + str(self.current))
             self.current.player.start()
-            k_str = 'JUKEBOX FOR **' + self.current.player.title + '**\n'
-            juke_m = await self.bot.send_message(self.current.channel, k_str)
-            juke_cells = [':red_circle:', ':large_blue_circle:', ':green_heart:', ':diamond_shape_with_a_dot_inside:']
-            sq_dia = 10
-            while not self.play_next_song.is_set(): # :red_circle: :large_blue_circle: :green_heart:
-                lines = []
-                for i in range(sq_dia):
-                    cells = []
+            if not re.match(r'http:\/\/[A-Z0-9\-]*.acapela-group.com\/MESSAGES\/[0-9]{33,}\/AcapelaGroup_WebDemo_HTML\/sounds\/[0-9]{6,10}_[a-z0-9]{10,15}\.mp3', self.current.player.url):
+                k_str = 'JUKEBOX FOR **' + self.current.player.title + '**\n'
+                juke_m = await self.bot.send_message(self.current.channel, k_str)
+                juke_cells = [':red_circle:', ':large_blue_circle:', ':green_heart:', ':diamond_shape_with_a_dot_inside:']
+                sq_dia = 10
+                while not self.play_next_song.is_set(): # :red_circle: :large_blue_circle: :green_heart:
+                    lines = []
                     for i in range(sq_dia):
-                        cells.append(random.choice(sem_cells))
-                    lines.append(' '.join(cells))
-                await self.bot.edit_message(juke_m, k_str + '\n'.join(lines))
-                await asyncio.sleep(1.05)
-            await self.bot.edit_message(juke_m, juke_m.content + '\nSorry, nothing here anymore!\n**FINISHED PLAYING SONG!**')
+                        cells = []
+                        for i in range(sq_dia):
+                            cells.append(random.choice(sem_cells))
+                        lines.append(' '.join(cells))
+                    await self.bot.edit_message(juke_m, k_str + '\n'.join(lines))
+                    await asyncio.sleep(1.05)
+                await self.bot.edit_message(juke_m, juke_m.content + '\nSorry, nothing here anymore!\n**FINISHED PLAYING SONG!**')
 
     async def speech_player_task(self):
         """Handle the quene and playing of speech entries."""
@@ -210,7 +211,7 @@ class Voice(Cog):
         was_empty = state.songs.empty()
         await state.songs.put(entry)
         if was_empty:
-            await self.bot.say('Quened ' + str(entry) + '!')
+            await self.bot.say('quened ' + str(entry) + '!')
 
     @commands.command(pass_context=True, no_pm=True)
     async def volume(self, ctx, value: int):
@@ -320,6 +321,7 @@ class Voice(Cog):
 
         player.volume = 1.0
         player.start()
+        await self.bot.say('Now speaking.')
 
     async def getform(self, session, url, data):
         with async_timeout.timeout(10):
@@ -341,23 +343,24 @@ class Voice(Cog):
         opts = {
             'quiet': True,
         }
-        intxt = ' '.join(args)
-        payload = {
-            'MyLanguages': 'sonid10',
-            'MySelectedVoice': 'WillFromAfar (emotive voice)',
-            'MyTextForTTS': intxt,
-            't': '1',
-            'SendToVaaS': ''
-        }
+        rounds = textwrap.wrap(' '.join(args), width=300)
+        for intxt in rounds:
+            payload = {
+                'MyLanguages': 'sonid10',
+                'MySelectedVoice': 'WillFromAfar (emotive voice)',
+                'MyTextForTTS': intxt,
+                't': '1',
+                'SendToVaaS': ''
+            }
+            async with aiohttp.ClientSession(loop=self.loop) as session:
+                rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
+            keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
+            keyline = keyout.split("'")[1]
+            await self.bot.say('Added to voice queue:```' + intxt + '```**It may take up to *15 seconds* to quene.**')
+            player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
 
-        async with aiohttp.ClientSession(loop=self.loop) as session:
-            rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
-        keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
-        keyline = keyout.split("'")[1]
-        await self.bot.say('Now speaking:```' + ' '.join(args) + '```**It may take up to *15 seconds* to quene.**')
-        player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
-
-        player.volume = 0.75
-        entry = VoiceEntry(ctx.message, player)
-        await state.songs.put(entry)
-        await self.bot.say('Quened **Purple Shep speech**! :smiley:')
+            player.volume = 0.75
+            entry = VoiceEntry(ctx.message, player)
+            await state.songs.put(entry)
+            await self.bot.say('Queued **Purple Shep speech**! :smiley:')
+            await asyncio.sleep(1)
