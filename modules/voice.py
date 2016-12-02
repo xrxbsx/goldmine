@@ -101,7 +101,7 @@ class VoiceState:
                 k_str = 'JUKEBOX FOR **' + self.current.player.title + '**\n'
                 juke_m = await self.bot.send_message(self.current.channel, k_str)
                 juke_cells = [':red_circle:', ':large_blue_circle:', ':green_heart:', ':diamond_shape_with_a_dot_inside:']
-                sq_dia = 10
+                sq_dia = 9
                 while not self.play_next_song.is_set(): # :red_circle: :large_blue_circle: :green_heart:
                     lines = []
                     for i in range(sq_dia):
@@ -256,8 +256,8 @@ class Voice(Cog):
             player.stop()
 
         try:
-            state.audio_player.cancel()
             state.speech_player.cancel()
+            state.audio_player.cancel()
             del self.voice_states[server.id]
             await state.voice.disconnect()
             await self.bot.say('Stopped.')
@@ -306,7 +306,7 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, no_pm=False)
     async def speak(self, ctx, *args):
-        """Uses the SVOX Pico TTS engine to speak a message.
+        """Uses the SVOX pico TTS engine to speak a message.
         Syntax: speak [message]"""
         state = self.get_voice_state(ctx.message.server)
 
@@ -356,7 +356,7 @@ class Voice(Cog):
                 rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
             keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
             keyline = keyout.split("'")[1]
-            await self.bot.say('Added to voice queue:```' + intxt + '```**It may take up to *15 seconds* to quene.**')
+            await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *15 seconds* to quene.**')
             player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
 
             player.volume = 0.75
@@ -364,3 +364,47 @@ class Voice(Cog):
             await state.songs.put(entry)
             await self.bot.say('Queued **Purple Shep speech**! :smiley:')
             await asyncio.sleep(1)
+
+    @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 's', 'season'])
+    async def christmas(self, ctx):
+        """Start the Christmas music playlist! """
+        state = self.get_voice_state(ctx.message.server)
+
+        if state.voice is None:
+            success = await ctx.invoke(self.summon)
+            if not success:
+                return
+
+        songs = [
+            ('https://www.youtube.com/watch?v=NJ8U6TEO-qE', 'Jingle Bells'),
+            ('https://www.youtube.com/watch?v=RPCXMTnO2Yw', 'Deck The Halls'),
+            ('https://www.youtube.com/watch?v=nVMCUtsmWmQ', 'Have A Holly Jolly Christmas'),
+            ('https://www.youtube.com/watch?v=g-OF7KGyDis', 'We Wish You A Merry Christmas'),
+            ('https://www.youtube.com/watch?v=0byH9h1ClBY', 'Rudolph The Red Nosed Reindeer'),
+            ('https://www.youtube.com/watch?v=vwHEqx_3BYE', 'Sleigh Ride'),
+            ('https://www.youtube.com/watch?v=HWv72L4wgCc', 'Santa Claus Is Coming To Town'),
+            ('https://www.youtube.com/watch?v=VfLf7A_-1Vw', 'Jingle Bells Rock'),
+            ('https://www.youtube.com/watch?v=t3HJgCcSUqQ', 'Rockin\' Around The Christmas Tree'),
+            ('https://www.youtube.com/watch?v=oyEyMjdD2uk', 'Twelve Days of Christmas'),
+            ('https://www.youtube.com/watch?v=PJ2CuKgyNW0', 'Santa Claus Is Coming To Town'),
+            ('https://www.youtube.com/watch?v=Wq73h6XZQGA', 'Carol Of The Bells')
+        ]
+        songc = len(songs)
+        status = [
+            'Starting Christmas playlist with jukebox! :tada::christmas_tree:',
+            '**Quened [0/{0}] so far! Be patient :wink:**'.format(songc)
+        ]
+        st_msg = await self.bot.send_message(ctx.message.channel, status[0])
+        random.shuffle(songs)
+
+        for n, i in enumerate(songs):
+            player = await state.voice.create_ytdl_player(i[0], ytdl_options={'quiet': True}, after=state.toggle_next)
+            player.volume = 0.75
+            entry = VoiceEntry(ctx.message, player)
+            await state.songs.put(entry)
+            del status[len(status) - 1]
+            status.append('Queued **{0}**! :smiley::christmas_tree:'.format(i[1]))
+            status.append('**Quened *[{0}/{1}]* so far! Be patient :wink:**'.format(n + 1, songc))
+            await self.bot.edit_message(st_msg, '\n'.join(status))
+            await asyncio.sleep(1)
+        await self.bot.say('**All Christmas songs have been quened!** :tada::santa:')

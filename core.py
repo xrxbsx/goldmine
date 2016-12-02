@@ -18,6 +18,7 @@ from modules.utility import Utility
 from util.probot import ProBot as PBot
 from util.datastore import initialize as init_store
 from util.const import description
+from util.proformatter import ProFormatter
 
 if not discord.opus.is_loaded():
     # the 'opus' library here is opus.dll on windows
@@ -34,7 +35,7 @@ cb = Cleverbot()
 
 logging.basicConfig(level=logging.INFO)
 init_store()
-bot = PBot(command_prefix='!', description=description)
+bot = PBot(command_prefix='!', description=description, formatter=ProFormatter())
 bot.add_cog(Voice(bot))
 bot.add_cog(Roleplay(bot))
 bot.add_cog(Admin(bot))

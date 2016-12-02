@@ -1,3 +1,4 @@
+import re
 adjs = [
     'lovingly',
     'lamely',
@@ -257,3 +258,8 @@ orig_store = {
 
 em_cells = list(emojis)
 sem_cells = list(s_emojis)
+_mentions_transforms = {
+    '@everyone': '@\u200beveryone',
+    '@here': '@\u200bhere'
+}
+_mention_pattern = re.compile('|'.join(_mentions_transforms.keys()))
