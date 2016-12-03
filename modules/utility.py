@@ -38,7 +38,7 @@ class Utility(Cog):
         await self.bot.say(emath(' '.join(args)))
 
     @commands.command(pass_context=True, aliases=['about', 'whois', 'who'])
-    async def user(self, ctx, target: discord.Member):
+    async def user(self, ctx, *users: str):
         """Extract information about an user.
         Syntax: user"""
         absfmt = '%a %b %d, %Y %I:%M %p UTC'
@@ -48,27 +48,47 @@ class Utility(Cog):
             'idle': 'Idle',
             'dnd': 'Do Not Disturb'
         }
-        au = target.avatar_url
-        avatar_link = (au if au else target.default_avatar_url)
-        d_name = target.display_name
-        t_roles = target.roles
-        t_game = target.game
-        try:
-            t_roles.remove(target.server.default_role)
-        except ValueError:
-            pass
-        r_embed = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
-        r_embed.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
-        r_embed.set_thumbnail(url=avatar_link) #top right
-        r_embed.set_footer(text=str(target), icon_url=avatar_link)
-        r_embed.add_field(name='Nickname', value=('No nickname set!' if d_name == target.name else d_name), inline=True)
-        r_embed.add_field(name='User ID', value=target.id, inline=True)
-        r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt), inline=True)
-        r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt), inline=True)
-        r_embed.add_field(name='Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no roles!', inline=True)
-        r_embed.add_field(name='Status', value=status_map[str(target.status)])
-        r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing!'))
-        await self.bot.send_message(ctx.message.channel, embed=r_embed)
+        targets = []
+        if not users:
+            targets.append(ctx.message.author)
+        s = ctx.message.server
+        for i in users:
+            member = s.get_member(i)
+            if member:
+                targets.append(member)
+            else:
+                member = s.get_member_named(i.replace('~', ' '))
+                if member:
+                    targets.append(member)
+                else:
+                    member = s.get_member_named(i)
+                    if member:
+                        targets.append(member)
+        if not targets:
+            await self.bot.say('No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Use `~` to fill a ` ` (space).')
+            return
+        for target in targets:
+            au = target.avatar_url
+            avatar_link = (au if au else target.default_avatar_url)
+            d_name = target.display_name
+            t_roles = target.roles
+            t_game = target.game
+            try:
+                t_roles.remove(target.server.default_role)
+            except ValueError:
+                pass
+            r_embed = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
+            r_embed.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
+            r_embed.set_thumbnail(url=avatar_link) #top right
+            r_embed.set_footer(text=str(target), icon_url=avatar_link)
+            r_embed.add_field(name='Nickname', value=('No nickname set!' if d_name == target.name else d_name), inline=True)
+            r_embed.add_field(name='User ID', value=target.id, inline=True)
+            r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt), inline=True)
+            r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt), inline=True)
+            r_embed.add_field(name='Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no roles!', inline=True)
+            r_embed.add_field(name='Status', value=status_map[str(target.status)])
+            r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing!'))
+            await self.bot.send_message(ctx.message.channel, embed=r_embed)
 
     @commands.command(pass_context=True, aliases=['gm'])
     async def info(self, ctx):

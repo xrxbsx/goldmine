@@ -260,6 +260,7 @@ class Roleplay(Cog):
         """Get the info about a Pokémon!
         Syntax: pokemon|pokedex [name or id]"""
         bot = self.bot
+        d_lines = []
         try:
             p_name = pokemon_name[0]
         except IndexError:
@@ -280,12 +281,14 @@ class Roleplay(Cog):
             'title': target.name,
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
+        essentials = ['ID', 'Health', 'Height', 'Weight', 'Attack', 'Defense', 'Types']
+        skipped = ['Moves', 'Effort Value Yield', 'Egg Groups', 'Total', 'Speed', 'Growth Rate', 'Catch Rate', 'Male-Female Ratio', 'Egg Cycles']
         em_fields = {
             'ID': target.id,
             'Health': target.hp,
             'Species': target.species,
             'Moves': ', '.join(target.moves),
-            'Types': ', '.join(target.types),
+            'Types': ', '.join([i.title() for i in target.types]),
             'Abilities': ', '.join(target.abilities),
             'Height': target.height,
             'Weight': target.weight,
@@ -305,9 +308,15 @@ class Roleplay(Cog):
             'Evolutions': ', '.join(target.evolutions),
             'Egg Groups': ', '.join(target.egg_groups)
         }
-        emb = discord.Embed(**em_data)
-        for value, name in enumerate(em_fields):
-            emb.add_field(name=name, value=value)
+        for key, value in em_fields.items():
+            if key not in skipped:
+                if key not in essentials:
+                    d_lines.append(key + ': ' + str(value))
+            d_lines.append(key + ': ' + str(value))
+        emb = discord.Embed(**em_data, description='\n'.join(d_lines))
+        for key, value in em_fields.items():
+            if key in essentials:
+                emb.add_field(name=key, value=value)
         emb.set_thumbnail(url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
         emb.set_image(url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
         emb.set_author(name=target.name, icon_url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
