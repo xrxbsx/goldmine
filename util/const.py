@@ -193,6 +193,10 @@ npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a c
 ccd_fmt = '{0.mention} Sorry, the `{2}{1}` command is currently disabled. Try again later!'
 cpe_fmt = '{0.mention} Sorry, you don\'t have enough **permissions** to execute `{2}{1}`!'
 ece_fmt = '{0.mention} Hey, we don\'t have empty commands here! Try `{2}help` instead of `{2}` for help.'
+emp_msg = '{0.mention} The bot tried to send an empty message for `{2}{1}`. Maybe try again?'
+msg_err = '{0.mention} Something went wrong in the bot while responding to `{2}{1}`. Maybe try again? Error: `{3}`'
+nam_err = '{0.mention} Something went wrong in the bot while responding to `{2}{1}`. Maybe try again? Error: internal variable `{3}` not defined.'
+big_msg = '{0.mention} The bot tried to respond to `{2}{1}` with a message too long. Maybe try again?'
 charsets = {
     'normal': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~ `!@#$%^&*()-_=+[]{}|;:\'",<.>/?\\',
     'fullwidth': 'ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ０１２３４５６７８９～ ｀！＠＃＄％＾＆＊（）－＿＝＋［］｛｝|；：＇＂,＜．＞/？\\',

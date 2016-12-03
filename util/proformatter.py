@@ -87,10 +87,13 @@ class ProFormatter(HelpFormatter):
         """
         self._paginator = Paginator()
         em_data = {
-            'title': 'Bot Help [NOT YET THE FULL HELP! USE REGULAR HELP COMMAND]',
-            'description': self.command.description if not self.is_cog() else inspect.getdoc(self.command)
+            'title': 'Bot Help with Embed!',
+            'description': self.command.description if not self.is_cog() else inspect.getdoc(self.command),
+            'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
         t_i = 0
+        cmds = []
+        pages = []
 
         if isinstance(self.command, Command):
             # <signature portion>
@@ -123,20 +126,27 @@ class ProFormatter(HelpFormatter):
                     pass
 
                 for name, command in commands:
-                    if t_i <= 13:
-                        if name in command.aliases:
-                            continue
-                        emb.add_field(name=name, value=command.short_doc)
-                        t_i += 1
+                    if name in command.aliases:
+                        continue
+                    cmds.append((name, command.short_doc))
         else:
             for name, command in self.filter_command_list():
                 if name in command.aliases:
                     continue
-                emb.add_field(name=name, value=command.short_doc)
+                cmds.append((name, command.short_doc))
 
         ending_note = self.get_ending_note()
-        emb.set_footer(text=ending_note)
-        return emb
+        e = Embed(**em_data)
+        for entry in cmds:
+            if t_i < 100:
+                e.add_field(name=entry[0], value=entry[1])
+                t_i += len(entry[0]) + len(entry[1])
+            else:
+                pages.append(e)
+                e = Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
+                t_i = 0
+        pages[-1].set_footer(text=ending_note)
+        return pages
 
     def eformat_help_for(self, context, command_or_bot):
         """Formats the help page and handles the actual heavy lifting of how

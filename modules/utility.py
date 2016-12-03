@@ -120,8 +120,9 @@ Group DM: {4}'''
         Syntax: ehelp|embedhelp"""
         bot = ctx.bot
         destination = ctx.message.author if bot.pm_help else ctx.message.channel
-
-        await bot.send_message(destination, embed=bot.formatter.eformat_help_for(ctx, bot))
+        pages = bot.formatter.eformat_help_for(ctx, bot)
+        for page in pages:
+            await bot.send_message(destination, embed=page)
 
     @commands.command(aliases=['g', 'search', 's', 'query', 'q'])
     async def google(self, *rawin: str):

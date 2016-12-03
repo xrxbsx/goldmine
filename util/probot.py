@@ -108,6 +108,24 @@ class ProBot(commands.Bot):
         elif isinstance(exp, commands.CommandInvokeError):
             if bc_key.startswith('CommandPermissionError: ' + cmdfix):
                 await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
+            elif bc_key.startswith('HTTPException: '):
+                key = self.bdel(bc_key, 'HTTPException: ')
+                if key.startswith('BAD REQUEST'):
+                    key = self.bdel(bc_key, 'BAD REQUEST')
+                    if key.endswith('Cannot send an empty message'):
+                        await self.csend(ctx, emp_msg.format(ctx.message.author, cprocessed, cmdfix))
+                    elif c_key.startswith('Command raised an exception: HTTPException: BAD REQUEST (status code: 400)'):
+                        await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
+                    else:
+                        await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
+                elif c_key.startswith('Command raised an exception: HTTPException: BAD REQUEST (status code: 400)'):
+                    await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
+                else:
+                    await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
+            elif bc_key.startswith('NameError: name '):
+                key = self.bdel(bc_key, "NameError: name '")
+                key = key.replace("' is not defined", '')
+                await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
             else:
                 await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
         else:
@@ -176,7 +194,9 @@ class ProBot(commands.Bot):
                     int_name = await get_prop(msg, 'bot_name')
                     if msg.server.me.display_name != int_name:
                         sntn = await get_prop(msg, 'set_nick_to_name')
-                        if sntn.lower() in bool_true:
+                        if isinstance(sntn, str):
+                            sntn = sntn.lower()
+                        if sntn in bool_true:
                             await self.change_nickname(msg.server.me, int_name)
                     if not msg.content.startswith(cmdfix):
                         prof_name = 'profile_' + msg.server.id
@@ -185,7 +205,9 @@ class ProBot(commands.Bot):
                         new_level = rank.xp_level(prof['exp'])[0]
                         if new_level > prof['level']:
                             bclu = await get_prop(msg, 'broadcast_level_up')
-                            if bclu.lower() in bool_true:
+                            if isinstance(bclu, str):
+                                bclu = bclu.lower()
+                            if bclu in bool_true:
                                 await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
                         await set_prop(msg, 'by_user', prof_name, prof)
