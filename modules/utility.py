@@ -124,5 +124,5 @@ Group DM: {4}'''
     @commands.command(aliases=['g', 'search', 's', 'query', 'q'])
     async def google(self, *rawin: str):
         intxt = ' '.join(rawin)
-        f_query = await self.bot.google(intxt, tld='com', lang='en', stop=5)
+        f_query = await self.bot.google(intxt, stop=5)
         await self.bot.say('Google returned: ' + list(f_query)[0])
