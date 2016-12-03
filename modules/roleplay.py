@@ -6,7 +6,6 @@ import time
 import textwrap
 
 import discord
-from cleverbot import Cleverbot
 from discord.ext import commands
 
 import util.datastore as store
@@ -23,7 +22,6 @@ class Roleplay(Cog):
     """
 
     def __init__(self, bot):
-        self.cb = Cleverbot()
         super().__init__(bot)
 
     @commands.command(pass_context=True, name='rmember', aliases=['randmember', 'randommember', 'randmem', 'rmem'])
@@ -111,7 +109,8 @@ class Roleplay(Cog):
     async def cleverbot(self, *args):
         """Queries the Cleverbot service. Because why not.
         Syntax: cleverbot [message here]"""
-        await self.bot.say(self.cb.ask(' '.join(args)))
+        reply_bot = await self.bot.askcb(' '.join(args))
+        await self.bot.say(reply_bot)
 
     @commands.command(aliases=['randquote', 'getquote'])
     async def quote(self, *args):

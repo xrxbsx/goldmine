@@ -4,6 +4,7 @@ import time
 import random
 import discord
 from discord.ext import commands
+from google import search
 from util.safe_math import eval_expr as emath
 from util.const import _mention_pattern, _mentions_transforms
 from .cog import Cog
@@ -119,3 +120,9 @@ Group DM: {4}'''
         destination = ctx.message.author if bot.pm_help else ctx.message.channel
 
         await bot.send_message(destination, embed=bot.formatter.eformat_help_for(ctx, bot))
+
+    @commands.command(aliases=['g', 'search', 's', 'query', 'q'])
+    async def google(self, *rawin: str):
+        intxt = ' '.join(rawin)
+        f_query = await self.bot.google(intxt, tld='com', lang='en', stop=5)
+        await self.bot.say('Google returned: ' + list(f_query)[0])

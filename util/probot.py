@@ -1,9 +1,11 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
 import asyncio
+import functools
 import random
 import math
 import discord
 import discord.ext.commands as commands
+from google import search
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
 from cleverbot import Cleverbot
 from util.datastore import get_cmdfix, get_prop, set_prop
@@ -66,15 +68,19 @@ class ProBot(commands.Bot):
         self.send_message(ctx.message.channel, msg)
 
     async def cb_ask(self, dest, query, prefix, suffix, queue):
-        blocking_cb = self.loop.run_in_executor(None, self.cb.ask, query)
-        reply_bot = await blocking_cb
-        await self.send_message(dest, prefix + query + suffix)
+        reply_bot = await self.askcb(query)
+        await self.send_message(dest, prefix + reply_bot + suffix)
         await asyncio.sleep(2)
         queue.set()
     async def askcb(self, query):
         """A method of querying Cleverbot safe for async."""
         blocking_cb = self.loop.run_in_executor(None, self.cb.ask, query)
         tmp = await blocking_cb
+        return tmp
+    async def google(self, query, **kwargs):
+        """A method of querying Google safe for async."""
+        blocking_g = self.loop.run_in_executor(None, functools.partial(search, query, **kwargs))
+        tmp = await blocking_g
         return tmp
 
     async def send(self, *apass, **kwpass):

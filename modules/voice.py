@@ -365,7 +365,7 @@ class Voice(Cog):
             await self.bot.say('Queued **Purple Shep speech**! :smiley:')
             await asyncio.sleep(1)
 
-    @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 's', 'season'])
+    @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 'season'])
     async def christmas(self, ctx):
         """Start the Christmas music playlist! """
         state = self.get_voice_state(ctx.message.server)

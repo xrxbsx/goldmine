@@ -108,3 +108,6 @@ st2.json
 # KDevelop
 .kdev4
 *.kdev4
+
+# Google Search
+.google-cookie
