@@ -274,7 +274,7 @@ class ProBot(commands.Bot):
         }
         ctx = Context(**tmp)
         del tmp
-        cl = cmd.lower()
+        cl = cmd.lower().replace('é', 'e') # TODO: Real accent parsing
 
         if cl in self.commands:
             command = self.commands[cl]
