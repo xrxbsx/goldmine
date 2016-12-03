@@ -166,15 +166,17 @@ class ProBot(commands.Bot):
                 if not msg.channel.is_private:
                     int_name = await get_prop(msg, 'bot_name')
                     if msg.server.me.display_name != int_name:
-                        await self.change_nickname(msg.server.me, int_name)
+                        sntn = await get_prop(msg, 'set_nick_to_name')
+                        if sntn.lower() in bool_true:
+                            await self.change_nickname(msg.server.me, int_name)
                     if not msg.content.startswith(cmdfix):
                         prof_name = 'profile_' + msg.server.id
                         prof = await get_prop(msg, prof_name)
-                        broadcast_levelup = await get_prop(msg, 'broadcast_level_up')
                         prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
                         new_level = rank.xp_level(prof['exp'])[0]
                         if new_level > prof['level']:
-                            if broadcast_levelup:
+                            bclu = await get_prop(msg, 'broadcast_level_up')
+                            if bclu.lower() in bool_true:
                                 await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
                         await set_prop(msg, 'by_user', prof_name, prof)

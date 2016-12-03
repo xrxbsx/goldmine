@@ -87,7 +87,7 @@ class Admin(Cog):
         rstore = await store.dump()
         await self.bot.say(str(exec(' '.join(rawtxt))))
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['amiadmin', 'isadmin', 'admin'])
     async def admintest(self, ctx):
         """Check to see if you're registered as a bot admin.
         Syntax: admintest'"""
@@ -97,13 +97,13 @@ class Admin(Cog):
         else:
             await self.bot.say(ctx.message.author.mention + ' You are not a bot admin! :slight_frown:')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['adminadd'])
     async def addadmin(self, ctx, target: discord.Member):
         """Add a user to the bot admin list.
         Syntax: addadmin [user]"""
         tmp = await check_perms(ctx, ['bot_admin'])
         if tmp:
-            aentry = str(target)
+            aentry = target.id
             rstore = await store.dump()
             if aentry not in rstore['bot_admins']:
                 rstore['bot_admins'].extend([aentry])
@@ -114,13 +114,13 @@ class Admin(Cog):
         else:
             await self.bot.say(ctx.message.author.mention + ' You are not a bot admin, so you may not add others as admins!')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['deladmin', 'admindel', 'adminrm'])
     async def rmadmin(self, ctx, target: discord.Member):
         """Remove a user from the bot admin list.
         Syntax: rmadmin [user]"""
         tmp = await check_perms(ctx, ['bot_admin'])
         if tmp:
-            aentry = str(target)
+            aentry = target.id
             rstore = await store.dump()
             try:
                 del rstore['bot_admins'][rstore['bot_admins'].index(aentry)]
@@ -142,7 +142,7 @@ class Admin(Cog):
             _name = ctx.message.server.get_member(i)
             if not _name:
                 _name = '*User not in current server! ID: **{0}***'.format(i)
-            alist += _name + '\n'
+            alist += '**' + str(_name) + '**\n'
         await self.bot.say('The following people are bot admins:\n' + alist)
 
     @commands.command(pass_context=True)

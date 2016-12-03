@@ -263,3 +263,41 @@ _mentions_transforms = {
     '@here': '@\u200bhere'
 }
 _mention_pattern = re.compile('|'.join(_mentions_transforms.keys()))
+bool_true = [
+    'yes',
+    'yea',
+    'ya',
+    'yeah',
+    1,
+    '1',
+    'true',
+    'yep',
+    'yeh',
+    'y',
+    'ye',
+    't',
+    'positive',
+    'certainly',
+    'totally',
+    'definitely',
+    'on',
+    'uh-huh',
+    'yes.',
+    'yus'
+]
+bool_false = [
+    'no',
+    'nope',
+    'na',
+    'nah',
+    0,
+    '0',
+    'nop',
+    'never',
+    'nevah',
+    'no.',
+    'nopes',
+    'nops',
+    'nu',
+    'nuu'
+]
