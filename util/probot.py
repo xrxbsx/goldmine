@@ -88,7 +88,8 @@ class ProBot(commands.Bot):
         cmdfix = await get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
-        c_key = self.bdel(str(exp), 'Command has raised an exception: ')
+        c_key = str(exp)
+        bc_key = self.bdel(c_key, 'Command raised an exception: ')
         print('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.CommandNotFound):
             await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
@@ -97,12 +98,12 @@ class ProBot(commands.Bot):
         elif isinstance(exp, commands.DisabledCommand):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandInvokeError):
-            if c_key.startswith('CommandPermissionError: ' + cmdfix):
+            if bc_key.startswith('CommandPermissionError: ' + cmdfix):
                 await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
             else:
-                await self.csend(ctx, 'An internal error has occured!```' + c_key + '```')
+                await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
         else:
-            await self.csend(ctx, 'An internal error has occured!```' + c_key + '```')
+            await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
 
     def casein(self, substr, clist):
         """Return if a substring is found in any of clist."""

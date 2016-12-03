@@ -283,7 +283,9 @@ bool_true = [
     'on',
     'uh-huh',
     'yes.',
-    'yus'
+    'yus',
+    'true',
+    True
 ]
 bool_false = [
     'no',
@@ -299,5 +301,7 @@ bool_false = [
     'nopes',
     'nops',
     'nu',
-    'nuu'
+    'nuu',
+    'false',
+    False
 ]
