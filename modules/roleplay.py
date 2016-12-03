@@ -278,7 +278,7 @@ class Roleplay(Cog):
             target = pykemon.get(pokemon_id=random.randint(1, count))
         em_data = {
             'title': target.name,
-            'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
+            'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
         em_fields = {
             'ID': target.id,
