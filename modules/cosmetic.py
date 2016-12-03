@@ -101,6 +101,7 @@ cool right?''',
 
     @commands.command(aliases=['fonts', 'list', 'alphabet', 'alphabets', 'alphalist', 'styles', 'stylelist', 'chars', 'charlist', 'charsets', 'charsetlist'])
     async def fontlist(self):
+        """List the available fancy character sets / alphabets / fonts."""
         pager = commands.Paginator(prefix='', suffix='')
         pager.add_line('**Listing all character sets defined with samples.**')
         for i in self.al_aliases:

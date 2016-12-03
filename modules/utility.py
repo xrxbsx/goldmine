@@ -72,7 +72,8 @@ class Utility(Cog):
 
     @commands.command(pass_context=True, aliases=['gm'])
     async def info(self, ctx):
-        """Get bot info."""
+        """Get bot info.
+        Syntax: info"""
         ch_fmt = '''Total: {0}
 Text: {1}
 Voice: {2}
@@ -115,7 +116,8 @@ Group DM: {4}'''
 
     @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp'])
     async def ehelp(self, ctx, *commands: str):
-        """Shows this message."""
+        """Shows an experimental embed-based help.
+        Syntax: ehelp|embedhelp"""
         bot = ctx.bot
         destination = ctx.message.author if bot.pm_help else ctx.message.channel
 
@@ -123,6 +125,8 @@ Group DM: {4}'''
 
     @commands.command(aliases=['g', 'search', 's', 'query', 'q'])
     async def google(self, *rawin: str):
+        """Search something on Google.
+        Syntax: google [search terms]"""
         intxt = ' '.join(rawin)
         f_query = await self.bot.google(intxt, stop=5)
         await self.bot.say('Google returned: ' + list(f_query)[0])

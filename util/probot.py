@@ -5,8 +5,9 @@ import random
 import math
 import discord
 import discord.ext.commands as commands
-from google import search
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
+import pykemon
+from google import search
 from cleverbot import Cleverbot
 from util.datastore import get_cmdfix, get_prop, set_prop
 import util.ranks as rank
@@ -26,6 +27,7 @@ class ProBot(commands.Bot):
         self.cb = Cleverbot()
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
+        self.poke = pykemon.V1Client()
         self.auto_convos = []
         self.game = {
             'name': 'Dragon Essence',

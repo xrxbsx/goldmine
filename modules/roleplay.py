@@ -3,10 +3,10 @@ import asyncio
 import random
 import math
 import time
-import textwrap
 
 import discord
 from discord.ext import commands
+import pykemon
 
 import util.datastore as store
 import util.quote as quote
@@ -242,6 +242,8 @@ class Roleplay(Cog):
 
     @commands.command(pass_context=True)
     async def emotispam(self, ctx):
+        """Spam some emotes! WARNING: Lag alert.
+        Syntax: emotispam"""
         await echeck_perms(ctx, ['bot_admin'])
         _em = emojis
         r = list(range(1, math.ceil(len(emojis) / 2000)))
@@ -252,3 +254,60 @@ class Roleplay(Cog):
             print('PRE EM ' + _em[:2000])
             _em = _em[2000:]
             print('POST EM ' + _em)
+
+    @commands.command(pass_context=True, aliases=['pokeball', 'pokedex'])
+    async def pokemon(self, ctx, *pokemon_name: str):
+        """Get the info about a Pokémon!
+        Syntax: pokemon|pokedex [name or id]"""
+        bot = self.bot
+        try:
+            p_name = pokemon_name[0]
+        except IndexError:
+            p_name = None
+        if p_name:
+            try:
+                target = pykemon.get(pokemon=p_name.lower())
+            except pykemon.ResourceNotFoundError:
+                try:
+                    target = pykemon.get(pokemon_id=int(p_name))
+                except (pykemon.ResourceNotFoundError, ValueError):
+                    await bot.say('No such **pokemon**! Try a **Pokédex entry**. (Needs to be **name** or **ID**.)')
+                    return
+        else:
+            count = 709 # current count of pokemon
+            target = pykemon.get(pokemon_id=random.randint(1, count))
+        em_data = {
+            'title': target.name
+        }
+        em_fields = {
+            'ID': target.id,
+            'Health': target.hp,
+            'Species': target.species,
+            'Moves': ', '.join(target.moves),
+            'Types': ', '.join(target.types),
+            'Abilities': ', '.join(target.abilities),
+            'Height': target.height,
+            'Weight': target.weight,
+            'Growth Rate': target.growth_rate,
+            'Defense': target.defense,
+            'Attack': target.attack,
+            'Experience': target.exp,
+            'Happiness': target.happiness,
+            'Egg Cycles': target.egg_cycles,
+            'Catch Rate': target.catch_rate,
+            'Special Attack': target.sp_atk,
+            'Special Defense': target.sp_def,
+            'Speed': target.speed,
+            'Total': target.total,
+            'Effort Value Yield': target.ev_yield,
+            'Male-Female Ratio': target.male_female_ratio,
+            'Evolutions': ', '.join(target.evolutions),
+            'Egg Groups': ', '.join(target.egg_groups)
+        }
+        emb = discord.Embed(**em_data)
+        for value, name in enumerate(em_fields):
+            emb.add_field(name=name, value=value)
+        emb.set_thumbnail(url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
+        emb.set_image(url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
+        emb.set_author(name=target.name, icon_url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
+        await bot.send_message(ctx.message.channel, embed=emb)

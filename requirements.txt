@@ -4,3 +4,4 @@ cleverbot
 youtube_dl
 async_timeout
 google
+pykemon

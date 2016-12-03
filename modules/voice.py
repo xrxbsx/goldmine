@@ -367,7 +367,8 @@ class Voice(Cog):
 
     @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 'season'])
     async def christmas(self, ctx):
-        """Start the Christmas music playlist! """
+        """Start the Christmas music playlist!
+        Syntax: christmas|xmas|santa|c|season"""
         state = self.get_voice_state(ctx.message.server)
 
         if state.voice is None:
