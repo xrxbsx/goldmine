@@ -107,7 +107,8 @@ async def get_prop(msg, prop: str):
 async def pget_prop(scope: str, prop: str):
     def main_loop(scope: str, prop: str):
         if scope == 'by_user':
-            thing = await get_props_u()
+#            thing = await get_props_u()
+            pass
     try:
         thing = await get_props_u(msg)
         return thing[prop]
