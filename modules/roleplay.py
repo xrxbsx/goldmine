@@ -282,7 +282,7 @@ class Roleplay(Cog):
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
         essentials = ['ID', 'Health', 'Height', 'Weight', 'Attack', 'Defense', 'Types']
-        skipped = ['Moves', 'Effort Value Yield', 'Egg Groups', 'Total', 'Speed', 'Growth Rate', 'Catch Rate', 'Male-Female Ratio', 'Egg Cycles']
+        skipped = ['Moves', 'Effort Value Yield', 'Egg Groups', 'Total', 'Growth Rate', 'Catch Rate', 'Male-Female Ratio', 'Egg Cycles']
         em_fields = {
             'ID': target.id,
             'Health': target.hp,
@@ -306,13 +306,13 @@ class Roleplay(Cog):
             'Effort Value Yield': target.ev_yield,
             'Male-Female Ratio': target.male_female_ratio,
             'Evolutions': ', '.join(target.evolutions),
-            'Egg Groups': ', '.join(target.egg_groups)
+            'Egg Groups': ', '.join(target.egg_groups),
+            'Descriptions': ', '.join(target.descriptions)
         }
         for key, value in em_fields.items():
             if key not in skipped:
                 if key not in essentials:
                     d_lines.append(key + ': ' + str(value))
-            d_lines.append(key + ': ' + str(value))
         emb = discord.Embed(**em_data, description='\n'.join(d_lines))
         for key, value in em_fields.items():
             if key in essentials:

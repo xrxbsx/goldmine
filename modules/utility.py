@@ -49,24 +49,33 @@ class Utility(Cog):
             'dnd': 'Do Not Disturb'
         }
         targets = []
-        if not users:
-            targets.append(ctx.message.author)
         s = ctx.message.server
-        for i in users:
-            member = s.get_member(i)
-            if member:
-                targets.append(member)
-            else:
-                member = s.get_member_named(i.replace('~', ' '))
+        if users:
+            members = {}
+            for i in s.members:
+                members[i.display_name] = i
+            for i in users:
+                member = s.get_member(i)
                 if member:
                     targets.append(member)
-                else:
-                    member = s.get_member_named(i)
-                    if member:
-                        targets.append(member)
-        if not targets:
-            await self.bot.say('No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Use `~` to fill a ` ` (space).')
-            return
+            names = []
+            _i = 0
+            while _i < len(users):
+                names.append(users[_i])
+                if ' '.join(names) in members:
+                    targets.append(members[' '.join(names)])
+                    names = []
+                elif _i + 1 == len(users):
+                    targets.append(members[users[0]])
+                    _i = -1
+                    users = users[1:]
+                    names = []
+                _i += 1
+            if not targets:
+                await self.bot.say('No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!')
+                return
+        else:
+            targets.append(ctx.message.author)
         for target in targets:
             au = target.avatar_url
             avatar_link = (au if au else target.default_avatar_url)
