@@ -248,7 +248,10 @@ orig_store = {
             'profile': {
                 'level': 0,
                 'exp': 0
-            }
+            },
+            'broadcast_level_up': True,
+            'broadcast_join': True,
+            'broadcast_leave': True
         },
         'by_user': {},
         'by_channel': {},

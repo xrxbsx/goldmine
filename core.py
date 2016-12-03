@@ -16,8 +16,8 @@ from modules.cosmetic import Cosmetic
 from modules.misc import Misc as Miscellaneous
 from modules.utility import Utility
 from util.probot import ProBot as PBot
-from util.datastore import initialize as init_store
-from util.const import description
+import util.datastore as store
+from util.const import description, bool_true
 from util.proformatter import ProFormatter
 
 if not discord.opus.is_loaded():
@@ -34,7 +34,7 @@ if not discord.opus.is_loaded():
 cb = Cleverbot()
 
 logging.basicConfig(level=logging.INFO)
-init_store()
+store.initialize()
 bot = PBot(command_prefix='!', description=description, formatter=ProFormatter())
 bot.add_cog(Voice(bot))
 bot.add_cog(Roleplay(bot))
@@ -52,20 +52,22 @@ async def on_member_join(member: discord.Member):
     cemotes = member.server.emojis
     em_string = (': ' + ' '.join([str(i) for i in cemotes]) if len(cemotes) >= 1 else '')
     fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
-If you need any help, contact an admin, moderator, or helper with your :question::question:s.
+If you need any help, contact someone with your :question::question:s.
 Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.
 '''
-    await bot.send_message(member.server, fmt.format(member, member.server,
-                                                     em_string, cmdfix))
+    if store.get_prop(member, 'broadcast_join') in bool_true:
+        await bot.send_message(member.server, fmt.format(member, member.server,
+                                                         em_string))
 
 @bot.event
 async def on_member_remove(member: discord.Member):
     """On_member_remove event for members leaving."""
     fmt = '''Awww, **{0.mention}** has just left this server. Bye bye, **{0.mention}**!
-**{1.name}** has now lost a {2}. I wonder why..?
-The more members, the more fun, especially when they're friends like this one! :bear:
+**{1.name}** has now lost a {2}. We'll miss you! :bear:
 '''
-    await bot.send_message(member.server, fmt.format(member, member.server, 'member'))
+    if store.get_prop(member, 'broadcast_leave') in bool_true:
+        utype = ('bot' if member.bot else 'member')
+        await bot.send_message(member.server, fmt.format(member, member.server, utype))
 
 def runbot(loop):
     """Start the bot and handle Ctrl-C."""

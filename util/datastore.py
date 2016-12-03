@@ -58,11 +58,19 @@ async def get_props_u(msg):
     """Get the user properties of a message."""
     rs = await dump()
     try:
-        return rs['properties']['by_user'][msg.author.id]
-    except (KeyError, AttributeError):
-        rs['properties']['by_user'][msg.author.id] = {}
-        await write(rs)
-        return {}
+        try:
+            return rs['properties']['by_user'][msg.author.id]
+        except KeyError:
+            rs['properties']['by_user'][msg.author.id] = {}
+            await write(rs)
+            return {}
+    except AttributeError: # for Member
+        try:
+            return rs['properties']['by_user'][msg.id]
+        except KeyError:
+            rs['properties']['by_user'][msg.id] = {}
+            await write(rs)
+            return {}
 
 async def get_props_c(msg):
     """Get the channel properties of a message."""
@@ -77,6 +85,30 @@ async def get_props_c(msg):
 async def get_prop(msg, prop: str):
     """Get the final property referenced in msg's scope."""
     try: # User
+        thing = await get_props_u(msg)
+        return thing[prop]
+    except (KeyError, AttributeError):
+        try: # Channel
+            thing = await get_props_c(msg)
+            return thing[prop]
+        except (KeyError, AttributeError):
+            try: # Server
+                thing = await get_props_s(msg)
+                return thing[prop]
+            except (KeyError, AttributeError):
+                try:
+                    rs = await dump()
+                    return rs['properties']['global'][prop]
+                except (KeyError, AttributeError):
+                    if prop.startswith('profile_'):
+                        return rs['properties']['global']['profile']
+                    else:
+                        raise KeyError(str)
+async def pget_prop(scope: str, prop: str):
+    def main_loop(scope: str, prop: str):
+        if scope == 'by_user':
+            thing = await get_props_u()
+    try:
         thing = await get_props_u(msg)
         return thing[prop]
     except (KeyError, AttributeError):
