@@ -115,7 +115,7 @@ class Roleplay(Cog):
 
     @commands.command(aliases=['randquote', 'getquote'])
     async def quote(self, *args):
-        """References a quote from the quote store.
+        """References a quote from the quote collection.
         Syntax: quote {optional: quote number}"""
         temp_ref = await store.dump()
         try:
@@ -131,7 +131,7 @@ class Roleplay(Cog):
 
     @commands.command(aliases=['quotes', 'listquote', 'quoteslist', 'listquotes', 'dumpquotes', 'quotedump', 'quotesdump'])
     async def quotelist(self):
-        """Lists all the quotes found in the quote store.
+        """Lists all the quotes found in the quote collection.
         Syntax: quotelist"""
         rstore = await store.dump()
         pager = commands.Paginator(prefix='', suffix='')
@@ -144,7 +144,7 @@ class Roleplay(Cog):
 
     @commands.command(pass_context=True, aliases=['newquote', 'quotenew', 'addquote', 'makequote', 'quotemake', 'createquote', 'quotecreate'])
     async def quoteadd(self, ctx, *args):
-        """Adds a quote to the quote store.dump
+        """Add a quote to the quote collection.
         Syntax: quoteadd [text here]"""
         fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
         bname = await store.get_prop(ctx.message, 'bot_name')
@@ -156,6 +156,32 @@ class Roleplay(Cog):
             'date': fmt_time
         }
         mauthor = ctx.message.author
+        q_template['quote'] = ' '.join(args)
+        q_template['author'] = mauthor.display_name
+        if mauthor.display_name != mauthor.name:
+            q_template['author'] += ' (' + mauthor.name + ')'
+        q_template['author_ids'] = [mauthor.id]
+        rstore = await store.dump()
+        q_template['id'] = len(rstore['quotes']) # +1 for next id, but len() counts from 1
+        rstore['quotes'].extend([q_template])
+        await store.write(rstore)
+        await self.bot.say('The quote specified has been successfully added!')
+
+    @commands.command(pass_context=True, aliases=['rnewquote', 'rquotenew', 'raddquote', 'rmakequote', 'rquotemake', 'rcreatequote', 'rquotecreate', 'raq'])
+    async def rquoteadd(self, ctx, target: discord.Member, *args):
+        """Add a quote to the quote collection.
+        Syntax: rquoteadd [member] [text here]"""
+        await echeck_perms(ctx, ['bot_admin'])
+        fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
+        bname = await store.get_prop(ctx.message, 'bot_name')
+        q_template = {
+            'id': 0,
+            'quote': 'The bot has encountered an internal error.',
+            'author': bname,
+            'author_ids': [self.bot.user.id],
+            'date': fmt_time
+        }
+        mauthor = target
         q_template['quote'] = ' '.join(args)
         q_template['author'] = mauthor.display_name
         if mauthor.display_name != mauthor.name:

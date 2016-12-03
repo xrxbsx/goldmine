@@ -132,14 +132,17 @@ class Admin(Cog):
         else:
             await self.bot.say(ctx.message.author.mention + ' You are not a bot admin, so you may not demote other admins!')
 
-    @commands.command()
-    async def adminlist(self):
+    @commands.command(pass_context=True, aliases=['admins'])
+    async def adminlist(self, ctx):
         """List all bot admins defined.
         Syntax: adminlist"""
         rstore = await store.dump()
         alist = ''
         for i in rstore['bot_admins']:
-            alist += i + '\n'
+            _name = ctx.message.server.get_member(i)
+            if not _name:
+                _name = '*User not in current server! ID: **{0}***'.format(i)
+            alist += _name + '\n'
         await self.bot.say('The following people are bot admins:\n' + alist)
 
     @commands.command(pass_context=True)

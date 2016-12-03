@@ -88,10 +88,8 @@ class ProFormatter(HelpFormatter):
         self._paginator = Paginator()
         em_data = {
             'title': 'Bot Help [NOT YET THE FULL HELP! USE REGULAR HELP COMMAND]',
-            'description': self.command.description if not self.is_cog() else inspect.getdoc(self.command),
-            'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
+            'description': self.command.description if not self.is_cog() else inspect.getdoc(self.command)
         }
-        emb = Embed(**em_data)
         t_i = 0
 
         if isinstance(self.command, Command):

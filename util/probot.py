@@ -170,10 +170,12 @@ class ProBot(commands.Bot):
                     if not msg.content.startswith(cmdfix):
                         prof_name = 'profile_' + msg.server.id
                         prof = await get_prop(msg, prof_name)
+                        broadcast_levelup = await get_prop(msg, 'broadcast_level_up')
                         prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
                         new_level = rank.xp_level(prof['exp'])[0]
                         if new_level > prof['level']:
-                            await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
+                            if broadcast_levelup:
+                                await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
                         await set_prop(msg, 'by_user', prof_name, prof)
                     if self.status == 'invisible': return
