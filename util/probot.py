@@ -142,8 +142,8 @@ class ProBot(commands.Bot):
     @staticmethod
     def bdel(s, r): return s[len(r):]
 
-    async def auto_cb_convo(self, msg, kickstart):
-        """The auto conversation manager."""
+    async def oauto_cb_convo(self, msg, kickstart):
+        """The old, broken auto conversation manager."""
         if self.status == 'invisible': return
         absid = msg.server.id + ':' + msg.channel.id + ':' + msg.author.id
         if absid not in self.auto_convos:
@@ -163,7 +163,14 @@ class ProBot(commands.Bot):
                 reply_bot = await self.askcb(reply) #ORIG
                 await self.msend(msg, msg.author.mention + ' ' + reply_bot) #ORIG
             self.auto_convos.remove(absid)
-
+    async def auto_cb_convo(self, msg, kickstart):
+        """Current hacked up auto conversation manager."""
+        if self.status == 'invisible': return
+        await self.send_typing(msg.channel)
+        lmsg = msg.content.lower()
+        reply = lmsg
+        reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' '))
+        await self.msend(msg, msg.author.mention + ' ' + reply_bot)
     async def on_ready(self):
         """On_ready event for when the bot logs into Discord."""
         print('Bot has logged into Discord, ID ' + self.user.id)
@@ -236,7 +243,9 @@ class ProBot(commands.Bot):
                         cb_reply = await self.askcb(msg.content)
                         await self.msend(msg, ':speech_balloon: ' + cb_reply)
                 elif msg.content.lower().startswith(bname.lower() + ' '):
-                    nmsg = self.bdel(msg.content.lower(), bname.lower())
+#                    nmsg = self.bdel(msg.content.lower(), bname.lower())
+                    await self.auto_cb_convo(msg, bname.lower() + ' ')
+                    '''
                     for i in auto_convo_starters:
                         if nmsg.startswith(' ' + i):
                             await self.auto_cb_convo(msg, bname.lower() + ' ')
@@ -245,7 +254,7 @@ class ProBot(commands.Bot):
                         elif nmsg.startswith(', '):
                             await self.auto_cb_convo(msg, bname.lower() + ', ')
                         elif nmsg.startswith('... '):
-                            await self.auto_cb_convo(msg, bname.lower() + '... ')
+                            await self.auto_cb_convo(msg, bname.lower() + '... ')'''
                 else:
                     if msg.content.split('\n')[0] == cmdfix:
                         await self.send_typing(msg.channel)
