@@ -321,8 +321,8 @@ class Roleplay(Cog):
         if target.species:
             em_fields['Species'] = target.species
         if target.evolutions:
-            em_fields['Evolutions'] = ', '.join(target.evolutions)
-            em_fields.move_to_end('Evolutions', last=False)
+            em_fields['Evolves Into'] = ', '.join(target.evolutions)
+            em_fields.move_to_end('Evolves Into', last=False)
         for i in reversed(beginning):
             em_fields.move_to_end(i, last=False)
         for key, value in em_fields.items():
