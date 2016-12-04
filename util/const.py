@@ -197,6 +197,7 @@ emp_msg = '{0.mention} The bot tried to send an empty message for `{2}{1}`. Mayb
 msg_err = '{0.mention} Something went wrong in the bot while responding to `{2}{1}`. Maybe try again? Error: `{3}`'
 nam_err = '{0.mention} Something went wrong in the bot while responding to `{2}{1}`. Maybe try again? Error: internal variable `{3}` not defined.'
 big_msg = '{0.mention} The bot tried to respond to `{2}{1}` with a message too long. Maybe try again?'
+tim_err = '{0.mention} The bot tried to respond to `{2}{1}`, but the web request time-outed! This usually means they\'re down. Maybe try again?'
 charsets = {
     'normal': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~ `!@#$%^&*()-_=+[]{}|;:\'",<.>/?\\',
     'fullwidth': 'ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ０１２３４５６７８９～ ｀！＠＃＄％＾＆＊（）－＿＝＋［］｛｝|；：＇＂,＜．＞/？\\',

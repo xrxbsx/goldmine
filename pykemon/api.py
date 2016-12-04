@@ -7,7 +7,6 @@ User interaction with this package is done through this file."""
 from .request import endpoints
 from .request import make_request
 
-
 async def get(**kwargs):
     """Make a request to PokeAPI and return the requested resource.
     Resource choices:

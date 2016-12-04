@@ -124,6 +124,9 @@ class ProBot(commands.Bot):
                 key = self.bdel(bc_key, "NameError: name '")
                 key = key.replace("' is not defined", '')
                 await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
+            elif bc_key.startswith('TimeoutError:'):
+                key = self.bdel(bc_key, 'TimeoutError:')
+                await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
         else:

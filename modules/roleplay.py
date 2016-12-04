@@ -9,6 +9,7 @@ import discord
 from discord.ext import commands
 from pykemon.api import get as pokeget
 from pykemon import ResourceNotFoundError
+from pykemon.request import _request, Description
 
 import util.datastore as store
 import util.quote as quote
@@ -279,7 +280,12 @@ class Roleplay(Cog):
         else:
             count = 709 # current count of pokemon
             target = await pokeget(pokemon_id=random.randint(1, count))
-        desc = await pokeget(description_id=6623)
+        try:
+            fn_point = target.descriptions[target.name.lower() + '_gen_1']
+        except KeyError:
+            fn_point = random.choice(list(target.descriptions.values()))
+        desc_json = await _request('http://pokeapi.co' + fn_point)
+        desc = Description(desc_json)
         em_data = {
             'title': target.name,
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)

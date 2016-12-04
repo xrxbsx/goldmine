@@ -5,7 +5,6 @@
 This files holds all the class definitions representing resources from PokeAPI.
 """
 
-
 def buildr(bundle, key):
     " Builds a dict of NAME:URI for each item in the bundle "
     return {f['name']: f['resource_uri'] for f in bundle[key]}
@@ -15,7 +14,7 @@ class DateTimeObject(object):
 
     def __init__(self, bundle):
         self.name = bundle['name']
-        self.resource_uri = bundle['resource_uri']
+        self.url = bundle['resource_uri']
         self.created = bundle['created']
         self.modified = bundle['modified']
 
