@@ -290,18 +290,21 @@ class Roleplay(Cog):
             'title': target.name,
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
-        essentials = ['Description', 'ID', 'Health', 'Height', 'Weight', 'Attack', 'Defense', 'Types']
+        essentials = ['Description', 'National ID', 'Health', 'Height', 'Weight', 'Attack', 'Defense', 'Type(s)']
         skipped = ['Moves', 'Effort Value Yield', 'Egg Groups', 'Total', 'Growth Rate', 'Catch Rate', 'Male-Female Ratio', 'Egg Cycles']
-        beginning = ['Description', 'ID', 'Health', 'Attack', 'Defense', 'Weight', 'Height', 'Speed', 'Special Attack', 'Special Defense', 'Experience', 'Happiness', 'Abilities']
+        beginning = ['Description', 'National ID', 'Health', 'Attack', 'Defense', 'Weight', 'Height', 'Speed', 'Special Attack', 'Special Defense', 'Experience', 'Happiness', 'Abilities']
+        tw_float = float(target.weight) / 10.0
+        th_float = float(target.height) / 10.0
+        th_inch = th_float / .3048 % 1 * 12
         em_field_data = {
             'Description': desc.description,
-            'ID': target.id,
-            'Health': target.hp,
+            'National ID': target.id,
+            'Health': str(target.hp) + ' HP',
             'Moves': ', '.join(target.moves),
-            'Types': ', '.join([i.title() for i in target.types]),
+            'Types(s)': ', '.join([i.title() for i in target.types]),
             'Abilities': ', '.join([i.title() for i in target.abilities]),
-            'Height': target.height,
-            'Weight': str(float(target.weight) / 10.0) + ' kg',
+            'Height': str(th_float) + ' m (' + str(int(math.floor(th_inch / 12))) + ' ft ' + str(round(th_inch % 12, 2)) + ' in)',
+            'Weight': str(tw_float) + ' kg (' + str(round(tw_float * 2.2, 2)) + ' lb)',
             'Growth Rate': target.growth_rate,
             'Defense': target.defense,
             'Attack': target.attack,
