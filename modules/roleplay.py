@@ -274,7 +274,7 @@ class Roleplay(Cog):
             except ResourceNotFoundError:
                 try:
                     target = await pokeget(pokemon_id=int(p_name))
-                except ResourceNotFoundError:
+                except (ResourceNotFoundError, ValueError):
                     await bot.say('No such **pokemon**! Try a **Pokédex entry**. (Needs to be **name** or **ID**.)')
                     return
         else:
