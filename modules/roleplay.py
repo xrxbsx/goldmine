@@ -287,7 +287,7 @@ class Roleplay(Cog):
         desc_json = await _request('http://pokeapi.co' + fn_point)
         desc = Description(desc_json)
         em_data = {
-            'title': target.name,
+            'title': target.name.replace('-', ' '),
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
         essentials = ['Description', 'National ID', 'Health', 'Height', 'Weight', 'Attack', 'Defense', 'Type(s)']
@@ -338,5 +338,5 @@ class Roleplay(Cog):
                 emb.add_field(name=key, value=value)
         emb.set_thumbnail(url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
         emb.set_image(url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
-        emb.set_author(name=target.name, icon_url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
+        emb.set_author(name=target.name.replace('-', ' '), icon_url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
         await bot.send_message(ctx.message.channel, embed=emb)
