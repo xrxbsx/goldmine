@@ -6,31 +6,32 @@ This files holds all the class definitions representing resources from PokeAPI.
 """
 
 def buildr(bundle, key):
-    "Builds a dict of NAME:URI for each item in the bundle."
-    return {f['name']: f['url'] for f in bundle[key]}
+    " Builds a dict of NAME:URI for each item in the bundle "
+    return {f['name']: f['resource_uri'] for f in bundle[key]}
 
-def dbuildr(bundle, mkey, key):
-    """Builds a dict of NAME:URI for each item of item in the bundle."""
-    return {f['name']: f['url'] for f in [i[key] for i in bundle[mkey]]}
 
 class DateTimeObject(object):
-    def __init__(self, bundle, url):
-        print(bundle)
+
+    def __init__(self, bundle):
         self.name = bundle['name']
-        self.url = url
+        self.url = bundle['resource_uri']
+        self.created = bundle['created']
+        self.modified = bundle['modified']
+
 
 class Pokemon(DateTimeObject):
     """
     This class represents a single Pokemon resource
     """
 
-    def __init__(self, bundle, url):
-        super(Pokemon, self).__init__(bundle, url)
-        self.id = bundle['id']
-        self.abilities = dbuildr(bundle, 'abilities', 'ability')
+    def __init__(self, bundle):
+        super(Pokemon, self).__init__(bundle)
+        self.id = bundle['national_id']
+        self.abilities = buildr(bundle, 'abilities')
         self.egg_groups = buildr(bundle, 'egg_groups')
-        self.evolutions = dbuildr(bundle, 'evolutions', 'species')
-        self.descriptions = dbuildr(bundle, 'descriptions', 'description')
+        self.evolutions = {
+            f['to']: f['resource_uri'] for f in bundle['evolutions']}
+        self.descriptions = buildr(bundle, 'descriptions')
         self.moves = buildr(bundle, 'moves')
         self.types = buildr(bundle, 'types')
         self.catch_rate = bundle['catch_rate']
@@ -45,6 +46,7 @@ class Pokemon(DateTimeObject):
         self.egg_cycles = bundle['egg_cycles']
         self.ev_yield = bundle['ev_yield']
         self.exp = bundle['exp']
+        self.growth_rate = bundle['growth_rate']
         self.height = bundle['height']
         self.weight = bundle['weight']
         self.happiness = bundle['happiness']
@@ -60,8 +62,8 @@ class Move(DateTimeObject):
     This class represents a single Move resource
     """
 
-    def __init__(self, bundle, url):
-        super(Move, self).__init__(bundle, url)
+    def __init__(self, bundle):
+        super(Move, self).__init__(bundle)
         self.id = bundle['id']
         self.accuracy = bundle['accuracy']
         self.category = bundle['category']
@@ -77,8 +79,8 @@ class Type(DateTimeObject):
     This class represents a single Type Resource
     """
 
-    def __init__(self, bundle, url):
-        super(Type, self).__init__(bundle, url)
+    def __init__(self, bundle):
+        super(Type, self).__init__(bundle)
         self.id = bundle['id']
         self.name = bundle['name']
         self.ineffective = buildr(bundle, 'ineffective')
@@ -95,8 +97,8 @@ class Ability(DateTimeObject):
     This class represents a single Ability resource
     """
 
-    def __init__(self, bundle, url):
-        super(Ability, self).__init__(bundle, url)
+    def __init__(self, bundle):
+        super(Ability, self).__init__(bundle)
         self.id = bundle['id']
         self.description = bundle['description']
 
@@ -109,8 +111,8 @@ class Egg(DateTimeObject):
     This class represents a single Egg group resource
     """
 
-    def __init__(self, bundle, url):
-        super(Egg, self).__init__(bundle, url)
+    def __init__(self, bundle):
+        super(Egg, self).__init__(bundle)
         self.id = bundle['id']
         self.pokemon = buildr(bundle, 'pokemon')
 
@@ -123,8 +125,8 @@ class Description(DateTimeObject):
     This class represents a single Description resource
     """
 
-    def __init__(self, bundle, url):
-        super(Description, self).__init__(bundle, url)
+    def __init__(self, bundle):
+        super(Description, self).__init__(bundle)
         self.id = bundle['id']
         self.description = bundle['description']
         self.pokemon = bundle['pokemon']
@@ -139,8 +141,8 @@ class Sprite(DateTimeObject):
     This class represents a single Sprite resource
     """
 
-    def __init__(self, bundle, url):
-        super(Sprite, self).__init__(bundle, url)
+    def __init__(self, bundle):
+        super(Sprite, self).__init__(bundle)
         self.id = bundle['id']
         self.pokemon = bundle['pokemon']
         self.image = bundle['image']
@@ -154,8 +156,8 @@ class Game(DateTimeObject):
     This class represents a single Game resource
     """
 
-    def __init__(self, bundle, url):
-        super(Game, self).__init__(bundle, url)
+    def __init__(self, bundle):
+        super(Game, self).__init__(bundle)
         self.id = bundle['id']
         self.generation = bundle['generation']
         self.release_year = bundle['release_year']
