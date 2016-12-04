@@ -1,7 +1,6 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
 import asyncio
 import functools
-import traceback
 import random
 import math
 import discord
@@ -132,7 +131,6 @@ class ProBot(commands.Bot):
                 await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
         else:
             await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
-        traceback.print_tb(exp.__traceback__)
 
     def casein(self, substr, clist):
         """Return if a substring is found in any of clist."""
