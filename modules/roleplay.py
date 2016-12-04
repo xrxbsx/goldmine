@@ -291,7 +291,7 @@ class Roleplay(Cog):
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
         essentials = ['Description', 'ID', 'Health', 'Height', 'Weight', 'Attack', 'Defense', 'Types']
-        skipped = ['Moves', 'Effort Value Yield', 'Egg Groups', 'Total', 'Growth Rate', 'Catch Rate', 'Male-Female Ratio', 'Egg Cycles']
+        skipped = ['Moves', 'Effort Value Yield', 'Egg Groups', 'Total', 'Catch Rate', 'Male-Female Ratio', 'Egg Cycles']
         beginning = ['Description', 'ID', 'Health', 'Attack', 'Defense', 'Weight', 'Height', 'Speed', 'Special Attack', 'Special Defense', 'Experience', 'Happiness', 'Abilities']
         em_field_data = {
             'Description': desc.description,
@@ -302,7 +302,6 @@ class Roleplay(Cog):
             'Abilities': ', '.join(target.abilities),
             'Height': target.height,
             'Weight': target.weight,
-            'Growth Rate': target.growth_rate,
             'Defense': target.defense,
             'Attack': target.attack,
             'Experience': target.exp,

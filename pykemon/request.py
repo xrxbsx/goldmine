@@ -12,7 +12,7 @@ import async_timeout
 from .models import Pokemon, Move, Type, Ability, Egg, Description, Sprite, Game
 from .exceptions import ResourceNotFoundError
 
-base_uri = 'http://pokeapi.co/api/v1'
+base_uri = 'http://pokeapi.co/api/v2'
 endpoints = ['pokedex', 'pokedex_id', 'pokemon', 'pokemon_id', 'move', 'move_id',
              'ability', 'ability_id', 'type', 'type_id', 'egg',
              'egg_id', 'description', 'description_id', 'sprite',
@@ -70,6 +70,13 @@ async def make_request(choice):
     """
     uri, nchoice = await _compose(choice)
     data = await _request(uri)
+    d_species = await _request('http://pokeapi.co/api/v2/pokemon-species/' + str(data['id']))
+    d_dex = await _request('http://pokeapi.co/api/v2/pokedex/' + str(data['id']))
+    if d_species['evolution_chain']:
+        d_evol = await _request('http://pokeapi.co/api/v2/evolution-chain/' + str(data['id']))
+        data['evolutions'] = d_evol['chain']['evolves_to']
+    data['descriptions'] = d_dex['descriptions']
+    data['egg_groups'] = d_species['egg_groups']
 
     resource = classes[nchoice]
-    return resource(data)
+    return resource(data, '/api/v2/{0}/{1}'.format(nchoice, data['id']))
