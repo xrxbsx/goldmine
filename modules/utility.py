@@ -159,4 +159,5 @@ Group DM: {4}'''
         Syntax: google [search terms]"""
         intxt = ' '.join(rawin)
         f_query = await self.bot.google(intxt, stop=5)
-        await self.bot.say('Google returned: ' + list(f_query)[0])
+        fql = list(f_query)
+        await self.bot.say('Google returned: ' + fql[0] + ' and ' + fql[1])

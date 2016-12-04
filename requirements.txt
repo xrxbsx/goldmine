@@ -4,8 +4,3 @@ cleverbot
 youtube_dl
 async_timeout
 google
-ujson
-beckett
-simplejson
-inflect
-requests

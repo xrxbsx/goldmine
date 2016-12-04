@@ -3,10 +3,12 @@ import asyncio
 import random
 import math
 import time
+from collections import OrderedDict
 
 import discord
 from discord.ext import commands
-import pykemon
+from pykemon.api import get as pokeget
+from pykemon import ResourceNotFoundError
 
 import util.datastore as store
 import util.quote as quote
@@ -267,26 +269,28 @@ class Roleplay(Cog):
             p_name = None
         if p_name:
             try:
-                target = pykemon.get(pokemon=p_name.lower())
-            except pykemon.ResourceNotFoundError:
+                target = await pokeget(pokemon=p_name.lower())
+            except ResourceNotFoundError:
                 try:
-                    target = pykemon.get(pokemon_id=int(p_name))
-                except (pykemon.ResourceNotFoundError, ValueError):
+                    target = await pokeget(pokemon_id=int(p_name))
+                except ResourceNotFoundError:
                     await bot.say('No such **pokemon**! Try a **Pokédex entry**. (Needs to be **name** or **ID**.)')
                     return
         else:
             count = 709 # current count of pokemon
-            target = pykemon.get(pokemon_id=random.randint(1, count))
+            target = await pokeget(pokemon_id=random.randint(1, count))
+        desc = await pokeget(description_id=6623)
         em_data = {
             'title': target.name,
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
-        essentials = ['ID', 'Health', 'Height', 'Weight', 'Attack', 'Defense', 'Types']
+        essentials = ['Description', 'ID', 'Health', 'Height', 'Weight', 'Attack', 'Defense', 'Types']
         skipped = ['Moves', 'Effort Value Yield', 'Egg Groups', 'Total', 'Growth Rate', 'Catch Rate', 'Male-Female Ratio', 'Egg Cycles']
-        em_fields = {
+        beginning = ['Description', 'ID', 'Health', 'Attack', 'Defense', 'Weight', 'Height', 'Speed', 'Special Attack', 'Special Defense', 'Experience', 'Happiness', 'Abilities']
+        em_field_data = {
+            'Description': desc.description,
             'ID': target.id,
             'Health': target.hp,
-            'Species': target.species,
             'Moves': ', '.join(target.moves),
             'Types': ', '.join([i.title() for i in target.types]),
             'Abilities': ', '.join(target.abilities),
@@ -305,10 +309,16 @@ class Roleplay(Cog):
             'Total': target.total,
             'Effort Value Yield': target.ev_yield,
             'Male-Female Ratio': target.male_female_ratio,
-            'Evolutions': ', '.join(target.evolutions),
-            'Egg Groups': ', '.join(target.egg_groups),
-            'Descriptions': ', '.join(target.descriptions)
+            'Egg Groups': ', '.join(target.egg_groups)
         }
+        em_fields = OrderedDict(sorted(em_field_data.items(), key=lambda t: len(t[0])))
+        if target.species:
+            em_fields['Species'] = target.species
+        if target.evolutions:
+            em_fields['Evolutions'] = ', '.join(target.evolutions)
+            em_fields.move_to_end('Evolutions', last=False)
+        for i in reversed(beginning):
+            em_fields.move_to_end(i, last=False)
         for key, value in em_fields.items():
             if key not in skipped:
                 if key not in essentials:

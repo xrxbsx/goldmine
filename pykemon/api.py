@@ -1,26 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" pykemon.api
+"""pykemon.api
+User interaction with this package is done through this file."""
 
-User interaction with this package is done through this file.
-"""
-
-from beckett.clients import BaseClient
-
-from .request import CHOICES
+from .request import endpoints
 from .request import make_request
 
-from .resources import (
-    MoveResource, PokemonResource, TypeResource, AbilityResource, EggResource,
-    DescriptionResource, SpriteResource, GameResource
-)
 
-
-def get(**kwargs):
-    """
-    Make a request to the PokeAPI server and return the requested resource
-
+async def get(**kwargs):
+    """Make a request to PokeAPI and return the requested resource.
     Resource choices:
 
     pokedex_id
@@ -32,31 +21,13 @@ def get(**kwargs):
     egg_id
     description_id
     sprite_id
-    game_id
-
-    """
+    game_id"""
     if len(kwargs.keys()) > 1:
         raise ValueError('Too many arguments. Only pass 1 argument')
 
-    if list(kwargs.keys())[0] in CHOICES:
-        return make_request(kwargs)
+    if list(kwargs.keys())[0] in endpoints:
+        tmp = await make_request(kwargs)
+        return tmp
 
     else:
         raise ValueError('An invalid argument was passed')
-
-
-class V1Client(BaseClient):
-
-    class Meta(BaseClient.Meta):
-        name = 'pykemon-v1-client'
-        base_url = 'http://pokeapi.co/api/v1'
-        resources = (
-            MoveResource,
-            PokemonResource,
-            TypeResource,
-            AbilityResource,
-            EggResource,
-            DescriptionResource,
-            SpriteResource,
-            GameResource,
-        )
