@@ -90,7 +90,7 @@ cool right?''',
             final_result = await self.stylize(ctx.invoked_with.lower(), imsg)
             await self.bot.say(final_result)
         else:
-            await self.bot.say('You must invoke this command as: `[p][name of set] [message here]`.** For example: `!math_bold hello world`! Here are the character sets available:')
+            await self.bot.say('**You must invoke this command as: `[p][name of set] [message here]`.** For example: `!math_bold hello world`! Here are the character sets available:')
             await self.fontlist.invoke(ctx)
 
     async def stylize(self, alphabet, intxt):
