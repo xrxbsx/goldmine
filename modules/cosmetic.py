@@ -107,6 +107,6 @@ cool right?''',
         for i in self.al_aliases:
             tmp = await self.stylize(i, 'abcdefghijklmnopqrstuvwxyz')
             pager.add_line('**{0}**: `{1}`'.format(i, tmp))
-        pager.add_line('**Invoke with `[p]character_set_name [message here]`.**')
+        pager.add_line('**Invoke with `[p][name of set] [message here]`.** For example: `!math_bold hello world`.')
         for page in pager.pages:
             await self.bot.say(page)
