@@ -35,7 +35,7 @@ cb = Cleverbot()
 
 logging.basicConfig(level=logging.INFO)
 store.initialize()
-bot = PBot(command_prefix='!', description=description, formatter=ProFormatter())
+bot = PBot(command_prefix='!', description=description, formatter=ProFormatter(), pm_help=True)
 bot.add_cog(Voice(bot))
 bot.add_cog(Roleplay(bot))
 bot.add_cog(Admin(bot))
