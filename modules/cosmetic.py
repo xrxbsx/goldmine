@@ -84,10 +84,14 @@ cool right?''',
     @commands.command(pass_context=True, aliases=['math_sans_italic', 'circled', 'math_double', 'math_bold_italic', 'math_sans_bold_italic', 'parenthesized', 'math_bold_fraktur', 'math_sans_bold', 'squared', 'math_mono', 'fullwidth', 'squared_negative', 'normal', 'circled_negative', 'regional', 'math_sans', 'math_bold_script', 'math_bold'])
     async def style(self, ctx, *rmsg):
         """Stylize text in cool alphabets! Invoke with alphabet name.
-        Syntax: [style name] [text here]"""
-        imsg = ' '.join(rmsg)
-        final_result = await self.stylize(ctx.invoked_with.lower(), imsg)
-        await self.bot.say(final_result)
+        Syntax: style [style name] [text here]"""
+        if rmsg:
+            imsg = ' '.join(rmsg)
+            final_result = await self.stylize(ctx.invoked_with.lower(), imsg)
+            await self.bot.say(final_result)
+        else:
+            await self.bot.say('You must invoke this command as: `[p][name of set] [message here]`.** For example: `!math_bold hello world`! Here are the character sets available:')
+            await self.fontlist.invoke(ctx)
 
     async def stylize(self, alphabet, intxt):
         char_rep = []
@@ -101,7 +105,8 @@ cool right?''',
 
     @commands.command(aliases=['fonts', 'list', 'alphabet', 'alphabets', 'alphalist', 'styles', 'stylelist', 'chars', 'charlist', 'charsets', 'charsetlist'])
     async def fontlist(self):
-        """List the available fancy character sets / alphabets / fonts."""
+        """List the available fancy character sets / alphabets / fonts.
+        Syntax: fonts|fontlist|alphabets|styles"""
         pager = commands.Paginator(prefix='', suffix='')
         pager.add_line('**Listing all character sets defined with samples.**')
         for i in self.al_aliases:
