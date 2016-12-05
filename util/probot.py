@@ -314,7 +314,7 @@ class ProBot(commands.Bot):
             try:
                 await command.invoke(ctx)
                 if cl == 'help':
-                    await self.send_message(message.channel, message.author.mention + ' **__I\'ve private messaged you my help and commands, please check your DMs!__** :smiley: Hope you enjoy my neat features.')
+                    await self.send_message(message.channel, message.author.mention + ' **__I\'ve private messaged you my help and commands, please check your DMs!__** :smiley: Hope you enjoy.')
             except CommandError as exp:
                 ctx.command.dispatch_error(exp, ctx)
             else:
