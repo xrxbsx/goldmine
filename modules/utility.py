@@ -1,12 +1,14 @@
 """Definition of the bot's Utility module.'"""
 import asyncio
 import time
+from fnmatch import filter
 import random
 import discord
 from discord.ext import commands
 from google import search
 from util.safe_math import eval_expr as emath
 from util.const import _mention_pattern, _mentions_transforms
+from convert_to_old_syntax import cur_dir, rc_files
 from .cog import Cog
 
 class Utility(Cog):
@@ -120,6 +122,9 @@ Group DM: {4}'''
         avatar_link = (au if au else target.default_avatar_url)
         ach = list(self.bot.get_all_channels())
         chlist = [len(ach), 0, 0, 0, 0]
+        f_chars = 0
+        f_words = 0
+        f_lines = 0
         for i in ach:
             at = str(i.type)
             if at == 'text':
@@ -130,6 +135,12 @@ Group DM: {4}'''
                 chlist[3] += 1
             elif at == 'group':
                 chlist[4] += 1
+        for fn in filter(rc_files(cur_dir), '*.py'):
+            with open(fn, 'r') as f:
+                fr = f.read()
+                f_chars += len(fr)
+                f_words += len(fr.split(' '))
+                f_lines += len(fr.split('\n'))
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
@@ -137,6 +148,10 @@ Group DM: {4}'''
         emb.add_field(name='Servers Accessible', value=len(self.bot.servers), inline=True)
         emb.add_field(name='Author', value='Dragon5232#1841', inline=True)
         emb.add_field(name='Library', value='discord.py', inline=True)
+        emb.add_field(name='Commands', value=str(len(self.bot.commands)))
+        emb.add_field(name='Lines of Code', value=str(f_lines))
+        emb.add_field(name='Characters of Code', value=str(f_chars))
+        emb.add_field(name='Words in Code', value=str(f_words))
         emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())), inline=True)
         emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]), inline=True)
         emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()), inline=True)

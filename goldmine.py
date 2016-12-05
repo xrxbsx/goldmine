@@ -14,7 +14,7 @@ if sys.version_info[1] < 5:
     print('You\'re using Python 3.3 or 3.4. This will require the old syntax converter.')
     print('Press Enter to convert. Note: not ALL features will work.')
     input()
-    print('Not implemented yet. Run convert-to-old-syntax.py manually.')
+    print('Not implemented yet. Run convert_to_old_syntax.py manually.')
     exit(0)
 if sys.version_info[1] == 3:
     print('You\'re using Python 3.3. This will require the discord.py requirements hack as well.')
