@@ -55,7 +55,8 @@ async def on_member_join(member: discord.Member):
 If you need any help, contact someone with your :question::question:s.
 Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.
 '''
-    if store.get_prop(member, 'broadcast_join') in bool_true:
+    bc = await store.get_prop(member, 'broadcast_join')
+    if str(bc).lower() in bool_true:
         await bot.send_message(member.server, fmt.format(member, member.server,
                                                          em_string))
 
@@ -65,7 +66,8 @@ async def on_member_remove(member: discord.Member):
     fmt = '''Awww, **{0.mention}** has just left this server. Bye bye, **{0.mention}**!
 **{1.name}** has now lost a {2}. We'll miss you! :bear:
 '''
-    if store.get_prop(member, 'broadcast_leave') in bool_true:
+    bc = await store.get_prop(member, 'broadcast_leave')
+    if str(bc).lower() in bool_true:
         utype = ('bot' if member.bot else 'member')
         await bot.send_message(member.server, fmt.format(member, member.server, utype))
 
