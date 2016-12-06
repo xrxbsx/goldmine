@@ -67,7 +67,7 @@ class Admin(Cog):
 #        for i in self.bot.servers:
 #            await self.bot.send_message(i.default_channel, 'This bot (' + self.bname + ') is now restarting!')
         await self.bot.say('This bot is now restarting! Hopefully I come back alive :)')
-        print('This bot is now restarting!')
+        self.logger.info('This bot is now restarting!')
         self.bot.is_restart = True
         await self.bot.logout()
         self.loop.stop()

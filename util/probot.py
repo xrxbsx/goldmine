@@ -3,6 +3,7 @@ import asyncio
 import functools
 import random
 import math
+import logging
 import discord
 import discord.ext.commands as commands
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
@@ -23,6 +24,7 @@ class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
 
     def __init__(self, **kwargs):
+        self.logger = logging.getLogger('discord').getChild('client')
         self.cb = Cleverbot()
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
@@ -96,7 +98,7 @@ class ProBot(commands.Bot):
         cprocessed = cproc[len(cmdfix):]
         c_key = str(exp)
         bc_key = self.bdel(c_key, 'Command raised an exception: ')
-        print('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
+        self.logger.exception('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.CommandNotFound):
             await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.NoPrivateMessage):
@@ -130,11 +132,11 @@ class ProBot(commands.Bot):
             else:
                 await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
         elif isinstance(exp, commands.MissingRequiredArgument):
-            await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, self.commands[cprocessed].help.split('\n')[-1:][0]))
+            await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + self.bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         elif isinstance(exp, commands.TooManyArguments):
-            await self.csend(ctx, too_arg.format(ctx.message.author, cprocessed, cmdfix, self.commands[cprocessed].help.split('\n')[-1:][0]))
+            await self.csend(ctx, too_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + self.bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         elif isinstance(exp, commands.BadArgument):
-            await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, self.commands[cprocessed].help.split('\n')[-1:][0]))
+            await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + self.bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         else:
             await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
 
@@ -146,7 +148,7 @@ class ProBot(commands.Bot):
         return False
 
     @staticmethod
-    def bdel(s, r): return s[len(r):]
+    def bdel(s, r): return (s[len(r):] if s.startswith(r) else s)
 
     async def oauto_cb_convo(self, msg, kickstart):
         """The old, broken auto conversation manager."""
@@ -169,18 +171,43 @@ class ProBot(commands.Bot):
                 reply_bot = await self.askcb(reply) #ORIG
                 await self.msend(msg, msg.author.mention + ' ' + reply_bot) #ORIG
             self.auto_convos.remove(absid)
-    async def auto_cb_convo(self, msg, kickstart):
-        """Current hacked up auto conversation manager."""
+    async def auto_cb_convo(self, msg, kickstart, replace=False):
+        """Current auto conversation manager."""
         if self.status == 'invisible': return
         await self.send_typing(msg.channel)
         lmsg = msg.content.lower()
         reply = lmsg
-        reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' '))
+        if replace:
+            cb_string = lmsg.replace(kickstart, '')
+        else:
+            cb_string = self.bdel(lmsg, kickstart)
+        reply_bot = await self.askcb(cb_string)
         await self.msend(msg, msg.author.mention + ' ' + reply_bot)
+
     async def on_ready(self):
         """On_ready event for when the bot logs into Discord."""
-        print('Bot has logged into Discord, ID ' + self.user.id)
+        self.logger.info('Bot has logged into Discord, ID ' + self.user.id)
         await self.update_presence()
+
+    async def on_member_join(self, member: discord.Member):
+        """On_member_join event for newly joined members."""
+        cemotes = member.server.emojis
+        em_string = (': ' + ' '.join([str(i) for i in cemotes]) if len(cemotes) >= 1 else '')
+        fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
+If you need any help, contact someone with your :question::question:s.
+Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.'''
+        bc = await get_prop(member, 'broadcast_join')
+        if str(bc).lower() in bool_true:
+            await self.send_message(member.server, fmt.format(member, member.server,
+                                                            em_string))
+    async def on_member_remove(self, member: discord.Member):
+        """On_member_remove event for members leaving."""
+        fmt = '''Awww, **{0.mention}** has just left this server. Bye bye, **{0.mention}**!
+**{1.name}** has now lost a {2}. We'll miss you! :bear:'''
+        bc = await get_prop(member, 'broadcast_leave')
+        if str(bc).lower() in bool_true:
+            utype = ('bot' if member.bot else 'member')
+            await self.send_message(member.server, fmt.format(member, member.server, utype))
 
     async def on_message(self, msg):
         cmdfix = await get_cmdfix(msg)
@@ -235,8 +262,8 @@ class ProBot(commands.Bot):
                         self.status = 'dnd'
                         await self.update_presence()
                         await self.msend(msg, 'Successfully **resumed** the bot\'s command and conversation processing!')
-                elif myself in msg.mentions:
-                    await self.auto_cb_convo(msg, self.user.mention)
+                elif myself.mentioned_in(msg):
+                    await self.auto_cb_convo(msg, self.user.mention, replace=True)
                 elif msg.channel.is_private:
                     if msg.content.split('\n')[0] == cmdfix:
                         await self.send_typing(msg.channel)

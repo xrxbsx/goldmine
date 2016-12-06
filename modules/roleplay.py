@@ -261,20 +261,18 @@ class Roleplay(Cog):
         Syntax: face"""
         await self.bot.send_message(ctx.message.channel, random.choice(weird_faces))
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, hidden=True)
     async def emotispam(self, ctx):
-        """Spam some emotes! WARNING: Lag alert.
+        """Spam some emotes! WARNING: INSTANT CRASH!!!!!!! YOU MUST DELETE THE EMOJIS FROM BROWSER OR MOBILE TO FIX.
         Syntax: emotispam"""
-        await echeck_perms(ctx, ['bot_admin'])
+        await echeck_perms(ctx, ['bot_owner'])
         _em = emojis
-        r = list(range(1, math.ceil(len(emojis) / 2000)))
+        r = list(range(0, math.ceil(len(emojis) / 2000)))
         print('r ' + str(r))
         for i in r:
             print('i ' + str(i))
             await self.bot.say(_em[:2000])
-            print('PRE EM ' + _em[:2000])
             _em = _em[2000:]
-            print('POST EM ' + _em)
 
     @commands.command(pass_context=True, aliases=['pokeball', 'pokedex'])
     async def pokemon(self, ctx, *pokemon_name: str):
