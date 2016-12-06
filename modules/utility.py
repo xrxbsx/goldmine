@@ -37,7 +37,7 @@ class Utility(Cog):
     async def calc(self, *args):
         """Evaluates a mathematical experssion.
         Syntax: calc [expression]"""
-        await self.bot.say(emath(' '.join(args)))
+        await self.bot.say('```python\n' + str(emath(' '.join(args))) + '```')
 
     @commands.command(pass_context=True, aliases=['about', 'whois', 'who'])
     async def user(self, ctx, *users: str):
