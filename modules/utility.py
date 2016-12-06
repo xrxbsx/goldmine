@@ -33,7 +33,7 @@ class Utility(Cog):
         Syntax: say [message]"""
         await self.bot.say(' '.join(args))
 
-    @commands.command()
+    @commands.command(aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate'])
     async def calc(self, *args):
         """Evaluates a mathematical experssion.
         Syntax: calc [expression]"""
