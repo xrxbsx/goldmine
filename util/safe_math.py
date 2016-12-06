@@ -4,8 +4,8 @@ import operator as op
 
 # supported operators
 operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
-             ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
-             ast.USub: op.neg}
+             ast.Div: op.truediv, ast.BitXor: op.xor,
+             ast.USub: op.neg} # ast.Pow: op.pow
 
 def eval_expr(expr):
     """Parse a mathematical expression for eval_()."""
@@ -21,3 +21,9 @@ def eval_(node):
         return operators[type(node.op)](eval_(node.operand))
     else:
         raise TypeError(node)
+
+def power(a, b):
+    if any(abs(n) > 900 for n in [a, b]):
+        raise ValueError((a,b))
+    return op.pow(a, b)
+operators[ast.Pow] = power

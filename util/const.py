@@ -201,6 +201,7 @@ tim_err = '{0.mention} The bot tried to respond to `{2}{1}`, but the web request
 not_arg = '{0.mention} You tried to execute `{2}{1}` without enough arguments. Type `{2}help {1}` for extra help. Here\'s the valid syntax:\n`{3}`'
 too_arg = '{0.mention} You tried to execute `{2}{1}` with too many arguments. Type `{2}help {1}` for extra help. Here\'s the valid syntax:\n`{3}`'
 bad_arg = '{0.mention} You tried to execute `{2}{1}` with an invalid argument. Type `{2}help {1}` for extra help. Here\'s the valid syntax:\n`{3}`'
+ast_err = '{0.mention} You tried to execute `{2}{1}` with an invalid math expression. Maybe numbers too big? Or wrong symbols?'
 
 charsets = {
     'normal': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~ `!@#$%^&*()-_=+[]{}|;:\'",<.>/?\\',
