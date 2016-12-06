@@ -129,6 +129,12 @@ class ProBot(commands.Bot):
                 await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
+        elif isinstance(exp, commands.MissingRequiredArgument):
+            await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, self.commands[cprocessed].help.split('\n')[-1:][0]))
+        elif isinstance(exp, commands.TooManyArguments):
+            await self.csend(ctx, too_arg.format(ctx.message.author, cprocessed, cmdfix, self.commands[cprocessed].help.split('\n')[-1:][0]))
+        elif isinstance(exp, commands.BadArgument):
+            await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, self.commands[cprocessed].help.split('\n')[-1:][0]))
         else:
             await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
 

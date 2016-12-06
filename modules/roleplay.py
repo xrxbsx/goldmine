@@ -135,6 +135,7 @@ class Roleplay(Cog):
     async def quotelist(self):
         """Lists all the quotes found in the quote collection.
         Syntax: quotelist"""
+        # maybe PM this
         rstore = await store.dump()
         pager = commands.Paginator(prefix='', suffix='')
         pager.add_line('**Listing all quotes defined.**')
@@ -148,78 +149,95 @@ class Roleplay(Cog):
     async def quoteadd(self, ctx, *args):
         """Add a quote to the quote collection.
         Syntax: quoteadd [text here]"""
-        fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
-        bname = await store.get_prop(ctx.message, 'bot_name')
-        q_template = {
-            'id': 0,
-            'quote': 'The bot has encountered an internal error.',
-            'author': bname,
-            'author_ids': [self.bot.user.id],
-            'date': fmt_time
-        }
-        mauthor = ctx.message.author
-        q_template['quote'] = ' '.join(args)
-        q_template['author'] = mauthor.display_name
-        if mauthor.display_name != mauthor.name:
-            q_template['author'] += ' (' + mauthor.name + ')'
-        q_template['author_ids'] = [mauthor.id]
-        rstore = await store.dump()
-        q_template['id'] = len(rstore['quotes']) # +1 for next id, but len() counts from 1
-        rstore['quotes'].extend([q_template])
-        await store.write(rstore)
-        await self.bot.say('The quote specified has been successfully added!')
+        if args:
+            fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
+            bname = await store.get_prop(ctx.message, 'bot_name')
+            q_template = {
+                'id': 0,
+                'quote': 'The bot has encountered an internal error.',
+                'author': bname,
+                'author_ids': [self.bot.user.id],
+                'date': fmt_time
+            }
+            mauthor = ctx.message.author
+            q_template['quote'] = ' '.join(args)
+            q_template['author'] = mauthor.display_name
+            if mauthor.display_name != mauthor.name:
+                q_template['author'] += ' (' + mauthor.name + ')'
+            q_template['author_ids'] = [mauthor.id]
+            rstore = await store.dump()
+            q_template['id'] = len(rstore['quotes']) # +1 for next id, but len() counts from 1
+            rstore['quotes'].extend([q_template])
+            await store.write(rstore)
+            await self.bot.say('The quote specified has been successfully added!')
+        else:
+            await self.bot.say(ctx.message.author.mention + ' You need to specify some text to add!')
 
     @commands.command(pass_context=True, aliases=['rnewquote', 'rquotenew', 'raddquote', 'rmakequote', 'rquotemake', 'rcreatequote', 'rquotecreate', 'raq'])
     async def rquoteadd(self, ctx, target: discord.Member, *args):
         """Add a quote to the quote collection.
         Syntax: rquoteadd [member] [text here]"""
         await echeck_perms(ctx, ['bot_admin'])
-        fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
-        bname = await store.get_prop(ctx.message, 'bot_name')
-        q_template = {
-            'id': 0,
-            'quote': 'The bot has encountered an internal error.',
-            'author': bname,
-            'author_ids': [self.bot.user.id],
-            'date': fmt_time
-        }
-        mauthor = target
-        q_template['quote'] = ' '.join(args)
-        q_template['author'] = mauthor.display_name
-        if mauthor.display_name != mauthor.name:
-            q_template['author'] += ' (' + mauthor.name + ')'
-        q_template['author_ids'] = [mauthor.id]
-        rstore = await store.dump()
-        q_template['id'] = len(rstore['quotes']) # +1 for next id, but len() counts from 1
-        rstore['quotes'].extend([q_template])
-        await store.write(rstore)
-        await self.bot.say('The quote specified has been successfully added!')
+        if args:
+            fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
+            bname = await store.get_prop(ctx.message, 'bot_name')
+            q_template = {
+                'id': 0,
+                'quote': 'The bot has encountered an internal error.',
+                'author': bname,
+                'author_ids': [self.bot.user.id],
+                'date': fmt_time
+            }
+            mauthor = target
+            q_template['quote'] = ' '.join(args)
+            q_template['author'] = mauthor.display_name
+            if mauthor.display_name != mauthor.name:
+                q_template['author'] += ' (' + mauthor.name + ')'
+            q_template['author_ids'] = [mauthor.id]
+            rstore = await store.dump()
+            q_template['id'] = len(rstore['quotes']) # +1 for next id, but len() counts from 1
+            rstore['quotes'].extend([q_template])
+            await store.write(rstore)
+            await self.bot.say('The quote specified has been successfully added!')
+        else:
+            await self.bot.say(ctx.message.author.mention + ' You need to specify some text to add!')
 
     @commands.command(pass_context=True, aliases=['quoteedit', 'modquote', 'editquote'])
     async def quotemod(self, ctx, qindex1: int, *qraw):
         """Modifies an existing quote.
         Syntax: quotemod [quote number] [new text here]"""
-        rstore = await store.dump()
-        q_template = rstore['quotes'][qindex1 - 1]
-        mauthor = ctx.message.author
-        q_template['quote'] = ' '.join(qraw)
-        if mauthor.id not in q_template['author_ids']:
-            q_template['author'] += ', ' + mauthor.display_name
-            if mauthor.display_name != mauthor.name:
-                q_template['author'] += ' (' + mauthor.name + ')'
-        q_template['author_ids'].extend([mauthor.id])
-        q_template['date'] = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
-        rstore = await store.dump() # keep store as fresh as possible
-        rstore['quotes'][qindex1 - 1] = q_template
-        await store.write(rstore)
-        await self.bot.say('The quote specified has been successfully modified!')
+        if qraw:
+            rstore = await store.dump()
+            try:
+                q_template = rstore['quotes'][qindex1 - 1]
+            except IndexError:
+                await self.bot.say(ctx.message.author.mention + ' That quote doesn\'t already exist, maybe create it?')
+                return
+            mauthor = ctx.message.author
+            q_template['quote'] = ' '.join(qraw)
+            if mauthor.id not in q_template['author_ids']:
+                q_template['author'] += ', ' + mauthor.display_name
+                if mauthor.display_name != mauthor.name:
+                    q_template['author'] += ' (' + mauthor.name + ')'
+            q_template['author_ids'].extend([mauthor.id])
+            q_template['date'] = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
+            rstore = await store.dump() # keep store as fresh as possible
+            rstore['quotes'][qindex1 - 1] = q_template
+            await store.write(rstore)
+            await self.bot.say('The quote specified has been successfully modified!')
+        else:
+            await self.bot.say(ctx.message.author.mention + ' You can\'t empty an existing quote!')
 
     @commands.command(pass_context=True, aliases=['rmquote', 'quoterm', 'delquote'])
     async def quotedel(self, ctx, qindex: int):
         """Deletes an existing quote. You may only delete your own quotes unless you are the bot owner.
         Syntax: quotedel [quote number]"""
         rstore = await store.dump()
-        q_target = rstore['quotes'][qindex - 1]
+        try:
+            q_target = rstore['quotes'][qindex - 1]
+        except IndexError:
+            await self.bot.say(ctx.message.author.mention + ' That quote doesn\'t already exist, maybe create it for deletion? :stuck_out_tongue:')
+            return
         mauthor = ctx.message.author
         _pcheck = await check_perms(ctx, ['bot_owner'])
         if (mauthor.id == q_target['author_ids'][0]) or (_pcheck):
