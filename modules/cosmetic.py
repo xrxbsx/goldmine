@@ -64,21 +64,17 @@ cool right?''',
         r_embed.set_image(url='https://discordapp.com/api/guilds/250304680159215616/icons/7d1bb7b626b7bdf15b838288fc6ed346.jpg') #bottom
         r_embed.set_footer(text='Hi this is the footer text', icon_url='https://images.discordapp.net/icons/239772188649979904/b5a73c73e291e059a6bebdc9b98c6f89.jpg')
         r_embed.set_author(name='Name Hi this is the header text / author', url='http://khronodragon.com', icon_url='https://images.discordapp.net/icons/239772188649979904/b5a73c73e291e059a6bebdc9b98c6f89.jpg')
-        for i in range(1, 18):
-            icount = 1
+        for i in range(1, 4):
             r_embed.add_field(name='Field ' + str(i), value='Test value for ' + str(i), inline=False)
-            r_embed.add_field(name='Field ' + str(i) + '.' + str(icount) + 'i', value='Test value for ' + str(i), inline=True)
-            icount += 1
-            r_embed.add_field(name='Field ' + str(i) + '.' + str(icount) + 'i', value='Test value for ' + str(i), inline=True)
-            icount += 1
-            r_embed.add_field(name='Field ' + str(i) + '.' + str(icount) + 'i', value='Test value for ' + str(i), inline=True)
-            icount += 1
+            for icount in range(1, 3):
+                r_embed.add_field(name='Field ' + str(i) + '.' + str(icount) + 'i', value='Test value for ' + str(i), inline=True)
             r_embed.add_field(name='Field ' + str(i), value='Test value for ' + str(i), inline=False)
-            icount = 1
         await self.bot.send_message(ctx.message.channel, embed=r_embed)
 
     @commands.command(aliases=['rev', 'mirror'])
     async def reverse(self, *rmsg):
+        """Reverse some text you give.
+        Syntax: reverse [text here]"""
         await self.bot.say(':repeat: ' + ' '.join(rmsg)[::-1])
 
     @commands.command(pass_context=True, aliases=['math_sans_italic', 'circled', 'math_double', 'math_bold_italic', 'math_sans_bold_italic', 'parenthesized', 'math_bold_fraktur', 'math_sans_bold', 'squared', 'math_mono', 'fullwidth', 'squared_negative', 'normal', 'circled_negative', 'regional', 'math_sans', 'math_bold_script', 'math_bold'])

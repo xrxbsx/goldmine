@@ -2,11 +2,12 @@
 import asyncio
 import functools
 import random
+import inspect
 import math
 import logging
 import discord
 import discord.ext.commands as commands
-from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
+from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound, HelpFormatter
 from google import search
 from cleverbot import Cleverbot
 from util.datastore import get_cmdfix, get_prop, set_prop
@@ -23,7 +24,7 @@ class CleverQuery():
 class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, **options):
         self.logger = logging.getLogger('discord').getChild('client')
         self.cb = Cleverbot()
         self.is_restart = False
@@ -40,7 +41,7 @@ class ProBot(commands.Bot):
         self.alt_cb_queue = asyncio.Queue() # For cleverbutts
         self.main_cb_executor = self.loop.create_task(self.cb_task(self.main_cb_queue))
         self.alt_cb_executor = self.loop.create_task(self.cb_task(self.alt_cb_queue))
-        super().__init__(**kwargs)
+        super().__init__(**options)
 
     async def cb_task(self, queue):
         """Handle the answering of all Cleverbot queries."""
@@ -98,7 +99,7 @@ class ProBot(commands.Bot):
         cprocessed = cproc[len(cmdfix):]
         c_key = str(exp)
         bc_key = self.bdel(c_key, 'Command raised an exception: ')
-        self.logger.exception('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
+        self.logger.error('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.CommandNotFound):
             await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.NoPrivateMessage):
@@ -346,7 +347,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             self.dispatch('command', command, ctx)
             try:
                 await command.invoke(ctx)
-                if cl == 'help':
+                if ctx.message.content == prefix + 'help':
                     await self.send_message(message.channel, message.author.mention + ' **__I\'ve private messaged you my help and commands, please check your DMs!__** :smiley: Hope you enjoy.')
             except CommandError as exp:
                 ctx.command.dispatch_error(exp, ctx)

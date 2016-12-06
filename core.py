@@ -49,7 +49,7 @@ def runbot(loop, bot):
 
 def main():
     """Executes the main bot."""
-    bot = PBot(command_prefix='!', description=description, formatter=ProFormatter(), pm_help=True)
+    bot = PBot(command_prefix='!', description=description, formatter=ProFormatter(), pm_help=None)
     bot.add_cog(Voice(bot))
     bot.add_cog(Roleplay(bot))
     bot.add_cog(Admin(bot))

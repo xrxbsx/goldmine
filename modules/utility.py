@@ -136,8 +136,8 @@ Group DM: {4}'''
             elif at == 'group':
                 chlist[4] += 1
         for fn in filter(rc_files(cur_dir), '*.py'):
-            with open(fn, 'r') as f:
-                fr = f.read()
+            with open(fn, 'rb') as f: # fix for windows unicode error
+                fr = f.read().decode('utf-8') # fix for windows unicode error
                 f_chars += len(fr)
                 f_words += len(fr.split(' '))
                 f_lines += len(fr.split('\n'))

@@ -132,18 +132,23 @@ class Roleplay(Cog):
         await self.bot.say(out_msg)
 
     @commands.command(aliases=['quotes', 'listquote', 'quoteslist', 'listquotes', 'dumpquotes', 'quotedump', 'quotesdump'])
-    async def quotelist(self):
+    async def quotelist(self, *rshow_pages: int):
         """Lists all the quotes found in the quote collection.
         Syntax: quotelist"""
         # maybe PM this
+        show_pages = [i for i in rshow_pages]
         rstore = await store.dump()
-        pager = commands.Paginator(prefix='', suffix='')
-        pager.add_line('**Listing all quotes defined.**')
+        pager = commands.Paginator(prefix='', suffix='', max_size=2000 - 43)
+        if not show_pages:
+            show_pages.append(1)
         for n, i in enumerate(rstore['quotes']):
             qout = await quote.qrender(i, n)
             pager.add_line(qout)
-        for page in pager.pages:
-            await self.bot.say(page)
+        for page_n in show_pages:
+            try:
+                await self.bot.say('**__Listing page *{0}* of *{1}* of quotes.__**\n'.format(page_n, len(pager.pages)) + pager.pages[page_n - 1])
+            except IndexError:
+                await self.bot.say('**__Error: page *{0}* doesn\'t exist! There are *{1}* pages.__**'.format(page_n, len(pager.pages)))
 
     @commands.command(pass_context=True, aliases=['newquote', 'quotenew', 'addquote', 'makequote', 'quotemake', 'createquote', 'quotecreate'])
     async def quoteadd(self, ctx, *args):
