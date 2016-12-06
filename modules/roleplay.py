@@ -47,7 +47,7 @@ class Roleplay(Cog):
         await self.bot.say('*' + ctx.message.author.display_name + keystr +
                            target + '* **' + random.choice(adjs) + '**.')
 
-    @commands.command(pass_context=True, aliases=['stab'])
+    @commands.command(pass_context=True, aliases=['stab', 'kill', 'punch', 'shoot', 'hurt', 'fight'])
     async def attack(self, ctx, target: str):
         """Hurts someone with determination in the shot.
         Syntax: attack [person]"""
