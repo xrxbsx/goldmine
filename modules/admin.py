@@ -68,7 +68,7 @@ class Admin(Cog):
         await self.bot.say('This bot is now restarting! Hopefully I come back alive :)')
         self.logger.info('This bot is now restarting!')
         self.bot.is_restart = True
-        await self.bot.logout()
+#        await self.bot.logout() # Comment for people to not see that the bot restarted (to trick uptime)
         self.loop.stop()
 
     @commands.command(pass_context=True, hidden=True)
