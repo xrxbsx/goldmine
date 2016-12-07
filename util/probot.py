@@ -3,6 +3,8 @@ import asyncio
 import functools
 import random
 import inspect
+import subprocess
+from fnmatch import filter
 import math
 import logging
 import discord
@@ -10,6 +12,7 @@ import discord.ext.commands as commands
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound, HelpFormatter
 from google import search
 from cleverbot import Cleverbot
+from convert_to_old_syntax import cur_dir, rc_files
 from util.datastore import get_cmdfix, get_prop, set_prop
 import util.ranks as rank
 from util.const import *
@@ -41,6 +44,20 @@ class ProBot(commands.Bot):
         self.alt_cb_queue = asyncio.Queue() # For cleverbutts
         self.main_cb_executor = self.loop.create_task(self.cb_task(self.main_cb_queue))
         self.alt_cb_executor = self.loop.create_task(self.cb_task(self.alt_cb_queue))
+        self.chars = 0
+        self.words = 0
+        self.lines = 0
+        for fn in filter(rc_files(cur_dir), '*.py'):
+            with open(fn, 'rb') as f: # fix for windows unicode error
+                fr = f.read().decode('utf-8') # fix for windows unicode error
+                self.chars += len(fr)
+                self.words += len(fr.split(' '))
+                self.lines += len(fr.split('\n'))
+        self.git_rev = 'Couldn\'t fetch'
+        try:
+            self.git_rev = subprocess.check_output(['git', 'describe', '--always']).decode('utf-8')
+        except subprocess.CalledProcessError:
+            pass
         super().__init__(**options)
 
     async def cb_task(self, queue):
