@@ -45,12 +45,11 @@ class Admin(Cog):
         try:
             gitout = subprocess.check_output(['git', 'pull', '-v'], stderr=subprocess.STDOUT).decode('utf-8')
         except subprocess.CalledProcessError as exp:
-            await self.bot.say('An error has occured while attempting to update!')
-            await self.bot.say('```' + str(exp) + '```')
-            await self.bot.say('Aborting. Contact Dragon5232 for help.')
+            await self.bot.say('An error occured while attempting to update!')
+            await self.bot.send_message(ctx.message.author, '```' + str(exp) + '```')
             gitout = False
         if gitout != False:
-            await self.bot.say('Output:\n```' + gitout + '```')
+            await self.bot.send_message(ctx.message.author, 'Output:\n```' + gitout + '```')
         if not gitout:
             await self.bot.say('Update failed, not restarting.')
         elif gitout.split('\n')[-2:][0] == 'Already up-to-date.':
