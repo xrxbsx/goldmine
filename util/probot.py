@@ -10,10 +10,11 @@ import math
 import logging
 import discord
 import discord.ext.commands as commands
-from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound, HelpFormatter
+from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
 from google import search
 from cleverbot import Cleverbot
 from convert_to_old_syntax import cur_dir, rc_files
+from properties import storage_backend
 from util.datastore import get_cmdfix, get_prop, set_prop
 import util.ranks as rank
 from util.const import *

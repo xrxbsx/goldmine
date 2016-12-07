@@ -104,31 +104,6 @@ async def get_prop(msg, prop: str):
                         return rs['properties']['global']['profile']
                     else:
                         raise KeyError(str)
-async def pget_prop(scope: str, prop: str):
-    def main_loop(scope: str, prop: str):
-        if scope == 'by_user':
-#            thing = await get_props_u()
-            pass
-    try:
-        thing = await get_props_u(msg)
-        return thing[prop]
-    except (KeyError, AttributeError):
-        try: # Channel
-            thing = await get_props_c(msg)
-            return thing[prop]
-        except (KeyError, AttributeError):
-            try: # Server
-                thing = await get_props_s(msg)
-                return thing[prop]
-            except (KeyError, AttributeError):
-                try:
-                    rs = await dump()
-                    return rs['properties']['global'][prop]
-                except (KeyError, AttributeError):
-                    if prop.startswith('profile_'):
-                        return rs['properties']['global']['profile']
-                    else:
-                        raise KeyError(str)
 
 async def get_cmdfix(msg):
     """Easy method to retrieve the command prefix in current scope."""

@@ -76,7 +76,6 @@ class Admin(Cog):
         """Evaluate some code in command scope.
         Syntax: eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
-        rstore = await store.dump()
         try:
             ev_output = eval(' '.join(rawtxt))
         except Exception as e:
@@ -87,7 +86,6 @@ class Admin(Cog):
         """Evaluate a statement in command scope.
         Syntax:s eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
-        rstore = await store.dump()
         try:
             ev_output = exec(' '.join(rawtxt))
         except Exception as e:
@@ -160,12 +158,15 @@ class Admin(Cog):
         await self.bot.say(pout)
 
     @commands.command(pass_context=True)
-    async def setprop(self, ctx, pname: str, value: str):
+    async def setprop(self, ctx, pname: str, *values: str):
         """Set the value of a property on server level.
         Syntax: setprop [property name] [value]"""
         await echeck_perms(ctx, ['server_admin'])
+        value = ' '.join(values)
         await store.set_prop(ctx.message, 'by_server', pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
+        if pname == 'bot_name':
+            await self.bot.change_nickname(ctx.message.server.me, value)
 
     @commands.command(pass_context=True, aliases=['usersetprop', 'psetprop'])
     async def usetprop(self, ctx, pname: str, value: str):
