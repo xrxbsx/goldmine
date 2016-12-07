@@ -5,6 +5,7 @@ import random
 import inspect
 import subprocess
 from fnmatch import filter
+from datetime import datetime
 import math
 import logging
 import discord
@@ -58,6 +59,7 @@ class ProBot(commands.Bot):
             self.git_rev = subprocess.check_output(['git', 'describe', '--always']).decode('utf-8')
         except subprocess.CalledProcessError:
             pass
+        self.start_time = datetime.now()
         super().__init__(**options)
 
     async def cb_task(self, queue):

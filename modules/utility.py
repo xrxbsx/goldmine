@@ -3,6 +3,7 @@ import asyncio
 import time
 from fnmatch import filter
 import random
+from datetime import datetime, timedelta
 import discord
 from discord.ext import commands
 from google import search
@@ -131,12 +132,14 @@ Group DM: {4}'''
                 chlist[3] += 1
             elif at == 'group':
                 chlist[4] += 1
+        time_diff = datetime.now() - self.bot.start_time
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
         emb.set_footer(text='Made in Python 3.3+', icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
         emb.add_field(name='Servers Accessible', value=len(self.bot.servers), inline=True)
         emb.add_field(name='Author', value='Dragon5232#1841', inline=True)
+        emb.add_field(name='Uptime', value='{0} mins {1} secs'.format(*[round(i, 2) for i in divmod(time_diff.total_seconds(), 60)]))
         emb.add_field(name='Library', value='discord.py', inline=True)
         emb.add_field(name='Git Revision', value=self.bot.git_rev)
         emb.add_field(name='Commands', value=str(len(self.bot.commands)))
