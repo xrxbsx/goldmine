@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Goldmine by Armored-Dragon</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Goldmine</h1>
+        <h2>Goldmine, a new bot for Discord that keeps things nice and snug. Featuring VOICE (MUSIC), NATURAL LANGUAGE, IMAGES, CUSTOM WIDGETS, RANKS, and more!</h2>
+        <a href="https://github.com/Armored-Dragon/goldmine" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="goldmine" class="anchor" href="#goldmine" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Goldmine</h1>
+
+<p>This is Goldmine, a new bot for Discord that keeps things nice and smug.
+This bot is written in Python 3, and uses discord.py and asyncio for performance.</p>
+
+<h3>
+<a id="warning-work-in-progress" class="anchor" href="#warning-work-in-progress" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Warning: Work In Progress!</h3>
+
+<h1>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h1>
+
+<ul>
+<li>Commands:
+
+<ul>
+<li>purge [channel] - Removes all messages sent by this bot in the specified channel.</li>
+<li>Too many more to list.</li>
+</ul>
+</li>
+<li>Auto-conversation: start a friendly conversation with the bot!
+
+<ul>
+<li>Mentions work</li>
+<li>You can also initiate it like <code>goldmine heya there, you awake?</code> and it triggers auto-conversation.</li>
+<li>Auto-conversations automatically end when the questions stop.</li>
+<li>Auto-conversations apply per-user and per-channel, which means they won't interfere with other stuff - yay!</li>
+<li>Dynamic bot names</li>
+</ul>
+</li>
+<li>DM conversations: have some fun here :)</li>
+<li>Per-server bot name and command prefix :D</li>
+</ul>
+
+<h1>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h1>
+
+<h3>
+<a id="two-click-public-instance" class="anchor" href="#two-click-public-instance" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Two-Click (Public Instance)</h3>
+
+<h4>
+<a id="this-method-is-extremely-easy-but-may-not-offer-the-best-performance-andor-reliability-overall-better" class="anchor" href="#this-method-is-extremely-easy-but-may-not-offer-the-best-performance-andor-reliability-overall-better" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>This method is extremely easy, but may not offer the best performance and/or reliability. Overall, better.</h4>
+
+<p>Just click this link: <a href="https://discordapp.com/api/oauth2/authorize?client_id=239775420470394897&amp;scope=bot&amp;permissions=66321471" title="Click to add GOLDMINE to your server!">Click to add GOLDMINE and CO. to your server</a>, select a server, click <strong>Done</strong>, and you're all set! Easy as pie :)</p>
+
+<p>You might want to set the command prefix and/or bot name for your server. To do so, simply make sure you're a server admin (Manage Server permission), and type: </p>
+
+<ul>
+<li>
+<code>!setprop bot_name MyAwesomeBot</code> for bot name, replacing <strong>MyAwesomeBot</strong> with your desired name.</li>
+<li>
+<code>!setprop command_prefix $</code> for command prefix, replacing <strong>$</strong> with your desired prefix.</li>
+</ul>
+
+<h3>
+<a id="manual-private-instance" class="anchor" href="#manual-private-instance" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Manual (Private Instance)</h3>
+
+<h4>
+<a id="this-method-is-more-reliable-but-harder-to-set-up" class="anchor" href="#this-method-is-more-reliable-but-harder-to-set-up" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>This method is more reliable, but harder to set up.</h4>
+
+<p>Simply run <code>python3 -m pip install -U -r requirements.txt</code> to install all the dependencies of this bot.
+Next, you'll need to create a bot account on Discord and get your bot authentication token. Create a new file called <code>btoken.py</code> in the same folder as <code>goldmine.py</code>, and insert the following:</p>
+
+<div class="highlight highlight-source-python"><pre>bot_token <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>INSERT_YOUR_TOKEN_HERE<span class="pl-pds">'</span></span></pre></div>
+
+<p>Replace INSERT_YOUR_TOKEN_HERE with your actual token. Make sure you keep the quotes, though!</p>
+
+<p>Then, you'll want to replace the owner with your DiscordTag. To do this, open <code>properties.py</code> in a text editor and edit <code>bot_owner = '160567046642335746'</code> to match your Discord user ID. Example: 012345678901234567 - make sure you don't leave out any numbers, though. There should be 18.</p>
+
+<h4>
+<a id="now-simply-run-python3-goldminepy-and-your-bot-is-good-to-go" class="anchor" href="#now-simply-run-python3-goldminepy-and-your-bot-is-good-to-go" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Now simply run <code>python3 goldmine.py</code> and your bot is good to go!</h4>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/Armored-Dragon/goldmine/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/Armored-Dragon/goldmine/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/Armored-Dragon/goldmine"></a> is maintained by <a href="https://github.com/Armored-Dragon">Armored-Dragon</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
