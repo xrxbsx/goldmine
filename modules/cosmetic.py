@@ -46,7 +46,7 @@ TOTAL EXPERIENCE: {4}**
         Syntax: emotes"""
         cemotes = ctx.message.author.server.emojis
         em_string = (' '.join([str(i) for i in cemotes]) if len(cemotes) >= 1 else 'This server has no custom emojis!')
-        await self.bot.say(' '.join(em_string))
+        await self.bot.say(em_string)
 
     @commands.command(pass_context=True)
     async def etest(self, ctx):

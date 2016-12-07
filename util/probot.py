@@ -147,9 +147,13 @@ class ProBot(commands.Bot):
             elif bc_key.startswith('TimeoutError:'):
                 key = self.bdel(bc_key, 'TimeoutError:')
                 await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
-            elif bc_key.startswith('TypeError: <_ast.'):
-                key = self.bdel(bc_key, 'TypeError: <_ast.')
-                await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
+            elif (cprocessed in self.commands['calc'].aliases) or (cprocessed == 'calc'):
+                if bc_key.startswith('ValueError: ('):
+                    pass
+                else:
+                    key = self.bdel(bc_key, 'SyntaxError: invalid syntax (<unknown>, line ')
+                    key = self.bdel(bc_key, 'TypeError: <_ast.')
+                    await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
         elif isinstance(exp, commands.MissingRequiredArgument):

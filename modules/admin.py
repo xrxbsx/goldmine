@@ -77,14 +77,22 @@ class Admin(Cog):
         Syntax: eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
         rstore = await store.dump()
-        await self.bot.say('```python\n' + str(eval(' '.join(rawtxt))) + '```')
+        try:
+            ev_output = eval(' '.join(rawtxt))
+        except Exception as e:
+            ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
+        await self.bot.say('```python\n' + str(ev_output) + '```')
     @commands.command(pass_context=True, hidden=True)
     async def seref(self, ctx, *rawtxt: str):
         """Evaluate a statement in command scope.
         Syntax:s eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
         rstore = await store.dump()
-        await self.bot.say('```python\n' + str(exec(' '.join(rawtxt))) + '```')
+        try:
+            ev_output = exec(' '.join(rawtxt))
+        except Exception as e:
+            ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
+        await self.bot.say('```python\n' + str(ev_output) + '```')
 
     @commands.command(pass_context=True, aliases=['amiadmin', 'isadmin', 'admin'])
     async def admintest(self, ctx):
