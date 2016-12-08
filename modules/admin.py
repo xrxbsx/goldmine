@@ -145,9 +145,11 @@ class Admin(Cog):
         alist = ''
         for i in rstore['bot_admins']:
             _name = ctx.message.server.get_member(i)
-            if not _name:
-                _name = '*User not in current server! ID: **{0}***'.format(i)
-            alist += '**' + str(_name) + '**\n'
+            if _name:
+                alist += '**' + str(_name) + '**\n'
+            else:
+                _name = '**User not in current server! ID:** *{0}*\n'.format(i)
+                alist += _name
         await self.bot.say('The following people are bot admins:\n' + alist)
 
     @commands.command(pass_context=True)
@@ -168,6 +170,18 @@ class Admin(Cog):
         if pname == 'bot_name':
             await self.bot.change_nickname(ctx.message.server.me, value)
 
+    @commands.command(pass_context=True)
+    async def prefix(self, ctx, *prefix):
+        """Get or set the command prefix.
+        Syntax: prefix {optional: new prefix}"""
+        if prefix:
+            await echeck_perms(ctx, ['server_admin'])
+            jprefix = ' '.join(list(prefix))
+            await store.set_prop(ctx.message, 'by_server', 'command_prefix', jprefix)
+            await self.bot.say('Successfully set command prefix as `' + jprefix + '`!')
+        else:
+            oprefix = await store.get_cmdfix(ctx.message)
+            await self.bot.say('**Current server command prefix is: **`' + oprefix + '`')
     @commands.command(pass_context=True, aliases=['usersetprop', 'psetprop'])
     async def usetprop(self, ctx, pname: str, value: str):
         """Set the value of a property on user level.

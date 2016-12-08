@@ -22,6 +22,7 @@ if sys.version_info[1] == 3:
     input()
     print('Not implemented yet. Manually install discord.py with aiohttp==0.17.4.')
     exit(0)
+import os
 import asyncio
 while True:
     print(' - Loading bot code')
@@ -31,17 +32,20 @@ while True:
     print(' - Bot stopped.')
     if retval: # restart
         print(' - Restarting bot.')
-        exit(0)
-        print(' - Unloading old code')
-        del core
-        del sys.modules['core']
-        print(' - Discarding old event loop')
-        loop_old = asyncio.get_event_loop()
-        loop_old.close()
-        print(' - Creating new event loop')
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        print(' - Ready to start bot!')
+        if sys.platform.startswith('linux'):
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        else:
+            exit(0)
+            print(' - Unloading old code')
+            del core
+            del sys.modules['core']
+            print(' - Discarding old event loop')
+            loop_old = asyncio.get_event_loop()
+            loop_old.close()
+            print(' - Creating new event loop')
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            print(' - Ready to start bot!')
     else:
         print(' - Exiting.')
         exit(0)

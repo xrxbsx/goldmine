@@ -9,6 +9,9 @@ from discord.ext import commands
 from google import search
 from util.safe_math import eval_expr as emath
 from util.const import _mention_pattern, _mentions_transforms
+from util.perms import check_perms
+from util.fake import FakeContextMember, FakeMessageMember
+from properties import bot_owner
 from .cog import Cog
 
 class Utility(Cog):
@@ -55,7 +58,10 @@ class Utility(Cog):
         if users:
             members = {}
             for i in s.members:
+                members[i.mention] = i
+                members[i.id] = i
                 members[i.display_name] = i
+                members[i.name] = i
             for i in users:
                 member = s.get_member(i)
                 if member:
@@ -64,17 +70,20 @@ class Utility(Cog):
             _i = 0
             while _i < len(users):
                 names.append(users[_i])
-                if ' '.join(names) in members:
-                    targets.append(members[' '.join(names)])
-                    names = []
-                elif _i + 1 == len(users):
-                    targets.append(members[users[0]])
-                    _i = -1
-                    users = users[1:]
-                    names = []
+                try:
+                    if ' '.join(names) in members:
+                        targets.append(members[' '.join(names)])
+                        names = []
+                    elif _i + 1 == len(users):
+                        targets.append(members[users[0]])
+                        _i = -1
+                        users = users[1:]
+                        names = []
+                except KeyError as e:
+                    await self.bot.say('User **%s** not found, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!' % str(e).strip("'"))
                 _i += 1
             if not targets:
-                await self.bot.say('No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!')
+                await self.bot.say('**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
                 return
         else:
             targets.append(ctx.message.author)
@@ -84,6 +93,18 @@ class Utility(Cog):
             d_name = target.display_name
             t_roles = target.roles
             t_game = target.game
+            b_roles = []
+            tg_ctx = FakeContextMember(FakeMessageMember(target))
+            c_srv = await check_perms(tg_ctx, ['server_admin'])
+            c_own = bool(target.id == bot_owner)
+            c_adm = await check_perms(tg_ctx, ['bot_admin'])
+            c_sown = await check_perms(tg_ctx, ['server_owner'])
+            if c_own:
+                b_roles.append('Bot Owner')
+            if c_adm:
+                b_roles.append('Bot Admin')
+            if c_srv:
+                b_roles.append('Server Admin')
             try:
                 t_roles.remove(target.server.default_role)
             except ValueError:
@@ -92,13 +113,14 @@ class Utility(Cog):
             r_embed.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
             r_embed.set_thumbnail(url=avatar_link) #top right
             r_embed.set_footer(text=str(target), icon_url=avatar_link)
-            r_embed.add_field(name='Nickname', value=('No nickname set!' if d_name == target.name else d_name), inline=True)
-            r_embed.add_field(name='User ID', value=target.id, inline=True)
-            r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt), inline=True)
-            r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt), inline=True)
-            r_embed.add_field(name='Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no roles!', inline=True)
+            r_embed.add_field(name='Nickname', value=('No nickname set :frowning:' if d_name == target.name else d_name))
+            r_embed.add_field(name='User ID', value=target.id)
+            r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt))
+            r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt))
+            r_embed.add_field(name='Server Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no server roles :frowning:')
+            r_embed.add_field(name='Bot Roles', value=', '.join(b_roles) if b_roles else 'User has no bot roles :frowning:')
             r_embed.add_field(name='Status', value=status_map[str(target.status)])
-            r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing!'))
+            r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing :frowning:'))
             await self.bot.send_message(ctx.message.channel, embed=r_embed)
 
     @commands.command(pass_context=True, aliases=['gm'])
@@ -110,7 +132,7 @@ Text: {1}
 Voice: {2}
 DM: {3}
 Group DM: {4}'''
-        absfmt = '%a %b %d, %Y %I:%M %p UTC'
+        absfmt = '%a %b %d, %Y %I:%M:%S %p'
         status_map = {
             'online': 'Online',
             'offline': 'Offline',
@@ -137,19 +159,20 @@ Group DM: {4}'''
         emb.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
         emb.set_footer(text='Made in Python 3.3+', icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
-        emb.add_field(name='Servers Accessible', value=len(self.bot.servers), inline=True)
-        emb.add_field(name='Author', value='Dragon5232#1841', inline=True)
+        emb.add_field(name='Servers Accessible', value=len(self.bot.servers))
+        emb.add_field(name='Author', value='Dragon5232#1841')
+        emb.add_field(name='Version', value=self.bot.version)
         emb.add_field(name='Uptime', value='{0} mins {1} secs'.format(*[round(i, 2) for i in divmod(time_diff.total_seconds(), 60)]))
-        emb.add_field(name='Library', value='discord.py', inline=True)
+        emb.add_field(name='Library', value='discord.py')
         emb.add_field(name='Git Revision', value=self.bot.git_rev)
         emb.add_field(name='Commands', value=str(len(self.bot.commands)))
         emb.add_field(name='Lines of Code', value=self.bot.lines)
         emb.add_field(name='Characters of Code', value=self.bot.chars)
         emb.add_field(name='Words in Code', value=self.bot.words)
-        emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())), inline=True)
-        emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]), inline=True)
-        emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()), inline=True)
-        emb.add_field(name='ID', value=target.id, inline=True)
+        emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())))
+        emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]))
+        emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
+        emb.add_field(name='ID', value=target.id)
         await self.bot.send_message(ctx.message.channel, embed=emb)
 
     @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp'])

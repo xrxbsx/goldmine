@@ -67,7 +67,7 @@ cool right?''',
         for i in range(1, 4):
             r_embed.add_field(name='Field ' + str(i), value='Test value for ' + str(i), inline=False)
             for icount in range(1, 3):
-                r_embed.add_field(name='Field ' + str(i) + '.' + str(icount) + 'i', value='Test value for ' + str(i), inline=True)
+                r_embed.add_field(name='Field ' + str(i) + '.' + str(icount) + 'i', value='Test value for ' + str(i))
             r_embed.add_field(name='Field ' + str(i), value='Test value for ' + str(i), inline=False)
         await self.bot.send_message(ctx.message.channel, embed=r_embed)
 

@@ -1,5 +1,5 @@
 # Goldmine
-This is Goldmine, a new bot for Discord that keeps things nice and smug.
+This is Goldmine, a new bot for Discord that keeps things nice and snug. Featuring VOICE (MUSIC), NATURAL LANGUAGE, IMAGES, CUSTOM WIDGETS, RANKS, and more!
 This bot is written in Python 3, and uses discord.py and asyncio for performance.
 ###Warning: Work In Progress!
 

@@ -7,7 +7,9 @@ from properties import storage_backend
 from util.const import orig_store
 
 f_exts = {
-    'json': 'json'
+    'json': 'json',
+    'leveldb': 'ldb',
+    'pickle': 'db'
 }
 
 async def get_dir():

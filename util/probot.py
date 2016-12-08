@@ -4,6 +4,7 @@ import functools
 import random
 import inspect
 import subprocess
+import os
 from fnmatch import filter
 from datetime import datetime
 import math
@@ -13,11 +14,13 @@ import discord.ext.commands as commands
 from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
 from google import search
 from cleverbot import Cleverbot
+import pickledb
 from convert_to_old_syntax import cur_dir, rc_files
 from properties import storage_backend
-from util.datastore import get_cmdfix, get_prop, set_prop
+from util.datastore import get_cmdfix, get_prop, set_prop, f_exts
 import util.ranks as rank
 from util.const import *
+from util.func import bdel
 
 class CleverQuery():
     def __init__(self, channel_to, query, prefix, suffix):
@@ -61,6 +64,23 @@ class ProBot(commands.Bot):
         except subprocess.CalledProcessError:
             pass
         self.start_time = datetime.now()
+        self.dir = os.path.dirname(os.path.realpath(__file__))
+        self.storepath = os.path.join(self.dir, '..', 'storage.')
+        try:
+            self.storepath += f_exts[storage_backend]
+        except KeyError:
+            self.logger.critical('Invalid storage backend specified, quitting!')
+            exit(1)
+        self.version = '0.0.1'
+        print(cur_dir)
+        with open(os.path.join(cur_dir, '__init__.py')) as f:
+            self.version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+        self.storage = None
+        if storage_backend == 'leveldb':
+            import plyvel
+            self.storage = plyvel.xp_level
+        elif storage_backend == 'pickledb':
+            self.storage = pickledb.load(self.storepath, False)
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -118,7 +138,7 @@ class ProBot(commands.Bot):
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
         c_key = str(exp)
-        bc_key = self.bdel(c_key, 'Command raised an exception: ')
+        bc_key = bdel(c_key, 'Command raised an exception: ')
         self.logger.error('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.CommandNotFound):
             await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
@@ -130,9 +150,9 @@ class ProBot(commands.Bot):
             if bc_key.startswith('CommandPermissionError: ' + cmdfix):
                 await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
             elif bc_key.startswith('HTTPException: '):
-                key = self.bdel(bc_key, 'HTTPException: ')
+                key = bdel(bc_key, 'HTTPException: ')
                 if key.startswith('BAD REQUEST'):
-                    key = self.bdel(bc_key, 'BAD REQUEST')
+                    key = bdel(bc_key, 'BAD REQUEST')
                     if key.endswith('Cannot send an empty message'):
                         await self.csend(ctx, emp_msg.format(ctx.message.author, cprocessed, cmdfix))
                     elif c_key.startswith('Command raised an exception: HTTPException: BAD REQUEST (status code: 400)'):
@@ -144,27 +164,27 @@ class ProBot(commands.Bot):
                 else:
                     await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
             elif bc_key.startswith('NameError: name '):
-                key = self.bdel(bc_key, "NameError: name '")
+                key = bdel(bc_key, "NameError: name '")
                 key = key.replace("' is not defined", '')
                 await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
             elif bc_key.startswith('TimeoutError:'):
-                key = self.bdel(bc_key, 'TimeoutError:')
+                key = bdel(bc_key, 'TimeoutError:')
                 await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
             elif (cprocessed in self.commands['calc'].aliases) or (cprocessed == 'calc'):
                 if bc_key.startswith('ValueError: ('):
                     pass
                 else:
-                    key = self.bdel(bc_key, 'SyntaxError: invalid syntax (<unknown>, line ')
-                    key = self.bdel(bc_key, 'TypeError: <_ast.')
+                    key = bdel(bc_key, 'SyntaxError: invalid syntax (<unknown>, line ')
+                    key = bdel(bc_key, 'TypeError: <_ast.')
                     await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
         elif isinstance(exp, commands.MissingRequiredArgument):
-            await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + self.bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
+            await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         elif isinstance(exp, commands.TooManyArguments):
-            await self.csend(ctx, too_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + self.bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
+            await self.csend(ctx, too_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         elif isinstance(exp, commands.BadArgument):
-            await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + self.bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
+            await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         else:
             await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
 
@@ -175,9 +195,6 @@ class ProBot(commands.Bot):
                 return True
         return False
 
-    @staticmethod
-    def bdel(s, r): return (s[len(r):] if s.startswith(r) else s)
-
     async def oauto_cb_convo(self, msg, kickstart):
         """The old, broken auto conversation manager."""
         if self.status == 'invisible': return
@@ -187,14 +204,14 @@ class ProBot(commands.Bot):
             self.auto_convos.append(absid)
             lmsg = msg.content.lower()
             reply = lmsg
-            reply_bot = await self.askcb(self.bdel(lmsg, kickstart + ' ')) #ORIG
+            reply_bot = await self.askcb(bdel(lmsg, kickstart + ' ')) #ORIG
             await self.msend(msg, msg.author.mention + ' ' + reply_bot) #ORIG
-#            cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
+#            cb_query = CleverQuery(msg.channel, bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
 #            await self.main_cb_queue.put(cb_query) #NEW
             while self.casein('?', [reply_bot, reply]) or (reply_bot in q_replies):
                 rep = await self.wait_for_message(author=msg.author)
                 reply = rep.content
-#                cb_query = CleverQuery(msg.channel, self.bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
+#                cb_query = CleverQuery(msg.channel, bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
 #                await self.main_cb_queue.put(cb_query) #NEW
                 reply_bot = await self.askcb(reply) #ORIG
                 await self.msend(msg, msg.author.mention + ' ' + reply_bot) #ORIG
@@ -208,7 +225,7 @@ class ProBot(commands.Bot):
         if replace:
             cb_string = lmsg.replace(kickstart, '')
         else:
-            cb_string = self.bdel(lmsg, kickstart)
+            cb_string = bdel(lmsg, kickstart)
         reply_bot = await self.askcb(cb_string)
         await self.msend(msg, msg.author.mention + ' ' + reply_bot)
 
@@ -304,7 +321,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                         cb_reply = await self.askcb(msg.content)
                         await self.msend(msg, ':speech_balloon: ' + cb_reply)
                 elif msg.content.lower().startswith(bname.lower() + ' '):
-#                    nmsg = self.bdel(msg.content.lower(), bname.lower())
+#                    nmsg = bdel(msg.content.lower(), bname.lower())
                     await self.auto_cb_convo(msg, bname.lower() + ' ')
                     '''
                     for i in auto_convo_starters:
