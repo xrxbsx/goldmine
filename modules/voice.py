@@ -10,14 +10,16 @@ from discord.ext import commands
 import aiohttp
 import async_timeout
 from util.const import sem_cells
+import util.datastore as store
 from .cog import Cog
 
 class VoiceEntry:
     """Class to represent an entry in the standard voice quene."""
-    def __init__(self, message, player):
+    def __init__(self, message, player, jukebox):
         self.requester = message.author
         self.channel = message.channel
         self.player = player
+        self.jukebox = jukebox
 
     def __str__(self):
         fmt = '**{0}**'
@@ -97,21 +99,24 @@ class VoiceState:
             self.current = await self.songs.get()
             await self.bot.send_message(self.current.channel, 'Now playing ' + str(self.current))
             self.current.player.start()
-            if not re.match(r'http:\/\/[A-Z0-9\-]*.acapela-group.com\/MESSAGES\/[0-9]{33,}\/AcapelaGroup_WebDemo_HTML\/sounds\/[0-9]{6,10}_[a-z0-9]{10,15}\.mp3', self.current.player.url):
-                k_str = 'JUKEBOX FOR **' + self.current.player.title + '**\n'
-                juke_m = await self.bot.send_message(self.current.channel, k_str)
-                juke_cells = [':red_circle:', ':large_blue_circle:', ':green_heart:', ':diamond_shape_with_a_dot_inside:']
-                sq_dia = 9
-                while not self.play_next_song.is_set(): # :red_circle: :large_blue_circle: :green_heart:
-                    lines = []
-                    for i in range(sq_dia):
-                        cells = []
+            if self.current.jukebox:
+                if not re.match(r'http:\/\/[A-Z0-9\-]*.acapela-group.com\/MESSAGES\/[0-9]{33,}\/AcapelaGroup_WebDemo_HTML\/sounds\/[0-9]{6,10}_[a-z0-9]{10,15}\.mp3', self.current.player.url):
+                    k_str = 'JUKEBOX FOR **' + self.current.player.title + '**\n'
+                    juke_m = await self.bot.send_message(self.current.channel, k_str)
+                    juke_cells = [':red_circle:', ':large_blue_circle:', ':green_heart:', ':diamond_shape_with_a_dot_inside:']
+                    sq_dia = 9
+                    while not self.play_next_song.is_set(): # :red_circle: :large_blue_circle: :green_heart:
+                        lines = []
                         for i in range(sq_dia):
-                            cells.append(random.choice(sem_cells))
-                        lines.append(' '.join(cells))
-                    await self.bot.edit_message(juke_m, k_str + '\n'.join(lines))
-                    await asyncio.sleep(1.05)
-                await self.bot.edit_message(juke_m, juke_m.content + '\nSorry, nothing here anymore!\n**FINISHED PLAYING SONG!**')
+                            cells = []
+                            for i in range(sq_dia):
+                                cells.append(random.choice(sem_cells))
+                            lines.append(' '.join(cells))
+                        await self.bot.edit_message(juke_m, k_str + '\n'.join(lines))
+                        await asyncio.sleep(1.05)
+                    await self.bot.edit_message(juke_m, juke_m.content + '\nSorry, nothing here anymore!\n**FINISHED PLAYING SONG!**')
+            else:
+                await self.play_next_song.wait()
 
     async def speech_player_task(self):
         """Handle the quene and playing of speech entries."""
@@ -207,11 +212,11 @@ class Voice(Cog):
         player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
 
         player.volume = 0.7
-        entry = VoiceEntry(ctx.message, player)
+        entry = VoiceEntry(ctx.message, player, False)
         was_empty = state.songs.empty()
         await state.songs.put(entry)
         if was_empty:
-            await self.bot.say('quened ' + str(entry) + '!')
+            await self.bot.say('Quened ' + str(entry) + '!')
 
     @commands.command(pass_context=True, no_pm=True)
     async def volume(self, ctx, value: int):
@@ -360,7 +365,7 @@ class Voice(Cog):
             player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
 
             player.volume = 0.75
-            entry = VoiceEntry(ctx.message, player)
+            entry = VoiceEntry(ctx.message, player, False)
             await state.songs.put(entry)
             await self.bot.say('Queued **Purple Shep speech**! :smiley:')
             await asyncio.sleep(1)
@@ -401,7 +406,7 @@ class Voice(Cog):
         for n, i in enumerate(songs):
             player = await state.voice.create_ytdl_player(i[0], ytdl_options={'quiet': True}, after=state.toggle_next)
             player.volume = 0.75
-            entry = VoiceEntry(ctx.message, player)
+            entry = VoiceEntry(ctx.message, player, False)
             await state.songs.put(entry)
             del status[len(status) - 1]
             status.append('Queued **{0}**! :smiley::christmas_tree:'.format(i[1]))
