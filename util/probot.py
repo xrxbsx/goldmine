@@ -320,9 +320,9 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                         await self.send_typing(msg.channel)
                         cb_reply = await self.askcb(msg.content)
                         await self.msend(msg, ':speech_balloon: ' + cb_reply)
-                elif msg.content.lower().startswith(bname.lower() + ' '):
+                elif msg.content.lower().startswith(bname.lower()):
 #                    nmsg = bdel(msg.content.lower(), bname.lower())
-                    await self.auto_cb_convo(msg, bname.lower() + ' ')
+                    await self.auto_cb_convo(msg, bname.lower())
                     '''
                     for i in auto_convo_starters:
                         if nmsg.startswith(' ' + i):
