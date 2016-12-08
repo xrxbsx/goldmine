@@ -40,7 +40,7 @@ class Admin(Cog):
         """Auto-updates this bot and restarts if any code was updated.
         Syntax: update"""
         await echeck_perms(ctx, ['bot_owner'])
-        await self.bot.say('Trying to update...')
+        await self.bot.say('Trying to update... `-`')
         subprocess.check_output(['git', 'reset', 'HEAD', '--hard'])
         try:
             gitout = subprocess.check_output(['git', 'pull', '-v'], stderr=subprocess.STDOUT).decode('utf-8')
@@ -49,7 +49,7 @@ class Admin(Cog):
             await self.bot.send_message(ctx.message.author, '```' + str(exp) + '```')
             gitout = False
         if gitout != False:
-            await self.bot.send_message(ctx.message.author, 'Output:\n```' + gitout + '```')
+            await self.bot.send_message(ctx.message.author, 'Update Output:\n```' + gitout + '```')
         if not gitout:
             await self.bot.say('Update failed, not restarting.')
         elif gitout.split('\n')[-2:][0] == 'Already up-to-date.':

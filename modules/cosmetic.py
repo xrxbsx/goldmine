@@ -6,7 +6,7 @@ from discord.ext import commands
 import util.datastore as store
 import util.ranks as rank
 from .cog import Cog
-from util.const import charsets
+from util.const import charsets, spinners
 
 class Cosmetic(Cog):
     """Commands for some neat-o fun!
@@ -15,6 +15,8 @@ class Cosmetic(Cog):
 
     def __init__(self, bot):
         self.al_aliases = [key for key in charsets]
+        self.playing_anim = []
+        self.stop_anim = []
 #        print(self.al_aliases)
         super().__init__(bot)
 
@@ -111,3 +113,42 @@ cool right?''',
         pager.add_line('**Invoke with `[p][name of set] [message here]`.** For example: `!math_bold hello world`.')
         for page in pager.pages:
             await self.bot.say(page)
+
+    @commands.command(pass_context=True, aliases=['af', 'sca', 'anim'])
+    async def animation(self, ctx, anim_seq, runs: int):
+        """Do a 0.9 fps animation x times from the given sequence.
+        Syntax: af [packed animation] [number of runs]"""
+        if ctx.message.server.id not in self.playing_anim:
+            self.playing_anim.append(ctx.message.server.id)
+            msg = await self.bot.say('Starting animation...')
+            for _xi in range(runs):
+                for frame in anim_seq:
+                    if ctx.message.server.id not in self.stop_anim:
+                        await self.bot.edit_message(msg, frame)
+                        await asyncio.sleep(0.93)
+                    else:
+                        await self.bot.edit_message(msg, '**Animation stopped!**')
+                        await self.bot.say('**Animation stopped!**')
+                        return
+            await self.bot.edit_message(msg, '**Animation stopped!**')
+            await self.bot.say('**Animation stopped!**')
+        else:
+            await self.bot.say('**Already playing an animation in this server!')
+
+    @commands.command(pass_context=True, aliases=['sa', 'ssca', 'sanim', 'stopanimation', 'animstop', 'saf'])
+    async def stopanim(self, ctx):
+        """Stop the animation playing in this server, if any.
+        Syntax: stopanim"""
+        if ctx.message.server.id in self.playing_anim:
+            await self.bot.say('**Stopping animation...**')
+            self.stop_anim.append(ctx.message.server.id)
+            await asyncio.sleep(1.9)
+            self.stop_anim.remove(ctx.message.server.id)
+        else:
+            await self.bot.say('**Not playing any animation here!**')
+
+    @commands.command(aliases=['lanim', 'listanims', 'listanim', 'animationlist', 'animl', 'anims', 'animations'])
+    async def animlist(self):
+        """List the packed animations I have saved.
+        Syntax: animlist"""
+        await self.bot.say('**Listing stored packed animations.**\n' + '\n'.join(spinners))
