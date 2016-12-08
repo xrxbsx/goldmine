@@ -129,11 +129,13 @@ cool right?''',
                     else:
                         await self.bot.edit_message(msg, '**Animation stopped!**')
                         await self.bot.say('**Animation stopped!**')
+                        self.playing_anim.remove(ctx.message.server.id)
                         return
             await self.bot.edit_message(msg, '**Animation stopped!**')
             await self.bot.say('**Animation stopped!**')
+            self.playing_anim.remove(ctx.message.server.id)
         else:
-            await self.bot.say('**Already playing an animation in this server!')
+            await self.bot.say('**Already playing an animation in this server!**')
 
     @commands.command(pass_context=True, aliases=['sa', 'ssca', 'sanim', 'stopanimation', 'animstop', 'saf'])
     async def stopanim(self, ctx):
@@ -151,4 +153,4 @@ cool right?''',
     async def animlist(self):
         """List the packed animations I have saved.
         Syntax: animlist"""
-        await self.bot.say('**Listing stored packed animations.**\n' + '\n'.join(spinners))
+        await self.bot.say('**Listing stored packed animations.**```\n' + '\n'.join(spinners) + '```')

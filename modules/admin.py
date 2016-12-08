@@ -170,7 +170,7 @@ class Admin(Cog):
         if pname == 'bot_name':
             await self.bot.change_nickname(ctx.message.server.me, value)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['getprefix', 'setprefix'])
     async def prefix(self, ctx, *prefix):
         """Get or set the command prefix.
         Syntax: prefix {optional: new prefix}"""
@@ -182,6 +182,7 @@ class Admin(Cog):
         else:
             oprefix = await store.get_cmdfix(ctx.message)
             await self.bot.say('**Current server command prefix is: **`' + oprefix + '`')
+
     @commands.command(pass_context=True, aliases=['usersetprop', 'psetprop'])
     async def usetprop(self, ctx, pname: str, value: str):
         """Set the value of a property on user level.
