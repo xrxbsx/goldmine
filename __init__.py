@@ -10,6 +10,6 @@ __title__ = 'goldmine'
 __author__ = 'Dragon5232'
 __license__ = 'MIT'
 __copyright__ = 'Copyright 2016 Dragon5232'
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 __all__ = ['core']
