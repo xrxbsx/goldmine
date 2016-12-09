@@ -148,6 +148,8 @@ class ProBot(commands.Bot):
             await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.DisabledCommand):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
+        elif isinstance(exp, commands.CommandOnCooldown):
+            await self.csend(ctx, coc_fmt.format(ctx.message.author, cprocessed, cmdfix, bdel(c_key, 'You are on cooldown. Try again in ')))
         elif isinstance(exp, commands.CommandInvokeError):
             if bc_key.startswith('CommandPermissionError: ' + cmdfix):
                 _perms = ''

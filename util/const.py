@@ -203,6 +203,7 @@ too_arg = '{0.mention} You tried to execute `{2}{1}` with too many arguments. Ty
 bad_arg = '{0.mention} You tried to execute `{2}{1}` with an invalid argument. Type `{2}help {1}` for extra help. Here\'s the valid syntax:\n`{3}`'
 ast_err = '{0.mention} You tried to execute `{2}{1}` with an invalid math expression. Maybe numbers too big? Or wrong symbols?'
 ast_pow = '{0.mention} You tried to execute `{2}{1}` with a power too high. Max is `900**900`.'
+coc_fmt = '{0.mention} You\'re currently on cooldown for `{2}{1}`. Try again in **{3}**.'
 
 charsets = {
     'normal': 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~ `!@#$%^&*()-_=+[]{}|;:\'",<.>/?\\',

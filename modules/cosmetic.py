@@ -114,6 +114,7 @@ cool right?''',
         for page in pager.pages:
             await self.bot.say(page)
 
+    @commands.cooldown(1, 6, type=commands.BucketType.server)
     @commands.command(pass_context=True, aliases=['af', 'sca', 'anim'])
     async def animation(self, ctx, anim_seq, runs: int):
         """Do a 0.9 fps animation x times from the given sequence.
