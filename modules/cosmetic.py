@@ -150,7 +150,7 @@ cool right?''',
         else:
             await self.bot.say('**Not playing any animation here!**')
 
-    @commands.command(aliases=['lanim', 'listanims', 'listanim', 'animationlist', 'animl', 'anims', 'animations'])
+    @commands.command(aliases=['lanim', 'listanims', 'listanim', 'animationlist', 'animl', 'anims', 'animations', 'al', 'packs', 'packed', 'pal', 'pa'])
     async def animlist(self):
         """List the packed animations I have saved.
         Syntax: animlist"""
