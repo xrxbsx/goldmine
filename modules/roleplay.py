@@ -52,8 +52,8 @@ class Roleplay(Cog):
         """Hurts someone with determination in the shot.
         Syntax: attack [person]"""
         await self.bot.say('*' + ctx.message.author.display_name + '* ' +
-                           random.choice(fights).format(target) + '. '
-                           + random.choice(death).format(target))
+                           random.choice(fights).format('*' + target + '*') + '. '
+                           + random.choice(death).format('*' + target + '*'))
 
     @commands.command()
     async def charlie(self, *args):

@@ -194,6 +194,7 @@ Group DM: {4}'''
         emb.add_field(name='Modules Loaded', value=len(self.bot.modules))
         emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())))
         emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]))
+        emb.add_field(name='Custom Emojis', value=len(list(self.bot.get_all_emojis())))
         emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
         emb.add_field(name='ID', value=target.id)
         emb.add_field(name='My Homeland', value='https://blog.khronodragon.com')
@@ -269,3 +270,9 @@ Group DM: {4}'''
         """Get the link to my homeland.
         Syntax: home"""
         await self.bot.say(home_broadcast)
+
+    @commands.command(pass_context=True)
+    async def poll(self, ctx, emoji1, emoji2, *question: str):
+        """Start a public poll with reactions.
+        Syntax: poll [emoji 1] [emoji 2] [question]"""
+        await self.bot.say('Received ' + emoji1 + emoji2 + ' '.join(question) + '. WIP!')
