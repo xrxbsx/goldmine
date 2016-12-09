@@ -148,7 +148,12 @@ class ProBot(commands.Bot):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandInvokeError):
             if bc_key.startswith('CommandPermissionError: ' + cmdfix):
-                await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix))
+                _perms = ''
+                if exp.original.perms_required:
+                    _perms = ', '.join([i.replace('_', ' ').title() for i in exp.original.perms_required])
+                else:
+                    _perms = 'Not specified'
+                await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
             elif bc_key.startswith('HTTPException: '):
                 key = bdel(bc_key, 'HTTPException: ')
                 if key.startswith('BAD REQUEST'):

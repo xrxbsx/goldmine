@@ -19,6 +19,10 @@ class Utility(Cog):
     Settings, properties, and other stuff can be found here.
     """
 
+    def __init__(self, bot):
+        self.running_ping = []
+        super().__init__(bot)
+
     @commands.command(pass_context=True)
     async def icon(self, ctx):
         """Retrive the current server's icon.
@@ -193,3 +197,19 @@ Group DM: {4}'''
         f_query = await self.bot.google(intxt, stop=5)
         fql = list(f_query)
         await self.bot.say('Google returned: ' + fql[0] + ' and ' + fql[1])
+
+    @commands.command(pass_context=True, aliases=['test', 'ping', 'pong', 'delay', 'net', 'network', 'lag', 'netlag'])
+    async def latency(self, ctx):
+        """Get the current network latency to Discord.
+        Syntax: latency"""
+        begin_time = datetime.now()
+        if ctx.message.server.id in self.running_ping:
+            await self.bot.say('**Latency test is already being run in this server, wait for it to finish!**')
+        else:
+            self.running_ping.append(ctx.message.server.id)
+            msg = await self.bot.say('Getting latency... `0`')
+            for i in range(4):
+                await self.bot.edit_message(msg, 'Getting latency... `%s`' % str(i + 1))
+            time_diff = datetime.now() - begin_time
+            await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 5) * 1000, 2)))
+            self.running_ping.remove(ctx.message.server.id)

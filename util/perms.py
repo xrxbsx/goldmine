@@ -6,7 +6,9 @@ from discord.ext.commands import CommandError
 
 class CommandPermissionError(CommandError):
     """Subclass of CommandError for permission handling errors."""
-    pass
+    def __init__(self, perms_required, message=None, *args):
+        self.perms_required = perms_required
+        super().__init__(message=message, *args)
 
 async def check_perms(ctx, perms_required):
     """Check permissions required for an action."""
@@ -44,4 +46,4 @@ async def echeck_perms(ctx, perms_required):
     """Easy wrapper for permission checking."""
     tmp = await check_perms(ctx, perms_required)
     if not tmp:
-        raise CommandPermissionError(message=ctx.message.content)
+        raise CommandPermissionError(perms_required, message=ctx.message.content)

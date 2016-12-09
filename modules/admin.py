@@ -42,7 +42,7 @@ class Admin(Cog):
         Syntax: update"""
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.say('Trying to update...')
-        subprocess.check_output(['git', 'reset', 'HEAD', '--hard'])
+#        subprocess.check_output(['git', 'reset', 'HEAD', '--hard'])
         try:
             gitout = subprocess.check_output(['git', 'pull', '-v'], stderr=subprocess.STDOUT).decode('utf-8')
         except subprocess.CalledProcessError as exp:
@@ -206,16 +206,3 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.suspend()
         await self.bot.say('Successfully **suspended** the bot\'s command and conversation processing!')
-
-#    @commands.command(pass_context=True, )
-
-    @commands.command(aliases=['test', 'ping', 'pong', 'delay', 'net', 'network', 'lag', 'netlag'])
-    async def latency(self):
-        """Get the current network latency to Discord.
-        Syntax: latency"""
-        begin_time = datetime.now()
-        msg = await self.bot.say('Getting latency... `0`')
-        for i in range(4):
-            await self.bot.edit_message(msg, 'Getting latency... `%s`' % str(i + 1))
-        time_diff = datetime.now() - begin_time
-        await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 5) * 1000, 2)))
