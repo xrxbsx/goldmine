@@ -73,7 +73,6 @@ class ProBot(commands.Bot):
             self.logger.critical('Invalid storage backend specified, quitting!')
             exit(1)
         self.version = '0.0.1'
-        print(cur_dir)
         with open(os.path.join(cur_dir, '__init__.py')) as f:
             self.version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
         self.storage = None

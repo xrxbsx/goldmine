@@ -1,6 +1,7 @@
 """Definition of the bot's Utility module.'"""
 import asyncio
 import time
+import sys
 from fnmatch import filter
 import random
 from datetime import datetime
@@ -13,6 +14,9 @@ from util.perms import check_perms
 from util.fake import FakeContextMember, FakeMessageMember
 from properties import bot_owner
 from .cog import Cog
+
+if sys.platform in ['linux', 'linux2', 'darwin']:
+    import resource
 
 class Utility(Cog):
     """Random commands that can be useful here and there.
@@ -159,6 +163,21 @@ Group DM: {4}'''
             elif at == 'group':
                 chlist[4] += 1
         time_diff = datetime.now() - self.bot.start_time
+        time_hrs = divmod(time_diff.total_seconds(), 60)
+        raw_musage = 0
+        got_conversion = False
+        musage_dec = raw_musage
+        musage_hex = raw_musage
+        if sys.platform.startswith('linux'): # Linux & Windows report in kilobytes
+            raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            got_conversion = True
+            musage_dec = musage_dec / 1000
+            musage_hex = musage_hex / 1024
+        elif sys.platform == 'darwin': # Mac reports in bytes
+            raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            got_conversion = True
+            musage_dec = musage_dec / 1000000 # 1 million. 1000 * 1000
+            musage_hex = musage_hex / 1048576 # 1024 * 1024
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
@@ -166,7 +185,7 @@ Group DM: {4}'''
         emb.add_field(name='Servers Accessible', value=len(self.bot.servers))
         emb.add_field(name='Author', value='Dragon5232#1841')
         emb.add_field(name='Version', value=self.bot.version)
-        emb.add_field(name='Uptime', value='{0} mins {1} secs'.format(*[round(i, 2) for i in divmod(time_diff.total_seconds(), 60)]))
+        emb.add_field(name='Uptime', value='{0} hours {1} minutes {2} seconds'.format(int(time_hrs[0]), *[int(i) for i in divmod(time_hrs[1], 60)]))
         emb.add_field(name='Library', value='discord.py')
         emb.add_field(name='Git Revision', value=self.bot.git_rev)
         emb.add_field(name='Commands', value=str(len(self.bot.commands)))
@@ -174,7 +193,7 @@ Group DM: {4}'''
         emb.add_field(name='Characters of Code', value=self.bot.chars)
         emb.add_field(name='Words in Code', value=self.bot.words)
         emb.add_field(name='Cogs Loaded', value=len(self.bot.cogs))
-        emd.add_field(name='Memory Used', value='')
+        emb.add_field(name='Memory Used', value=(str(musage_dec) + ' MB (%s MiB)' % str(musage_hex)) if got_conversion else 'Couldn\'t fetch')
         emb.add_field(name='Modules Loaded', value=len(self.bot.modules))
         emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())))
         emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]))
@@ -223,3 +242,11 @@ Group DM: {4}'''
         """Do a basic test of the bot.
         Syntax: test"""
         await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')
+
+    @commands.command(pass_context=True)
+    async def uptime(self, ctx):
+        """Report the current uptime of the bot.
+        Syntax: uptime"""
+        time_diff = datetime.now() - self.bot.start_time
+        time_hrs = divmod(time_diff.total_seconds(), 60)
+        await self.bot.say(ctx.message.author.mention + ' My current uptime is **{0} hours {1} minutes {2} seconds**.'.format(int(time_hrs[0]), *[int(i) for i in divmod(time_hrs[1], 60)]))
