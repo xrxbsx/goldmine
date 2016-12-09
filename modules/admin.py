@@ -78,7 +78,7 @@ class Admin(Cog):
         Syntax: eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
         try:
-            ev_output = eval(' '.join(rawtxt).strip('`'))
+            ev_output = eval(bdel(' '.join(rawtxt), '```python').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         await self.bot.say('```python\n' + str(ev_output) + '```')
@@ -88,7 +88,7 @@ class Admin(Cog):
         Syntax:s eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
         try:
-            ev_output = exec(' '.join(rawtxt).strip('`'))
+            ev_output = exec(bdel(' '.join(rawtxt), '```python').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         await self.bot.say('```python\n' + str(ev_output) + '```')
