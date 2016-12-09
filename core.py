@@ -1,4 +1,4 @@
-"""The brains of Dragon5232's experimental Discord bot.'"""
+"""The brains of Dragon5232's awesome Discord bot.'"""
 from __future__ import unicode_literals
 
 import logging

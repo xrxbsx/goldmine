@@ -241,3 +241,13 @@ Group DM: {4}'''
         time_diff = datetime.now() - self.bot.start_time
         time_hrs = divmod(time_diff.total_seconds(), 60)
         await self.bot.say(ctx.message.author.mention + ' My current uptime is **{0} hours {1} minutes {2} seconds**.'.format(int(time_hrs[0]), *[int(i) for i in divmod(time_hrs[1], 60)]))
+
+    @commands.command(pass_context=True, aliases=['link', 'invlink', 'addbot', 'botadd'])
+    async def invite(self, ctx, *rids: str):
+        """Generate an invite link for myself or another bot.
+        Syntax: invite {optional: bot ids}"""
+        ids = list(rids)
+        if not ids:
+            ids.append(self.bot.user.id)
+        for iid in ids:
+            await self.bot.say('https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471'.format(iid))
