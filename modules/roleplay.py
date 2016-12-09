@@ -261,10 +261,20 @@ class Roleplay(Cog):
             await self.bot.send_file(ctx.message.channel, image, filename='soon.gif')
 
     @commands.command(pass_context=True, aliases=['wface', 'weirdface', 'weird', 'weird_face', 'mystery', 'neato', 'neat', 'random'])
-    async def face(self, ctx):
+    async def face(self, ctx, *numbers: int):
         """Give you a random face. Because really, why not?
         Syntax: face"""
-        await self.bot.send_message(ctx.message.channel, random.choice(weird_faces))
+        fn_face = ''
+        if numbers:
+            for i in numbers:
+                try:
+                    fn_face += weird_faces[i - 1] + '\n'
+                except IndexError:
+                    await self.bot.say('**Face #{0} not found!** There are {1} faces total.'.format(str(i), str(len(weird_faces))))
+        else:
+            fn_face = random.choice(weird_faces)
+        if fn_face:
+            await self.bot.send_message(ctx.message.channel, fn_face)
 
     @commands.command(pass_context=True, hidden=True)
     async def emotispam(self, ctx):
