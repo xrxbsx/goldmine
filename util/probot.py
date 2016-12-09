@@ -40,7 +40,7 @@ class ProBot(commands.Bot):
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
         self.auto_convos = []
-        self.perm_mask = '66321741'
+        self.perm_mask = '1609825363' # 66321741 = full
         self.game = {
             'name': 'Dragon Essence',
             'type': 1,
@@ -319,7 +319,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                         self.status = 'dnd'
                         await self.update_presence()
                         await self.msend(msg, 'Successfully **resumed** the bot\'s command and conversation processing!')
-                elif myself.mentioned_in(msg):
+                elif myself.mentioned_in(msg) and ('@everyone' not in msg.content) and ('@here' not in msg.content):
                     await self.auto_cb_convo(msg, self.user.mention, replace=True)
                 elif msg.channel.is_private:
                     if msg.content.split('\n')[0] == cmdfix:
