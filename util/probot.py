@@ -6,6 +6,7 @@ import inspect
 import subprocess
 import os
 import sys
+import re
 from fnmatch import filter
 from datetime import datetime
 import math
