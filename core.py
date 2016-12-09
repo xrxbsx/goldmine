@@ -17,7 +17,7 @@ from modules.utility import Utility
 from util.probot import ProBot as PBot
 import util.datastore as store
 from util.const import description
-from util.proformatter import ProFormatter
+from util.proformatter import RichFormatter
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('discord')
@@ -49,7 +49,7 @@ def runbot(loop, bot):
 
 def main():
     """Executes the main bot."""
-    bot = PBot(command_prefix='!', description=description, formatter=ProFormatter(), pm_help=None)
+    bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
     bot.add_cog(Voice(bot))
     bot.add_cog(Roleplay(bot))
     bot.add_cog(Admin(bot))
