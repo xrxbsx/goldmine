@@ -114,7 +114,7 @@ class Utility(Cog):
             except ValueError:
                 pass
             r_embed = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
-            r_embed.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
+            r_embed.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
             r_embed.set_thumbnail(url=avatar_link) #top right
             r_embed.set_footer(text=str(target), icon_url=avatar_link)
             r_embed.add_field(name='Nickname', value=('No nickname set :frowning:' if d_name == target.name else d_name))
@@ -175,7 +175,7 @@ Group DM: {4}'''
             musage_dec = raw_musage / 1000000 # 1 million. 1000 * 1000
             musage_hex = raw_musage / 1048576 # 1024 * 1024
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
-        emb.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
+        emb.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
         emb.set_footer(text='Made in Python 3.3+', icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
         emb.add_field(name='Servers Accessible', value=len(self.bot.servers))
@@ -206,8 +206,13 @@ Group DM: {4}'''
         bot = ctx.bot
         destination = ctx.message.author if bot.pm_help else ctx.message.channel
         pages = bot.formatter.format_help_for(ctx, bot)
+        target = self.bot.user
+        au = target.avatar_url
+        avatar_link = (au if au else target.default_avatar_url)
         for page in pages:
-            await bot.send_message(destination, embed=discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16), description=page.replace('```diff', '').replace('```', ''), title='Bot Help in Embed!'))
+            emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16), description=page.replace('```diff', '').replace('```', ''), title='Commands & Other Help')
+            emb.set_author(name=str(self.bot.user), icon_url=avatar_link, url='https://blog.khronodragon.com/')
+            await bot.send_message(destination, embed=emb)
 
     @commands.command(aliases=['g', 'search', 's', 'query', 'q'])
     async def google(self, *rawin: str):
