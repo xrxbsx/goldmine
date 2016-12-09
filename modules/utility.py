@@ -162,18 +162,18 @@ Group DM: {4}'''
         time_hrs = divmod(time_diff.total_seconds(), 60)
         raw_musage = 0
         got_conversion = False
-        musage_dec = raw_musage
-        musage_hex = raw_musage
+        musage_dec = 0
+        musage_hex = 0
         if sys.platform.startswith('linux'): # Linux & Windows report in kilobytes
             raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
             got_conversion = True
-            musage_dec = musage_dec / 1000
-            musage_hex = musage_hex / 1024
+            musage_dec = raw_musage / 1000
+            musage_hex = raw_musage / 1024
         elif sys.platform == 'darwin': # Mac reports in bytes
             raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
             got_conversion = True
-            musage_dec = musage_dec / 1000000 # 1 million. 1000 * 1000
-            musage_hex = musage_hex / 1048576 # 1024 * 1024
+            musage_dec = raw_musage / 1000000 # 1 million. 1000 * 1000
+            musage_hex = raw_musage / 1048576 # 1024 * 1024
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='http://khronodragon.com', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
@@ -185,16 +185,18 @@ Group DM: {4}'''
         emb.add_field(name='Library', value='discord.py')
         emb.add_field(name='Git Revision', value=self.bot.git_rev)
         emb.add_field(name='Commands', value=str(len(self.bot.commands)))
+        emb.add_field(name='Files of Code', value=self.bot.files)
         emb.add_field(name='Lines of Code', value=self.bot.lines)
         emb.add_field(name='Characters of Code', value=self.bot.chars)
         emb.add_field(name='Words in Code', value=self.bot.words)
         emb.add_field(name='Cogs Loaded', value=len(self.bot.cogs))
-        emb.add_field(name='Memory Used', value=(str(musage_dec) + ' MB (%s MiB)' % str(musage_hex)) if got_conversion else 'Couldn\'t fetch')
+        emb.add_field(name='Memory Used', value=(str(round(musage_dec, 1)) + ' MB (%s MiB)' % str(round(musage_hex, 1))) if got_conversion else 'Couldn\'t fetch')
         emb.add_field(name='Modules Loaded', value=len(self.bot.modules))
         emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())))
         emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]))
         emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
         emb.add_field(name='ID', value=target.id)
+        emb.add_field(name='My Homeland', value='https://blog.khronodragon.com')
         await self.bot.send_message(ctx.message.channel, embed=emb)
 
     @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp'])
@@ -247,7 +249,13 @@ Group DM: {4}'''
         """Generate an invite link for myself or another bot.
         Syntax: invite {optional: bot ids}"""
         ids = list(rids)
+        msg = ''
         if not ids:
             ids.append(self.bot.user.id)
         for iid in ids:
-            await self.bot.say('https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471'.format(iid))
+            if iid == self.bot.user.id:
+                msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1}\n'.format(iid, self.bot.perm_mask)
+            else:
+                msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
+        await self.bot.say(msg)
+

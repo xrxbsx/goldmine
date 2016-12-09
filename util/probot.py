@@ -40,6 +40,7 @@ class ProBot(commands.Bot):
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
         self.auto_convos = []
+        self.perm_mask = '66321741'
         self.game = {
             'name': 'Dragon Essence',
             'type': 1,
@@ -54,12 +55,14 @@ class ProBot(commands.Bot):
         self.chars = 0
         self.words = 0
         self.lines = 0
+        self.files = 0
         for fn in filter(rc_files(cur_dir), '*.py'):
             with open(fn, 'rb') as f: # fix for windows unicode error
                 fr = f.read().decode('utf-8') # fix for windows unicode error
                 self.chars += len(fr)
                 self.words += len(fr.split(' '))
                 self.lines += len(fr.split('\n'))
+                self.files += 1
         self.git_rev = 'Couldn\'t fetch'
         try:
             self.git_rev = subprocess.check_output(['git', 'describe', '--always']).decode('utf-8')
