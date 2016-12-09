@@ -272,7 +272,17 @@ Group DM: {4}'''
         await self.bot.say(home_broadcast)
 
     @commands.command(pass_context=True)
-    async def poll(self, ctx, emoji1, emoji2, *question: str):
+    async def poll(self, ctx, emoji1, emoji2, *rquestion: str):
         """Start a public poll with reactions.
         Syntax: poll [emoji 1] [emoji 2] [question]"""
-        await self.bot.say('Received ' + emoji1 + emoji2 + ' '.join(question) + '. WIP!')
+        question = ''
+        if rquestion:
+            question = ' '.join(rquestion)
+        else:
+            await self.bot.say('**You must specify a question!**')
+        msg = await self.bot.say(ctx.message.author.mention + ' is now polling:\n \u2022 ' + question + '\nGive it a vote!')
+        await self.bot.add_reaction(msg, emoji1)
+        await self.bot.add_reaction(msg, emoji2)
+        for i in range(5):
+            fnr = await self.bot.wait_for_reaction(emoji=[emoji1, emoji2], message=msg, check=lambda r, a: not a == ctx.message.server.me)
+            await self.bot.say('Received a vote. ' + '{0.user} reacted with {0.reaction.emoji}!'.format(fnr))
