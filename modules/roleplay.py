@@ -138,7 +138,7 @@ class Roleplay(Cog):
         # maybe PM this
         show_pages = [i for i in rshow_pages]
         rstore = await store.dump()
-        pager = commands.Paginator(prefix='', suffix='', max_size=2000 - 43)
+        pager = commands.Paginator(prefix='', suffix='', max_size=1595)
         if not show_pages:
             show_pages.append(1)
         for n, i in enumerate(rstore['quotes']):
