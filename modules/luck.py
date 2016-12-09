@@ -37,6 +37,6 @@ class Luck(Cog):
 
     @commands.command(aliases=['gfight'])
     async def googlefight(self, tg1: str, tg2: str):
-        """Generates a Google Fight link.abs
+        """Generates a Google Fight link.
         syntax: googlefight|gfight [target 1] [target 2]"""
         await self.bot.say('http://www.googlefight.com/' + tg1.title() + '-vs-' + tg2.title() + '.php')
