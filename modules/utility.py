@@ -234,7 +234,7 @@ Group DM: {4}'''
                 await self.bot.edit_message(msg, 'Getting latency... `%s`' % str(i + 1))
             time_diff = datetime.now() - begin_time
             await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 5) * 1000, 2)))
-            await asyncio.sleep(1.75)
+            await asyncio.sleep(3)
             self.running_ping.remove(ctx.message.server.id)
 
     @commands.command(pass_context=True)
