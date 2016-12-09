@@ -9,6 +9,7 @@ import discord
 from discord.ext import commands
 from util.perms import echeck_perms, check_perms
 import util.datastore as store
+from util.func import bdel
 from .cog import Cog
 
 class Admin(Cog):
