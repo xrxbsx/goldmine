@@ -3,6 +3,7 @@ from __future__ import print_function
 import asyncio
 import random
 import subprocess
+from datetime import datetime, timedelta
 
 import discord
 from discord.ext import commands
@@ -207,3 +208,14 @@ class Admin(Cog):
         await self.bot.say('Successfully **suspended** the bot\'s command and conversation processing!')
 
 #    @commands.command(pass_context=True, )
+
+    @commands.command(aliases=['test', 'ping', 'pong', 'delay', 'net', 'network', 'lag', 'netlag'])
+    async def latency(self):
+        """Get the current network latency to Discord.
+        Syntax: latency"""
+        begin_time = datetime.now()
+        msg = await self.bot.say('Getting latency... `0`')
+        for i in range(4):
+            await self.bot.edit_message(msg, 'Getting latency... `%s`' % str(i + 1))
+        time_diff = datetime.now() - begin_time
+        await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 5) * 1000, 2)))
