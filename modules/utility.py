@@ -3,7 +3,7 @@ import asyncio
 import time
 from fnmatch import filter
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 import discord
 from discord.ext import commands
 from google import search
@@ -173,6 +173,9 @@ Group DM: {4}'''
         emb.add_field(name='Lines of Code', value=self.bot.lines)
         emb.add_field(name='Characters of Code', value=self.bot.chars)
         emb.add_field(name='Words in Code', value=self.bot.words)
+        emb.add_field(name='Cogs Loaded', value=len(self.bot.cogs))
+        emd.add_field(name='Memory Used', value='')
+        emb.add_field(name='Modules Loaded', value=len(self.bot.modules))
         emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())))
         emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]))
         emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
@@ -198,13 +201,13 @@ Group DM: {4}'''
         fql = list(f_query)
         await self.bot.say('Google returned: ' + fql[0] + ' and ' + fql[1])
 
-    @commands.command(pass_context=True, aliases=['test', 'ping', 'pong', 'delay', 'net', 'network', 'lag', 'netlag'])
+    @commands.command(pass_context=True, aliases=['ping', 'pong', 'delay', 'net', 'network', 'lag', 'netlag'])
     async def latency(self, ctx):
         """Get the current network latency to Discord.
         Syntax: latency"""
         begin_time = datetime.now()
         if ctx.message.server.id in self.running_ping:
-            await self.bot.say('**Latency test is already being run in this server, wait for it to finish!**')
+            await self.bot.say('**A latency test is already being run in this server, wait for it to finish!**')
         else:
             self.running_ping.append(ctx.message.server.id)
             msg = await self.bot.say('Getting latency... `0`')
@@ -212,4 +215,11 @@ Group DM: {4}'''
                 await self.bot.edit_message(msg, 'Getting latency... `%s`' % str(i + 1))
             time_diff = datetime.now() - begin_time
             await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 5) * 1000, 2)))
+            await asyncio.sleep(1.75)
             self.running_ping.remove(ctx.message.server.id)
+
+    @commands.command(pass_context=True)
+    async def test(self, ctx):
+        """Do a basic test of the bot.
+        Syntax: test"""
+        await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')

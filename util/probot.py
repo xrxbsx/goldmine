@@ -5,6 +5,7 @@ import random
 import inspect
 import subprocess
 import os
+import sys
 from fnmatch import filter
 from datetime import datetime
 import math
@@ -81,6 +82,7 @@ class ProBot(commands.Bot):
             self.storage = plyvel.xp_level
         elif storage_backend == 'pickledb':
             self.storage = pickledb.load(self.storepath, False)
+        self.modules = sys.modules
         super().__init__(**options)
 
     async def cb_task(self, queue):
