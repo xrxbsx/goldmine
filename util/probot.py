@@ -232,7 +232,7 @@ class ProBot(commands.Bot):
         """Current auto conversation manager."""
         if self.status == 'invisible': return
         await self.send_typing(msg.channel)
-        lmsg = msg.content.lower()
+        lmsg = msg.content.lower().replace('@everyone', '').replace('@here', '')
         reply = lmsg
         if replace:
             cb_string = lmsg.replace(kickstart, '')

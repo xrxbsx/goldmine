@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 from google import search
 from util.safe_math import eval_expr as emath
-from util.const import _mention_pattern, _mentions_transforms
+from util.const import _mention_pattern, _mentions_transforms, home_broadcast
 from util.perms import check_perms
 from util.fake import FakeContextMember, FakeMessageMember
 from properties import bot_owner
@@ -197,7 +197,7 @@ Group DM: {4}'''
         emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
         emb.add_field(name='ID', value=target.id)
         emb.add_field(name='My Homeland', value='https://blog.khronodragon.com')
-        await self.bot.send_message(ctx.message.channel, embed=emb)
+        await self.bot.send_message(ctx.message.channel, home_broadcast, embed=emb)
 
     @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp'])
     async def ehelp(self, ctx, *commands: str):
@@ -264,3 +264,8 @@ Group DM: {4}'''
                 msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
         await self.bot.say(msg)
 
+    @commands.command(aliases=['homeland', 'web', 'website', 'webpage'])
+    async def home(self):
+        """Get the link to my homeland.
+        Syntax: home"""
+        await self.bot.say(home_broadcast)

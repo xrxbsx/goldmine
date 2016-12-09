@@ -356,3 +356,5 @@ spinners = [
     "⠁⠂⠄⡀⢀⠠⠐⠈",
     "🌑🌒🌓🌔🌕🌝🌖🌗🌘🌚"
 ]
+
+home_broadcast = 'I\'d appreciate it if you visited my home at <https://blog.khronodragon.com>, my creator\'s websites at <https://khronodragon.com> and <http://gh.khronodragon.com>, and my GitHub at <https://github.com/Armored-Dragon/goldmine>. :wink:'

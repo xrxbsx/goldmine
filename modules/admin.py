@@ -72,13 +72,13 @@ class Admin(Cog):
 #        await self.bot.logout() # Comment for people to not see that the bot restarted (to trick uptime)
         self.loop.stop()
 
-    @commands.command(pass_context=True, hidden=True)
+    @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'reval'])
     async def eref(self, ctx, *rawtxt: str):
         """Evaluate some code in command scope.
         Syntax: eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
         try:
-            ev_output = eval(' '.join(rawtxt))
+            ev_output = eval(' '.join(rawtxt).strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         await self.bot.say('```python\n' + str(ev_output) + '```')
@@ -88,7 +88,7 @@ class Admin(Cog):
         Syntax:s eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
         try:
-            ev_output = exec(' '.join(rawtxt))
+            ev_output = exec(' '.join(rawtxt).strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         await self.bot.say('```python\n' + str(ev_output) + '```')
