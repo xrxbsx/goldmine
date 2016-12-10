@@ -105,12 +105,24 @@ class Admin(Cog):
             await self.bot.say(ctx.message.author.mention + ' You are not a bot admin! :slight_frown:')
 
     @commands.command(pass_context=True, aliases=['adminadd'])
-    async def addadmin(self, ctx, target: discord.Member):
+    async def addadmin(self, ctx, *rrtarget: str):
         """Add a user to the bot admin list.
         Syntax: addadmin [user]"""
         tmp = await check_perms(ctx, ['bot_admin'])
+        if not rrtarget:
+            await self.bot.say('**You need to specify a name, nickname, name#discriminator, or ID!**')
+            return
+        rtarget = ' '.join(rrtarget)
+        _target = ctx.message.server.get_member_named(rtarget)
+        if _target:
+            target = _target.id
+        elif len(rtarget) == 18:
+            target = rtarget[0]
+        else:
+            await self.bot.say('**Invalid name! Name, nickname, name#discriminator, or ID work.**')
+            return
         if tmp:
-            aentry = target.id
+            aentry = target
             rstore = await store.dump()
             if aentry not in rstore['bot_admins']:
                 rstore['bot_admins'].extend([aentry])
@@ -122,12 +134,24 @@ class Admin(Cog):
             await self.bot.say(ctx.message.author.mention + ' You are not a bot admin, so you may not add others as admins!')
 
     @commands.command(pass_context=True, aliases=['deladmin', 'admindel', 'adminrm'])
-    async def rmadmin(self, ctx, target: discord.Member):
+    async def rmadmin(self, ctx, *rrtarget: str):
         """Remove a user from the bot admin list.
         Syntax: rmadmin [user]"""
         tmp = await check_perms(ctx, ['bot_admin'])
+        if not rrtarget:
+            await self.bot.say('**You need to specify a name, nickname, name#discriminator, or ID!**')
+            return
+        rtarget = ' '.join(rrtarget)
+        _target = ctx.message.server.get_member_named(rtarget)
+        if _target:
+            target = _target.id
+        elif len(rtarget) == 18:
+            target = rtarget[0]
+        else:
+            await self.bot.say('**Invalid name! Name, nickname, name#discriminator, or ID work.**')
+            return
         if tmp:
-            aentry = target.id
+            aentry = target
             rstore = await store.dump()
             try:
                 del rstore['bot_admins'][rstore['bot_admins'].index(aentry)]
@@ -147,11 +171,9 @@ class Admin(Cog):
         alist = ''
         for i in rstore['bot_admins']:
             _name = ctx.message.server.get_member(i)
-            if _name:
-                alist += '**' + str(_name) + '**\n'
-            else:
-                _name = '**User not in current server! ID:** *{0}*\n'.format(i)
-                alist += _name
+            if not _name:
+                _name = await self.bot.get_user_info(i)
+            alist += '**' + str(_name) + '**\n'
         await self.bot.say('The following people are bot admins:\n' + alist)
 
     @commands.command(pass_context=True)
