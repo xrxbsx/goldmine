@@ -357,7 +357,8 @@ class Voice(Cog):
             ('https://www.youtube.com/watch?v=t3HJgCcSUqQ', 'Rockin\' Around The Christmas Tree'),
             ('https://www.youtube.com/watch?v=oyEyMjdD2uk', 'Twelve Days of Christmas'),
             ('https://www.youtube.com/watch?v=PJ2CuKgyNW0', 'Santa Claus Is Coming To Town'),
-            ('https://www.youtube.com/watch?v=Wq73h6XZQGA', 'Carol Of The Bells')
+            ('https://www.youtube.com/watch?v=Wq73h6XZQGA', 'Carol Of The Bells'),
+            ('https://www.youtube.com/watch?v=3mJrPgplZ1I', 'Rock The Holly')
         ]
         songc = len(songs)
         status = [

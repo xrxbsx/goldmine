@@ -273,12 +273,12 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             await self.send_message(member.server, fmt.format(member, member.server, em_string, cmdfix))
     async def on_member_remove(self, member: discord.Member):
         """On_member_remove event for members leaving."""
-        fmt = '''Awww, **{0.mention}** has just left this server. Bye bye, **{0.mention}**!
+        fmt = '''Awww, **{0}** has just left this server. Bye!
 **{1.name}** has now lost a {2}. We'll miss you! :bear:'''
         bc = await get_prop(member, 'broadcast_leave')
         if str(bc).lower() in bool_true:
             utype = ('bot' if member.bot else 'member')
-            await self.send_message(member.server, fmt.format(member, member.server, utype))
+            await self.send_message(member.server, fmt.format(str(member), member.server, utype))
 
     async def on_message(self, msg):
         cmdfix = await get_cmdfix(msg)
