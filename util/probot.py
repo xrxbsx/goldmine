@@ -158,7 +158,8 @@ class ProBot(commands.Bot):
         self.logger.error('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.NoPrivateMessage):
             await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
-#        elif isinstance(exp, commands.CommandNotFound):
+        elif isinstance(exp, commands.CommandNotFound):
+            pass
 #            await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.DisabledCommand):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
