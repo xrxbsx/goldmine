@@ -334,42 +334,6 @@ class Voice(Cog):
                 tmp = await response.text()
                 return tmp
 
-    @commands.command(pass_context=True, no_pm=False)
-    async def purpleshep(self, ctx, *args):
-        """Uses the Purple Shep TTS voice to speak a message.
-        Syntax: purpleshep [message]"""
-        state = self.get_voice_state(ctx.message.server)
-
-        if state.voice is None:
-            success = await ctx.invoke(self.summon)
-            if not success:
-                return
-
-        opts = {
-            'quiet': True,
-        }
-        rounds = textwrap.wrap(' '.join(args), width=300)
-        for intxt in rounds:
-            payload = {
-                'MyLanguages': 'sonid10',
-                'MySelectedVoice': 'WillFromAfar (emotive voice)',
-                'MyTextForTTS': intxt,
-                't': '1',
-                'SendToVaaS': ''
-            }
-            async with aiohttp.ClientSession(loop=self.loop) as session:
-                rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
-            keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
-            keyline = keyout.split("'")[1]
-            await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *15 seconds* to quene.**')
-            player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
-
-            player.volume = 0.75
-            entry = VoiceEntry(ctx.message, player, False)
-            await state.songs.put(entry)
-            await self.bot.say('Queued **Purple Shep speech**! :smiley:')
-            await asyncio.sleep(1)
-
     @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 'season'])
     async def christmas(self, ctx):
         """Start the Christmas music playlist!
