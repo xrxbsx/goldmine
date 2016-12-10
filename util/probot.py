@@ -249,14 +249,16 @@ class ProBot(commands.Bot):
     async def on_member_join(self, member: discord.Member):
         """On_member_join event for newly joined members."""
         cemotes = member.server.emojis
-        em_string = (': ' + ' '.join([str(i) for i in cemotes]) if len(cemotes) >= 1 else '')
+        em_string = ''
+        if cemotes:
+            em_string = ': ' + ' '.join([str(i) for i in cemotes])
         fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
 If you need any help, contact someone with your :question::question:s.
 Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.'''
         bc = await get_prop(member, 'broadcast_join')
+        cmdfix = await get_prop(member, 'command_prefix')
         if str(bc).lower() in bool_true:
-            await self.send_message(member.server, fmt.format(member, member.server,
-                                                            em_string))
+            await self.send_message(member.server, fmt.format(member, member.server, em_string, cmdfix))
     async def on_member_remove(self, member: discord.Member):
         """On_member_remove event for members leaving."""
         fmt = '''Awww, **{0.mention}** has just left this server. Bye bye, **{0.mention}**!

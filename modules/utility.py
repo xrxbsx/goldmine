@@ -3,6 +3,7 @@ import asyncio
 import time
 import sys
 from fnmatch import filter
+import re
 import random
 from datetime import datetime
 import discord
@@ -272,17 +273,40 @@ Group DM: {4}'''
         await self.bot.say(home_broadcast)
 
     @commands.command(pass_context=True)
-    async def poll(self, ctx, emoji1, emoji2, *rquestion: str):
+    async def poll(self, ctx, *rquestion: str, time: float):
         """Start a public poll with reactions.
-        Syntax: poll [emoji 1] [emoji 2] [question]"""
+        Syntax: poll [emojis] [question] [time in seconds]"""
         question = ''
         if rquestion:
             question = ' '.join(rquestion)
         else:
             await self.bot.say('**You must specify a question!**')
-        msg = await self.bot.say(ctx.message.author.mention + ' is now polling:\n \u2022 ' + question + '\nGive it a vote!')
-        await self.bot.add_reaction(msg, emoji1)
-        await self.bot.add_reaction(msg, emoji2)
-        for i in range(5):
-            fnr = await self.bot.wait_for_reaction(emoji=[emoji1, emoji2], message=msg, check=lambda r, a: not a == ctx.message.server.me)
+            return
+        #await self.bot.say('Q ' + question + str(type(question)))
+        print(question)
+        try:
+            # UCS-4
+            highpoints = re.compile(u'[\U00010000-\U0010ffff]')
+        except re.error:
+            # UCS-2
+            highpoints = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
+        u_emojis = re.findall(highpoints, question)
+        c_emojis = re.findall(r'<:[a-z]+:[0-9]{18}>', question)
+        emojis = u_emojis + c_emojis
+        for i in emojis:
+            question = question.replace(' ' + i, '')
+            question = question.replace(i + ' ', '')
+            question = question.replace(i, '')
+        question = question.strip()
+        #await self.bot.say('E ' + str(emojis) + str(type(emojis)))
+        if not emojis:
+            await self.bot.say('**You must specify some emojis!**')
+            return
+        msg = await self.bot.say(ctx.message.author.mention + ' is now polling:\n    \u2022 ' + question + '\nGive it a vote!')
+        for emoji in emojis:
+            await self.bot.add_reaction(msg, emoji)
+        emojis = list(emojis)
+        #await self.bot.say('PE ' + str(emojis))
+        while time.time():
+            fnr = await self.bot.wait_for_reaction(emoji=emojis, message=msg, check=lambda r, a: not a == ctx.message.server.me)
             await self.bot.say('Received a vote. ' + '{0.user} reacted with {0.reaction.emoji}!'.format(fnr))
