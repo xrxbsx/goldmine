@@ -293,7 +293,6 @@ Group DM: {4}'''
         stime = 0.0
         cem_map = {}
         highpoints = None
-        print(question)
         try:
             stime = float(rquestion[-1:][0])
         except ValueError:
@@ -338,11 +337,12 @@ Group DM: {4}'''
             await self.bot.add_reaction(msg, emoji)
         await self.bot.edit_message(msg, msg_key + '**POLL IS NOW ACTIVE. Give it a vote!**')
         emojis = list(emojis)
-        poll_table = {str(i): [] for i in emojis}
+        poll_table = OrderedDict((str(i), []) for i in emojis)
         task = asyncio.ensure_future(self.poll_task(emojis, msg, poll_table))
         await asyncio.sleep(stime)
         task.cancel()
-        vote_table = {i: len(poll_table[i]) for i in poll_table}
+        _vote_table = {i: len(poll_table[i]) for i in poll_table}
+        vote_table = OrderedDict(reversed(sorted(_vote_table.items(), key=lambda t: t[1])))
         _totals = '\n'.join([str(i) + ': {0} votes'.format(str(vote_table[i])) for i in vote_table])
         winner = max(vote_table, key=vote_table.get)
         await self.bot.say('**Poll time is over, stopped! Winner is...** ' + str(winner) + '\nResults were:\n' + _totals)
