@@ -311,7 +311,7 @@ Group DM: {4}'''
             # UCS-2
             highpoints = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
         u_emojis = re.findall(highpoints, question)
-        raw_c_emojis = re.findall(r'<:[a-z]+:[0-9]{18}>', question)
+        raw_c_emojis = re.findall(re.compile(r'<:[a-z]+:[0-9]{18}>', flags=re.IGNORECASE), question)
         c_emojis = []
         emojis = u_emojis
         if raw_c_emojis:
