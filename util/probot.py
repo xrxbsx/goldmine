@@ -156,10 +156,10 @@ class ProBot(commands.Bot):
         c_key = str(exp)
         bc_key = bdel(c_key, 'Command raised an exception: ')
         self.logger.error('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
-        if isinstance(exp, commands.CommandNotFound):
-            await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
-        elif isinstance(exp, commands.NoPrivateMessage):
+        if isinstance(exp, commands.NoPrivateMessage):
             await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
+#        elif isinstance(exp, commands.CommandNotFound):
+#            await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.DisabledCommand):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandOnCooldown):
