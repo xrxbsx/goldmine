@@ -159,8 +159,7 @@ Group DM: {4}'''
                 chlist[3] += 1
             elif at == 'group':
                 chlist[4] += 1
-        time_diff = datetime.now() - self.bot.start_time
-        time_hrs = divmod(time_diff.total_seconds(), 60)
+        up = await self.bot.format_uptime()
         raw_musage = 0
         got_conversion = False
         musage_dec = 0
@@ -182,7 +181,7 @@ Group DM: {4}'''
         emb.add_field(name='Servers Accessible', value=len(self.bot.servers))
         emb.add_field(name='Author', value='Dragon5232#1841')
         emb.add_field(name='Version', value=self.bot.version)
-        emb.add_field(name='Uptime', value='{0} hours {1} minutes {2} seconds'.format(int(time_hrs[0]), *[int(i) for i in divmod(time_hrs[1], 60)]))
+        emb.add_field(name='Uptime', value=up)
         emb.add_field(name='Library', value='discord.py')
         emb.add_field(name='Git Revision', value=self.bot.git_rev)
         emb.add_field(name='Commands', value=str(len(self.bot.commands)))
@@ -250,9 +249,8 @@ Group DM: {4}'''
     async def uptime(self, ctx):
         """Report the current uptime of the bot.
         Syntax: uptime"""
-        time_diff = datetime.now() - self.bot.start_time
-        time_hrs = divmod(time_diff.total_seconds(), 60)
-        await self.bot.say(ctx.message.author.mention + ' My current uptime is **{0} hours {1} minutes {2} seconds**.'.format(int(time_hrs[0]), *[int(i) for i in divmod(time_hrs[1], 60)]))
+        up = await self.bot.format_uptime()
+        await self.bot.say(ctx.message.author.mention + ' My current uptime is **' + up + '**.')
 
     @commands.command(pass_context=True, aliases=['link', 'invlink', 'addbot', 'botadd'])
     async def invite(self, ctx, *rids: str):

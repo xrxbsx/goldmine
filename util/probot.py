@@ -439,3 +439,15 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         if self.status == 'invisible': return
         channel_id, guild_id = await self._resolve_destination(destination)
         await self.http.send_typing(channel_id)
+
+    async def format_uptime(self):
+        def s(num):
+            return 's' if (num == 0) or (num > 1) else ''
+        fmt = '{0} day{4} {1} hour{5} {2} minute{6} {3} second{7}'
+        time_diff = datetime.now() - self.start_time
+        time_mins = divmod(time_diff.total_seconds(), 60)
+        time_hrs = divmod(time_mins[0], 60)
+        time_days = divmod(time_hrs[0], 24)
+        final = fmt.format(int(time_days[0]), int(time_days[1]), int(time_hrs[1]), int(time_mins[1]),
+                           s(time_days[0]), s(time_days[1]), s(time_hrs[1]), s(time_mins[1]))
+        return final
