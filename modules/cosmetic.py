@@ -65,7 +65,7 @@ cool right?''',
         r_embed.set_thumbnail(url='https://discordapp.com/api/guilds/245387841432059904/icons/305ad4227eec49760731f38117c49af6.jpg') #top right
         r_embed.set_image(url='https://discordapp.com/api/guilds/250304680159215616/icons/7d1bb7b626b7bdf15b838288fc6ed346.jpg') #bottom
         r_embed.set_footer(text='Hi this is the footer text', icon_url='https://images.discordapp.net/icons/239772188649979904/b5a73c73e291e059a6bebdc9b98c6f89.jpg')
-        r_embed.set_author(name='Name Hi this is the header text / author', url='http://khronodragon.com', icon_url='https://images.discordapp.net/icons/239772188649979904/b5a73c73e291e059a6bebdc9b98c6f89.jpg')
+        r_embed.set_author(name='Name Hi this is the header text / author', url='https://blog.khronodragon.com/', icon_url='https://images.discordapp.net/icons/239772188649979904/b5a73c73e291e059a6bebdc9b98c6f89.jpg')
         for i in range(1, 4):
             r_embed.add_field(name='Field ' + str(i), value='Test value for ' + str(i), inline=False)
             for icount in range(1, 3):

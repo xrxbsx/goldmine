@@ -201,7 +201,7 @@ Group DM: {4}'''
         emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
         emb.add_field(name='ID', value=target.id)
         emb.add_field(name='My Homeland', value='https://blog.khronodragon.com')
-        emb.add_field(name='Invite Link', value='http://tiny.cc/goldbot')
+        emb.add_field(name='Invite Link', value='https://tiny.cc/goldbot')
         await self.bot.send_message(ctx.message.channel, home_broadcast, embed=emb)
 
     @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp'])
@@ -264,7 +264,7 @@ Group DM: {4}'''
             ids.append(self.bot.user.id)
         for iid in ids:
             if iid == self.bot.user.id:
-                msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<http://tiny.cc/goldbot> for short)\n'.format(iid, self.bot.perm_mask)
+                msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<https://tiny.cc/goldbot> for short)\n'.format(iid, self.bot.perm_mask)
             else:
                 msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
         await self.bot.say(msg)
