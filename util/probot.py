@@ -336,11 +336,10 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                 elif myself.mentioned_in(msg) and ('@everyone' not in msg.content) and ('@here' not in msg.content):
                     await self.auto_cb_convo(msg, self.user.mention, replace=True)
                 elif msg.channel.is_private:
-                    if msg.content.split('\n')[0] == cmdfix:
-                        await self.send_typing(msg.channel)
-                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
-                    elif msg.content.startswith(cmdfix):
-                        await self.send_typing(msg.channel)
+#                    if msg.content.split('\n')[0] == cmdfix:
+#                        await self.send_typing(msg.channel)
+#                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
+                    if msg.content.startswith(cmdfix):
                         await self.sprocess_commands(msg, cmdfix)
                     else:
                         await self.send_typing(msg.channel)
@@ -360,11 +359,10 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                         elif nmsg.startswith('... '):
                             await self.auto_cb_convo(msg, bname.lower() + '... ')'''
                 else:
-                    if msg.content.split('\n')[0] == cmdfix:
-                        await self.send_typing(msg.channel)
-                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
-                    elif msg.content.startswith(cmdfix):
-                        await self.send_typing(msg.channel)
+#                    if msg.content.split('\n')[0] == cmdfix:
+#                        await self.send_typing(msg.channel)
+#                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
+                    if msg.content.startswith(cmdfix):
                         await self.sprocess_commands(msg, cmdfix)
         else:
             pass
@@ -413,6 +411,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         cl = cmd.lower().replace('é', 'e') # TODO: Real accent parsing
 
         if cl in self.commands:
+            await self.send_typing(message.channel)
             command = self.commands[cl]
             self.dispatch('command', command, ctx)
             try:
