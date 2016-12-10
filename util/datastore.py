@@ -25,13 +25,13 @@ async def write(newstore):
     """Write a new dictionary as the data store."""
     c_dir = await get_dir()
     with open(os.path.join(c_dir, '..', 'storage.' + f_exts[storage_backend]), 'w') as storefile:
-        storefile.write(json.dumps(newstore, indent=1, separators=(',', ':')))
+        storefile.write(json.dumps(newstore, separators=(',', ':')))
 
 async def reset():
     """Reset the data store to the stock values."""
     c_dir = await get_dir()
     with open(os.path.join(c_dir, '..', 'storage.' + f_exts[storage_backend]), 'w') as storefile:
-        storefile.write(json.dumps(orig_store, indent=1, separators=(',', ':')))
+        storefile.write(json.dumps(orig_store, separators=(',', ':')))
 
 async def read(*depths):
     """Read a specific entry or entry hierarchy from the data store."""
@@ -43,7 +43,7 @@ def initialize():
 #        try:
 #            json.loads('' + storefile.read())
 #        except json.decoder.JSONDecodeError:
-#            storefile.write(json.dumps(orig_store, indent=1, separators=(',', ':')))
+#            storefile.write(json.dumps(orig_store, separators=(',', ':')))
     pass
 
 async def get_props_s(msg):

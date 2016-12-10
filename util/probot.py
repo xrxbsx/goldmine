@@ -56,6 +56,11 @@ class ProBot(commands.Bot):
         self.words = 0
         self.lines = 0
         self.files = 0
+        self.size_bytes = 0
+        self.raw_sizes_bytes = []
+        self.size_kb = 0
+        self.avg_size_bytes = 0
+        self.avg_size_kb = 0
         for fn in filter(rc_files(cur_dir), '*.py'):
             with open(fn, 'rb') as f: # fix for windows unicode error
                 fr = f.read().decode('utf-8') # fix for windows unicode error
@@ -63,6 +68,11 @@ class ProBot(commands.Bot):
                 self.words += len(fr.split(' '))
                 self.lines += len(fr.split('\n'))
                 self.files += 1
+            self.raw_sizes_bytes.append(os.path.getsize(fn))
+        self.size_bytes = sum(self.raw_sizes_bytes)
+        self.avg_size_bytes = self.size_bytes / self.files
+        self.size_kb = self.size_bytes / 1000
+        self.avg_size_kb = self.size_kb / self.files
         self.git_rev = 'Couldn\'t fetch'
         try:
             self.git_rev = subprocess.check_output(['git', 'describe', '--always']).decode('utf-8')
@@ -86,6 +96,7 @@ class ProBot(commands.Bot):
         elif storage_backend == 'pickledb':
             self.storage = pickledb.load(self.storepath, False)
         self.modules = sys.modules
+        self.continued_index_errors = 0
         super().__init__(**options)
 
     async def cb_task(self, queue):

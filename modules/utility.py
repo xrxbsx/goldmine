@@ -190,6 +190,8 @@ Group DM: {4}'''
         emb.add_field(name='Lines of Code', value=self.bot.lines)
         emb.add_field(name='Characters of Code', value=self.bot.chars)
         emb.add_field(name='Words in Code', value=self.bot.words)
+        emb.add_field(name='Code Size', value=str(round(self.bot.size_kb, 1)) + ' KB')
+        emb.add_field(name='Average File Size', value=str(round(self.bot.avg_size_kb, 1)) + ' KB')
         emb.add_field(name='Cogs Loaded', value=len(self.bot.cogs))
         emb.add_field(name='Memory Used', value=(str(round(musage_dec, 1)) + ' MB (%s MiB)' % str(round(musage_hex, 1))) if got_conversion else 'Couldn\'t fetch')
         emb.add_field(name='Modules Loaded', value=len(self.bot.modules))
@@ -199,6 +201,7 @@ Group DM: {4}'''
         emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
         emb.add_field(name='ID', value=target.id)
         emb.add_field(name='My Homeland', value='https://blog.khronodragon.com')
+        emb.add_field(name='Invite Link', value='http://tiny.cc/goldbot')
         await self.bot.send_message(ctx.message.channel, home_broadcast, embed=emb)
 
     @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp'])
@@ -261,7 +264,7 @@ Group DM: {4}'''
             ids.append(self.bot.user.id)
         for iid in ids:
             if iid == self.bot.user.id:
-                msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1}\n'.format(iid, self.bot.perm_mask)
+                msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<http://tiny.cc/goldbot> for short)\n'.format(iid, self.bot.perm_mask)
             else:
                 msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
         await self.bot.say(msg)
