@@ -6,9 +6,9 @@ from fnmatch import filter
 import re
 import random
 from datetime import datetime
+from collections import OrderedDict
 import discord
 from discord.ext import commands
-from google import search
 from util.safe_math import eval_expr as emath
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast
 from util.perms import check_perms
@@ -275,8 +275,15 @@ Group DM: {4}'''
         Syntax: home"""
         await self.bot.say(home_broadcast)
 
+    async def poll_task(self, emojis, msg, poll_table):
+        while True:
+            fnr = await self.bot.wait_for_reaction(emoji=emojis, message=msg, check=lambda r, a: not a == msg.server.me)
+            r = fnr.reaction
+            if fnr.user not in poll_table[str(r.emoji)]:
+                poll_table[str(r.emoji)].append(fnr.user)
+
     @commands.command(pass_context=True)
-    async def poll(self, ctx, *rquestion: str, time: float):
+    async def poll(self, ctx, *rquestion: str):
         """Start a public poll with reactions.
         Syntax: poll [emojis] [question] [time in seconds]"""
         question = ''
@@ -285,8 +292,18 @@ Group DM: {4}'''
         else:
             await self.bot.say('**You must specify a question!**')
             return
-        #await self.bot.say('Q ' + question + str(type(question)))
+        stime = 0.0
+        cem_map = {}
+        highpoints = None
         print(question)
+        try:
+            stime = float(rquestion[-1:][0])
+        except ValueError:
+            await self.bot.say('**You must provide a valid poll time!**')
+            return
+        _question = question.split(' ')
+        del _question[-1:]
+        question = ' '.join(_question)
         try:
             # UCS-4
             highpoints = re.compile(u'[\U00010000-\U0010ffff]')
@@ -294,22 +311,41 @@ Group DM: {4}'''
             # UCS-2
             highpoints = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
         u_emojis = re.findall(highpoints, question)
-        c_emojis = re.findall(r'<:[a-z]+:[0-9]{18}>', question)
-        emojis = u_emojis + c_emojis
-        for i in emojis:
+        raw_c_emojis = re.findall(r'<:[a-z]+:[0-9]{18}>', question)
+        c_emojis = []
+        emojis = u_emojis
+        if raw_c_emojis:
+            for i in ctx.message.server.emojis:
+                cem_map[str(i)] = i
+            for i in raw_c_emojis:
+                try:
+                    c_emojis.append(cem_map[i])
+                except KeyError:
+                    await self.bot.say('**Custom emoji `%s` doesn\'t exist!**' % i)
+                    return
+            emojis += c_emojis
+        emojis = list(OrderedDict.fromkeys(emojis))
+        for ri in emojis:
+            i = str(ri)
             question = question.replace(' ' + i, '')
             question = question.replace(i + ' ', '')
             question = question.replace(i, '')
         question = question.strip()
-        #await self.bot.say('E ' + str(emojis) + str(type(emojis)))
         if not emojis:
             await self.bot.say('**You must specify some emojis!**')
             return
-        msg = await self.bot.say(ctx.message.author.mention + ' is now polling:\n    \u2022 ' + question + '\nGive it a vote!')
+        msg_key = ctx.message.author.mention + ' is now polling:\n    \u2022 ' + question + '\n'
+        msg = await self.bot.say(msg_key + '**POLL NOT ACTIVE YET, ADDING REACTIONS.**')
         for emoji in emojis:
             await self.bot.add_reaction(msg, emoji)
+        await self.bot.edit_message(msg, msg_key + '**POLL IS NOW ACTIVE. Give it a vote!**')
         emojis = list(emojis)
-        #await self.bot.say('PE ' + str(emojis))
-        while time.time():
-            fnr = await self.bot.wait_for_reaction(emoji=emojis, message=msg, check=lambda r, a: not a == ctx.message.server.me)
-            await self.bot.say('Received a vote. ' + '{0.user} reacted with {0.reaction.emoji}!'.format(fnr))
+        poll_table = {str(i): [] for i in emojis}
+        task = asyncio.ensure_future(self.poll_task(emojis, msg, poll_table))
+        await asyncio.sleep(stime)
+        task.cancel()
+        vote_table = {i: len(poll_table[i]) for i in poll_table}
+        _totals = '\n'.join([str(i) + ': {0} votes'.format(str(vote_table[i])) for i in vote_table])
+        winner = max(vote_table, key=vote_table.get)
+        await self.bot.say('**Poll time is over, stopped! Winner is...** ' + str(winner) + '\nResults were:\n' + _totals)
+        await self.bot.edit_message(msg, msg_key + '**POLL HAS ALREADY FINISHED.**')
