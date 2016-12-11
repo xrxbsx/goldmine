@@ -1,8 +1,8 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
 import asyncio
 import discord
-import discord.ext.commands as commands
-from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
+import util.commands as commands
+from util.commands.bot import Context, StringView, CommandError, CommandNotFound
 from cleverbot import Cleverbot
 from util.datastore import get_cmdfix, get_prop, set_prop
 import util.ranks as rank

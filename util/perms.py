@@ -2,7 +2,7 @@
 import asyncio
 from properties import bot_owner
 import util.datastore as store
-from discord.ext.commands import CommandError
+from util.commands import CommandError
 
 class CommandPermissionError(CommandError):
     """Subclass of CommandError for permission handling errors."""

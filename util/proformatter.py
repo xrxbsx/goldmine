@@ -4,8 +4,8 @@ import inspect
 import random
 
 from discord import Embed
-from discord.ext.commands.formatter import HelpFormatter, Paginator
-from discord.ext.commands.core import Command
+from util.commands.formatter import HelpFormatter, Paginator
+from util.commands.core import Command
 
 class ProFormatter(HelpFormatter):
     def _add_subcommands_to_page(self, max_width, commands):

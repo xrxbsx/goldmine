@@ -12,8 +12,8 @@ from datetime import datetime
 import math
 import logging
 import discord
-import discord.ext.commands as commands
-from discord.ext.commands.bot import Context, StringView, CommandError, CommandNotFound
+import util.commands as commands
+from .commands.bot import Context, StringView, CommandError, CommandNotFound
 from google import search
 from cleverbot import Cleverbot
 import pickledb

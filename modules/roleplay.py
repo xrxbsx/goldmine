@@ -76,7 +76,7 @@ class Roleplay(Cog):
         Syntax: mention [mention, nickname, DiscordTag, or username]"""
         await self.bot.say('Hey there, ' + target.mention + '!')
 
-    @commands.command(aliases=['emote', 'csay'])
+    @commands.command(aliases=['emote', 'csay', 'esay', 'coolsay'])
     async def emotisay(self, *args):
         """Make the bot mention someone. Useful for testing.
         Syntax: emotisay [your text here]"""
@@ -99,7 +99,8 @@ class Roleplay(Cog):
             '6': ':six:',
             '7': ':seven:',
             '8': ':eight:',
-            '9': ':nine:'
+            '9': ':nine:',
+            '^': ':arrow_up:'
         }
         for i, s in enumerate(chars):
             if s in list('abcdefghijklmnopqrstuvwxyz'):

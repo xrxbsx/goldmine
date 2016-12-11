@@ -379,3 +379,39 @@ class Voice(Cog):
             await self.bot.edit_message(st_msg, '\n'.join(status))
             await asyncio.sleep(1)
         await self.bot.say('**All Christmas songs have been quened!** :tada::santa:')
+
+    @commands.command(pass_context=True, no_pm=False)
+    async def gspeak(self, ctx, *args):
+        """Uses a TTS voice to speak a message.
+        Syntax: gspeak [message]"""
+        state = self.get_voice_state(ctx.message.server)
+
+        if state.voice is None:
+            success = await ctx.invoke(self.summon)
+            if not success:
+                return
+
+        opts = {
+            'quiet': True,
+        }
+        rounds = textwrap.wrap(' '.join(args), width=100)
+        for intxt in rounds:
+            payload = {
+                'MyLanguages': 'sonid10',
+                'MySelectedVoice': 'WillFromAfar (emotive voice)',
+                'MyTextForTTS': intxt,
+                't': '1',
+                'SendToVaaS': ''
+            }
+            async with aiohttp.ClientSession(loop=self.loop) as session:
+                rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
+            keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
+            keyline = keyout.split("'")[1]
+            await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *15 seconds* to quene.**')
+            player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
+
+            player.volume = 0.75
+            entry = VoiceEntry(ctx.message, player, False)
+            await state.songs.put(entry)
+            await self.bot.say('Queued **Speech**! :smiley:')
+            await asyncio.sleep(1)

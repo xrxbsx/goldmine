@@ -2,7 +2,7 @@
 import asyncio
 import os
 import json
-from discord.ext.commands import CommandInvokeError
+from util.commands import CommandInvokeError
 from properties import storage_backend
 from util.const import orig_store
 

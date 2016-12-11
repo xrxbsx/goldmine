@@ -280,6 +280,7 @@ Group DM: {4}'''
             if fnr.user not in poll_table[str(r.emoji)]:
                 poll_table[str(r.emoji)].append(fnr.user)
 
+    @commands.cooldown(1, 5, type=commands.BucketType.user)
     @commands.command(pass_context=True)
     async def poll(self, ctx, *rquestion: str):
         """Start a public poll with reactions.
