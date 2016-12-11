@@ -13,6 +13,7 @@ from util.safe_math import eval_expr as emath
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast
 from util.perms import check_perms
 from util.fake import FakeContextMember, FakeMessageMember
+import util.datastore as store
 from properties import bot_owner
 from .cog import Cog
 
@@ -62,18 +63,25 @@ class Utility(Cog):
         s = ctx.message.server
         if users:
             members = {}
-            for i in s.members:
-                members[i.mention] = i
-                members[i.id] = i
-                members[i.display_name] = i
-                members[i.name] = i
+            try:
+                for i in s.members:
+                    members[i.mention] = i
+                    members[i.id] = i
+                    members[i.display_name] = i
+                    members[i.name] = i
+            except AttributeError:
+                pass
             for i in users:
                 try:
                     member = s.get_member(i)
                 except AttributeError:
-                    member = self.bot.get_user_info(i)
+                    member = await self.bot.get_user_info(i)
                 if member:
                     targets.append(member)
+                else:
+                    member = await self.bot.get_user_info(i)
+                    if member:
+                        targets.append(member)
             names = []
             _i = 0
             while _i < len(users):
@@ -87,8 +95,8 @@ class Utility(Cog):
                         _i = -1
                         users = users[1:]
                         names = []
-                except KeyError as e:
-                    await self.bot.say('User **%s** not found, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!' % str(e).strip("'"))
+                except KeyError:
+                    pass
                 _i += 1
             if not targets:
                 await self.bot.say('**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
@@ -98,15 +106,32 @@ class Utility(Cog):
         for target in targets:
             au = target.avatar_url
             avatar_link = (au if au else target.default_avatar_url)
-            d_name = target.display_name
-            t_roles = target.roles
-            t_game = target.game
+            try:
+                d_name = target.display_name
+            except AttributeError:
+                d_name = target.name
+            try:
+                t_roles = target.roles
+            except AttributeError:
+                t_roles = []
+            try:
+                t_game = target.game
+            except AttributeError:
+                t_game = None
             b_roles = []
-            tg_ctx = FakeContextMember(FakeMessageMember(target))
-            c_srv = await check_perms(tg_ctx, ['server_admin'])
+            c_srv = False
+            c_sown = False
+            try:
+                tg_ctx = FakeContextMember(FakeMessageMember(target))
+            except AttributeError:
+                tg_ctx = None
+            else:
+                c_srv = await check_perms(tg_ctx, ['server_admin'])
+                c_sown = await check_perms(tg_ctx, ['server_owner'])
             c_own = bool(target.id == bot_owner)
-            c_adm = await check_perms(tg_ctx, ['bot_admin'])
-            c_sown = await check_perms(tg_ctx, ['server_owner'])
+            rstore = await store.dump()
+            c_adm = bool(target.id in rstore['bot_admins'])
+            is_server = bool(isinstance(target, discord.Member))
             if c_own:
                 b_roles.append('Bot Owner')
             if c_adm:
@@ -115,7 +140,7 @@ class Utility(Cog):
                 b_roles.append('Server Admin')
             try:
                 t_roles.remove(target.server.default_role)
-            except ValueError:
+            except (ValueError, AttributeError):
                 pass
             r_embed = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
             r_embed.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
@@ -123,11 +148,11 @@ class Utility(Cog):
             r_embed.set_footer(text=str(target), icon_url=avatar_link)
             r_embed.add_field(name='Nickname', value=('No nickname set :frowning:' if d_name == target.name else d_name))
             r_embed.add_field(name='User ID', value=target.id)
-            r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt))
-            r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt))
+            r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt) if is_server else 'Couldn\'t fetch')
+            r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt) if is_server else 'Couldn\'t fetch')
             r_embed.add_field(name='Server Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no server roles :frowning:')
             r_embed.add_field(name='Bot Roles', value=', '.join(b_roles) if b_roles else 'User has no bot roles :frowning:')
-            r_embed.add_field(name='Status', value=status_map[str(target.status)])
+            r_embed.add_field(name='Status', value=status_map[str(target.status)] if is_server else 'Couldn\'t fetch')
             r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing :frowning:'))
             await self.bot.send_message(ctx.message.channel, embed=r_embed)
 
@@ -138,8 +163,7 @@ class Utility(Cog):
         ch_fmt = '''Total: {0}
 Text: {1}
 Voice: {2}
-DM: {3}
-Group DM: {4}'''
+DM: {3}'''
         absfmt = '%a %b %d, %Y %I:%M:%S %p'
         status_map = {
             'online': 'Online',
@@ -151,7 +175,7 @@ Group DM: {4}'''
         au = target.avatar_url
         avatar_link = (au if au else target.default_avatar_url)
         ach = list(self.bot.get_all_channels())
-        chlist = [len(ach), 0, 0, 0, 0]
+        chlist = [len(ach), 0, 0, 0]
         for i in ach:
             at = str(i.type)
             if at == 'text':
@@ -160,8 +184,6 @@ Group DM: {4}'''
                 chlist[2] += 1
             elif at == 'private':
                 chlist[3] += 1
-            elif at == 'group':
-                chlist[4] += 1
         up = await self.bot.format_uptime()
         raw_musage = 0
         got_conversion = False
@@ -199,7 +221,7 @@ Group DM: {4}'''
         emb.add_field(name='Memory Used', value=(str(round(musage_dec, 1)) + ' MB (%s MiB)' % str(round(musage_hex, 1))) if got_conversion else 'Couldn\'t fetch')
         emb.add_field(name='Modules Loaded', value=len(self.bot.modules))
         emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())))
-        emb.add_field(name='Channels Accessible', value=ch_fmt.format(*[str(i) for i in chlist]))
+        emb.add_field(name='Channels', value=ch_fmt.format(*[str(i) for i in chlist]))
         emb.add_field(name='Custom Emojis', value=len(list(self.bot.get_all_emojis())))
         emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
         emb.add_field(name='ID', value=target.id)

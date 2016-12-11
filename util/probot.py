@@ -209,7 +209,7 @@ class ProBot(commands.Bot):
                     key = bdel(bc_key, 'TypeError: <_ast.')
                     await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
-                await self.csend(ctx, 'An internal error occured while responding to `%s`!```' % cmdfix + cprocessed + bc_key + '```')
+                await self.csend(ctx, 'An internal error occured while responding to `%s`!```' % (cmdfix + cprocessed) + bc_key + '```')
         elif isinstance(exp, commands.MissingRequiredArgument):
             await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         elif isinstance(exp, commands.TooManyArguments):
@@ -217,7 +217,7 @@ class ProBot(commands.Bot):
         elif isinstance(exp, commands.BadArgument):
             await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         else:
-            await self.csend(ctx, 'An internal error occured while responding to` %s`!```' % cmdfix + cprocessed + bc_key + '```')
+            await self.csend(ctx, 'An internal error occured while responding to` %s`!```' % (cmdfix + cprocessed) + bc_key + '```')
 
     def casein(self, substr, clist):
         """Return if a substring is found in any of clist."""
