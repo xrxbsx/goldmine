@@ -157,11 +157,12 @@ class ProBot(commands.Bot):
         cprocessed = cproc[len(cmdfix):]
         c_key = str(exp)
         bc_key = bdel(c_key, 'Command raised an exception: ')
+        eprefix = 's'
         try:
             cmid = ctx.message.server.id
         except AttributeError:
-            cmid = 'dm' + ctx.message.author.id
-        eprefix = 's' if not cmid.startswith('dm') else ''
+            cmid = ctx.message.author.id
+            eprefix = 'dm'
         self.logger.error(eprefix + cmid + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.NoPrivateMessage):
             await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
@@ -187,11 +188,17 @@ class ProBot(commands.Bot):
                     if key.endswith('Cannot send an empty message'):
                         await self.csend(ctx, emp_msg.format(ctx.message.author, cprocessed, cmdfix))
                     elif c_key.startswith('Command raised an exception: HTTPException: BAD REQUEST (status code: 400)'):
-                        await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
+                        if (eprefix == 'dm') and (ctx.invoked_with == 'user'):
+                            await self.csend(ctx, '**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
+                        else:
+                            await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
                     else:
                         await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
                 elif c_key.startswith('Command raised an exception: HTTPException: BAD REQUEST (status code: 400)'):
-                    await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
+                    if (eprefix == 'dm') and (ctx.invoked_with == 'user'):
+                        await self.csend(ctx, '**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
+                    else:
+                        await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
                 else:
                     await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
             elif bc_key.startswith('NameError: name '):
