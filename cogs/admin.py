@@ -27,7 +27,7 @@ class Admin(Cog):
         Syntax: purge"""
         await echeck_perms(ctx, ['server_admin'])
         deleted = await self.bot.purge_from(ctx.message.channel, limit=500, check=self.is_me)
-        await self.bot.send_message(ctx.message.channel, 'Deleted {} message(s)'.format(len(deleted)))
+        await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command(pass_context=True)
     async def nuke(self, ctx):
@@ -35,7 +35,7 @@ class Admin(Cog):
         Syntax: nuke"""
         await echeck_perms(ctx, ['server_admin'])
         deleted = await self.bot.purge_from(ctx.message.channel, limit=1300)
-        await self.bot.send_message(ctx.message.channel, 'Deleted {} message(s)'.format(len(deleted)))
+        await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command(pass_context=True)
     async def update(self, ctx):
@@ -72,6 +72,17 @@ class Admin(Cog):
         self.bot.is_restart = True
 #        await self.bot.logout() # Comment for people to not see that the bot restarted (to trick uptime)
         self.loop.stop()
+
+    @commands.cooldown(1, 16, type=commands.BucketType.default)
+    @commands.command(pass_context=True)
+    async def broadcast(self, ctx, *msg):
+        await echeck_perms(ctx, ['bot_owner'])
+        _msg = ' '.join(msg)
+        if msg:
+            for i in self.bot.servers:
+                await self.bot.send_message(i.default_channel, _msg)
+        else:
+            await self.bot.say('**You need to specify a message!**')
 
     @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'reval', 'reref'])
     async def eref(self, ctx, *rawtxt: str):
@@ -246,3 +257,7 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.suspend()
         await self.bot.say('Successfully **suspended** the bot\'s command and conversation processing!')
+
+def setup(bot):
+    c = Admin(bot)
+    bot.add_cog(c)

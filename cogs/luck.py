@@ -40,3 +40,7 @@ class Luck(Cog):
         """Generates a Google Fight link.
         Syntax: googlefight|gfight [target 1] [target 2]"""
         await self.bot.say('http://www.googlefight.com/' + tg1.title() + '-vs-' + tg2.title() + '.php')
+
+def setup(bot):
+    c = Luck(bot)
+    bot.add_cog(c)

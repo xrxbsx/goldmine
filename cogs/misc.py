@@ -3,7 +3,7 @@ import asyncio
 import util.commands as commands
 from .cog import Cog
 
-class Misc(Cog):
+class Miscellaneous(Cog):
     """Random commands that can be useful here and there.
     This can be... truly random. Don't be scared! :smile:
     """
@@ -21,3 +21,7 @@ class Misc(Cog):
         if count:
             fn_i = count[0]
         await self.bot.say('\n'.join(reversed(['buzz ' * i for i in range(fn_i)])))
+
+def setup(bot):
+    c = Miscellaneous(bot)
+    bot.add_cog(c)

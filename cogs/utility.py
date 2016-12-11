@@ -5,7 +5,7 @@ import sys
 from fnmatch import filter
 import re
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import OrderedDict
 import discord
 import util.commands as commands
@@ -24,6 +24,9 @@ class Utility(Cog):
     """Random commands that can be useful here and there.
     Settings, properties, and other stuff can be found here.
     """
+    def __init__(self, bot):
+        self.stopwatches = []
+        super().__init__(bot)
 
     @commands.command(pass_context=True, no_pm=True)
     async def icon(self, ctx):
@@ -75,11 +78,17 @@ class Utility(Cog):
                 try:
                     member = s.get_member(i)
                 except AttributeError:
-                    member = await self.bot.get_user_info(i)
+                    try:
+                        member = await self.bot.get_user_info(i)
+                    except discord.HTTPException:
+                        member = None
                 if member:
                     targets.append(member)
                 else:
-                    member = await self.bot.get_user_info(i)
+                    try:
+                        member = await self.bot.get_user_info(i)
+                    except discord.HTTPException:
+                        member = None
                     if member:
                         targets.append(member)
             names = []
@@ -106,10 +115,7 @@ class Utility(Cog):
         for target in targets:
             au = target.avatar_url
             avatar_link = (au if au else target.default_avatar_url)
-            try:
-                d_name = target.display_name
-            except AttributeError:
-                d_name = target.name
+            d_name = target.display_name
             try:
                 t_roles = target.roles
             except AttributeError:
@@ -148,13 +154,13 @@ class Utility(Cog):
             r_embed.set_footer(text=str(target), icon_url=avatar_link)
             r_embed.add_field(name='Nickname', value=('No nickname set :frowning:' if d_name == target.name else d_name))
             r_embed.add_field(name='User ID', value=target.id)
-            r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt) if is_server else 'Couldn\'t fetch')
+            r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt))
             r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt) if is_server else 'Couldn\'t fetch')
             r_embed.add_field(name='Server Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no server roles :frowning:')
             r_embed.add_field(name='Bot Roles', value=', '.join(b_roles) if b_roles else 'User has no bot roles :frowning:')
             r_embed.add_field(name='Status', value=status_map[str(target.status)] if is_server else 'Couldn\'t fetch')
             r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing :frowning:'))
-            await self.bot.send_message(ctx.message.channel, embed=r_embed)
+            await self.bot.say(embed=r_embed)
 
     @commands.command(pass_context=True, aliases=['gm'])
     async def info(self, ctx):
@@ -227,7 +233,7 @@ DM: {3}'''
         emb.add_field(name='ID', value=target.id)
         emb.add_field(name='My Homeland', value='https://blog.khronodragon.com')
         emb.add_field(name='Invite Link', value='https://tiny.cc/goldbot')
-        await self.bot.send_message(ctx.message.channel, home_broadcast, embed=emb)
+        await self.bot.say(home_broadcast, embed=emb)
 
     @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp'])
     async def ehelp(self, ctx, *commands: str):
@@ -287,10 +293,15 @@ DM: {3}'''
         if not ids:
             ids.append(self.bot.user.id)
         for iid in ids:
-            if iid == self.bot.user.id:
-                msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<https://tiny.cc/goldbot> for short)\n'.format(iid, self.bot.perm_mask)
+            try:
+                int(iid)
+            except ValueError:
+                await self.bot.say('**Invalid ID!**')
             else:
-                msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
+                if iid == self.bot.user.id:
+                    msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<https://tiny.cc/goldbot> for short)\n'.format(iid, self.bot.perm_mask)
+                else:
+                    msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
         await self.bot.say(msg)
 
     @commands.command(aliases=['homeland', 'web', 'website', 'webpage'])
@@ -379,3 +390,20 @@ DM: {3}'''
         winner = max(vote_table, key=vote_table.get)
         await self.bot.say('**Poll time is over, stopped! Winner is...** ' + str(winner) + '\nResults were:\n' + _totals)
         await self.bot.edit_message(msg, msg_key + '**POLL HAS ALREADY FINISHED.**')
+
+        @commands.command(aliases=["sw"], pass_context=True)
+        async def stopwatch(self, ctx):
+            """A stopwatch for your convenience."""
+            author = ctx.message.author
+            if not author.id in self.stopwatches:
+                self.stopwatches[author.id] = int(time.perf_counter())
+                await self.bot.say(author.mention + " Stopwatch started!")
+            else:
+                tmp = abs(self.stopwatches[author.id] - int(time.perf_counter()))
+                tmp = str(timedelta(seconds=tmp))
+                await self.bot.say(author.mention + " Stopwatch stopped! Time: **" + tmp + "**")
+                self.stopwatches.pop(author.id, None)
+
+def setup(bot):
+    c = Utility(bot)
+    bot.add_cog(c)

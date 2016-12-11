@@ -287,7 +287,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             await self.send_message(member.server, fmt.format(member, member.server, em_string, cmdfix))
     async def on_member_remove(self, member: discord.Member):
         """On_member_remove event for members leaving."""
-        fmt = '''Awww, **{0}** has just left this server. Bye!
+        fmt = '''Aw, **{0}** has just left this server. Bye!
 **{1.name}** has now lost a {2}. We'll miss you! :bear:'''
         bc = await get_prop(member, 'broadcast_leave')
         if str(bc).lower() in bool_true:
@@ -334,7 +334,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                             if isinstance(bclu, str):
                                 bclu = bclu.lower()
                             if bclu in bool_true:
-                                await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**! Nice! Gotta get to **level {2}** now! :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
+                                await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**. Nice! Gotta get to **level {2}** now :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
                         await set_prop(msg, 'by_user', prof_name, prof)
                     if self.status == 'invisible': return
@@ -372,6 +372,8 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                             await self.auto_cb_convo(msg, bname.lower() + ', ')
                         elif nmsg.startswith('... '):
                             await self.auto_cb_convo(msg, bname.lower() + '... ')'''
+                elif msg.content == 'prefix':
+                    await self.msend(msg, '**Current server command prefix is: **`' + cmdfix + '`')
                 else:
 #                    if msg.content.split('\n')[0] == cmdfix:
 #                        await self.send_typing(msg.channel)
@@ -422,7 +424,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         }
         ctx = Context(**tmp)
         del tmp
-        cl = cmd.lower().replace('é', 'e') # TODO: Real accent parsing
+        cl = cmd.lower().replace('é', 'e').replace('è', 'e') # TODO: Real accent parsing
 
         if cl in self.commands:
             await self.send_typing(message.channel)
@@ -431,7 +433,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             try:
                 await command.invoke(ctx)
                 if ctx.message.content == prefix + 'help':
-                    await self.send_message(message.channel, message.author.mention + ' **__I\'ve private messaged you my help and commands, please check your DMs!__** :smiley: Hope you enjoy.')
+                    await self.send_message(message.channel, message.author.mention + ' **__I\'ve private messaged you my help, please check your DMs!__**')
             except CommandError as exp:
                 ctx.command.dispatch_error(exp, ctx)
             else:

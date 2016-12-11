@@ -1,19 +1,12 @@
 """The brains of Dragon5232's awesome Discord bot.'"""
 from __future__ import unicode_literals
-
 import logging
 import asyncio
-
+import os
+from fnmatch import filter
 import discord
-
 from btoken import bot_token
-from modules.voice import Voice
-from modules.roleplay import Roleplay
-from modules.admin import Admin
-from modules.luck import Luck
-from modules.cosmetic import Cosmetic
-from modules.misc import Misc as Miscellaneous
-from modules.utility import Utility
+from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
 import util.datastore as store
 from util.const import description
@@ -49,15 +42,21 @@ def runbot(loop, bot):
 
 def main():
     """Executes the main bot."""
+    print(' - Getting cog folder')
+    cogs_dir = os.path.join(cur_dir, 'cogs')
     bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
-    bot.add_cog(Voice(bot))
-    bot.add_cog(Roleplay(bot))
-    bot.add_cog(Admin(bot))
-    bot.add_cog(Luck(bot))
-    bot.add_cog(Cosmetic(bot))
-    bot.add_cog(Miscellaneous(bot))
-    bot.add_cog(Utility(bot))
+    print(' - Searching for cogs')
+    cogs = [i.replace('.py', '').replace(cogs_dir + os.path.sep, '') for i in filter(rc_files(cogs_dir), '*.py')]
+    print(' - Cleaning up list')
+    cogs.remove('__init__')
+    cogs.remove('cog')
+    print(' - Loading cogs')
+    for cog in cogs:
+        print(' - Loading cog: ' + cog)
+        bot.load_extension('cogs.' + cog)
+    print(' - Initializing event loop')
     loop = asyncio.get_event_loop()
+    print(' - Starting bot!')
     runbot(loop, bot)
     return bot.is_restart
 

@@ -361,7 +361,7 @@ class Voice(Cog):
             'Starting Christmas playlist with jukebox! :tada::christmas_tree:',
             '**Quened [0/{0}] so far! Be patient :wink:**'.format(songc)
         ]
-        st_msg = await self.bot.send_message(ctx.message.channel, status[0])
+        st_msg = await self.bot.say(status[0])
         random.shuffle(songs)
 
         for n, i in enumerate(songs):
@@ -412,3 +412,7 @@ class Voice(Cog):
             await state.songs.put(entry)
             await self.bot.say('Queued **Speech**! :smiley:')
             await asyncio.sleep(1)
+
+def setup(bot):
+    c = Voice(bot)
+    bot.add_cog(c)

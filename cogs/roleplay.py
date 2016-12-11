@@ -275,7 +275,7 @@ class Roleplay(Cog):
         else:
             fn_face = random.choice(weird_faces)
         if fn_face:
-            await self.bot.send_message(ctx.message.channel, fn_face)
+            await self.bot.say(fn_face)
 
     @commands.command(pass_context=True, hidden=True)
     async def emotispam(self, ctx):
@@ -372,3 +372,7 @@ class Roleplay(Cog):
         emb.set_image(url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
         emb.set_author(name=target.name.replace('-', ' '), icon_url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
         await bot.send_message(ctx.message.channel, embed=emb)
+
+def setup(bot):
+    c = Roleplay(bot)
+    bot.add_cog(c)

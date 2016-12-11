@@ -71,7 +71,7 @@ cool right?''',
             for icount in range(1, 3):
                 r_embed.add_field(name='Field ' + str(i) + '.' + str(icount) + 'i', value='Test value for ' + str(i))
             r_embed.add_field(name='Field ' + str(i), value='Test value for ' + str(i), inline=False)
-        await self.bot.send_message(ctx.message.channel, embed=r_embed)
+        await self.bot.say(embed=r_embed)
 
     @commands.command(aliases=['rev', 'mirror'])
     async def reverse(self, *rmsg):
@@ -79,7 +79,7 @@ cool right?''',
         Syntax: reverse [text here]"""
         await self.bot.say(':repeat: ' + ' '.join(rmsg)[::-1])
 
-    @commands.command(pass_context=True, aliases=['math_sans_italic', 'circled', 'math_double', 'math_bold_italic', 'math_sans_bold_italic', 'parenthesized', 'math_bold_fraktur', 'math_sans_bold', 'squared', 'math_mono', 'fullwidth', 'squared_negative', 'normal', 'circled_negative', 'regional', 'math_sans', 'math_bold_script', 'math_bold'])
+    @commands.command(pass_context=True, aliases=['math_sans_italic', 'circled', 'math_double', 'math_bold_italic', 'math_sans_bold_italic', 'parenthesized', 'math_bold_fraktur', 'math_sans_bold', 'squared', 'math_mono', 'fullwidth', 'squared_negative', 'normal', 'circled_negative', 'regional', 'math_sans', 'math_bold_script', 'math_bold', 'upside_down'])
     async def style(self, ctx, *rmsg):
         """Stylize text in cool alphabets! Invoke with alphabet name.
         Syntax: style [style name] [text here]"""
@@ -92,14 +92,7 @@ cool right?''',
             await self.fontlist.invoke(ctx)
 
     async def stylize(self, alphabet, intxt):
-        char_rep = []
-        final_result = ''
-        for i in list(intxt):
-            c_index = list(charsets['normal']).index(i)
-            char_rep.append(c_index)
-        for i in char_rep:
-            final_result += charsets[alphabet][i]
-        return final_result
+        return intxt.translate(str.maketrans(charsets['normal'], charsets[alphabet]))
 
     @commands.command(aliases=['fonts', 'list', 'alphabet', 'alphabets', 'alphalist', 'styles', 'stylelist', 'chars', 'charlist', 'charsets', 'charsetlist'])
     async def fontlist(self):
@@ -108,6 +101,7 @@ cool right?''',
         pager = commands.Paginator(prefix='', suffix='')
         pager.add_line('**Listing all character sets defined with samples.**')
         for i in self.al_aliases:
+            print('A ' + i)
             tmp = await self.stylize(i, 'abcdefghijklmnopqrstuvwxyz')
             pager.add_line('**{0}**: `{1}`'.format(i, tmp))
         pager.add_line('**Invoke with `[p][name of set] [message here]`.** For example: `!math_bold hello world`.')
@@ -170,3 +164,7 @@ cool right?''',
         Syntax: web"""
         with open('assets/webs.jpeg', 'rb') as image:
             await self.bot.send_file(ctx.message.channel, image, filename='spiders_webs.jpg')
+
+def setup(bot):
+    c = Cosmetic(bot)
+    bot.add_cog(c)
