@@ -43,6 +43,7 @@ def runbot(loop, bot):
 def main(use_uvloop):
     """Executes the main bot."""
     if use_uvloop:
+        import uvloop
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     print(' - Getting cog folder')
     cogs_dir = os.path.join(cur_dir, 'cogs')
