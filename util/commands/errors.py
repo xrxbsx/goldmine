@@ -11,7 +11,8 @@ class CommandOnCooldown(CommandError):
     retry_after: float
         The amount of seconds to wait before you can retry again.
     """
-    def __init__(self, cooldown, retry_after):
+    def __init__(self, cooldown, retry_after, ctx):
         self.cooldown = cooldown
         self.retry_after = retry_after
-        super().__init__('You are on cooldown. TEST Try again in {:.2f}s'.format(retry_after))
+        self.ctx = ctx
+        super().__init__('You are on cooldown. Try again in {:.2f}s'.format(retry_after))

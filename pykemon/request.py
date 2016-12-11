@@ -13,6 +13,12 @@ from .models import Pokemon, Move, Type, Ability, Egg, Description, Sprite, Game
 from .exceptions import ResourceNotFoundError
 
 base_uri = 'http://pokeapi.co/api/v1'
+try:
+    from d_props import poke_uri
+    base_uri = poke_uri
+except ImportError:
+    pass
+
 endpoints = ['pokedex', 'pokedex_id', 'pokemon', 'pokemon_id', 'move', 'move_id',
              'ability', 'ability_id', 'type', 'type_id', 'egg',
              'egg_id', 'description', 'description_id', 'sprite',

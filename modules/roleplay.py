@@ -6,7 +6,7 @@ import time
 from collections import OrderedDict
 
 import discord
-from discord.ext import commands
+import util.commands as commands
 from pykemon.api import get as pokeget
 from pykemon import ResourceNotFoundError
 from pykemon.request import _request, Description
@@ -27,7 +27,7 @@ class Roleplay(Cog):
     def __init__(self, bot):
         super().__init__(bot)
 
-    @commands.command(pass_context=True, name='rmember', aliases=['randmember', 'randommember', 'randmem', 'rmem'])
+    @commands.command(pass_context=True, name='rmember', aliases=['randmember', 'randommember', 'randmem', 'rmem'], no_pm=True)
     async def rand_member(self, ctx):
         """Choose a random member from the message's server."""
         satisfied = False
@@ -259,7 +259,7 @@ class Roleplay(Cog):
         """Feel the loading of 10000 years, aka Soon™.
         Syntax: soon"""
         with open('assets/soon.gif', 'rb') as image:
-            await self.bot.send_file(ctx.message.channel, image, filename='soon.gif')
+            await self.bot.send_file(ctx.message.channel, image, filename='coming_soon.gif')
 
     @commands.command(pass_context=True, aliases=['wface', 'weirdface', 'weird', 'weird_face', 'mystery', 'neato', 'neat', 'random'])
     async def face(self, ctx, *numbers: int):

@@ -8,7 +8,7 @@ import random
 from datetime import datetime
 from collections import OrderedDict
 import discord
-from discord.ext import commands
+import util.commands as commands
 from util.safe_math import eval_expr as emath
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast
 from util.perms import check_perms
@@ -24,7 +24,7 @@ class Utility(Cog):
     Settings, properties, and other stuff can be found here.
     """
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, no_pm=True)
     async def icon(self, ctx):
         """Retrive the current server's icon.
         Syntax: icon"""
@@ -68,7 +68,10 @@ class Utility(Cog):
                 members[i.display_name] = i
                 members[i.name] = i
             for i in users:
-                member = s.get_member(i)
+                try:
+                    member = s.get_member(i)
+                except AttributeError:
+                    member = self.bot.get_user_info(i)
                 if member:
                     targets.append(member)
             names = []
@@ -177,12 +180,13 @@ Group DM: {4}'''
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
-        emb.set_footer(text='Made in Python 3.3+', icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
+        emb.set_footer(text='Made in Python 3.3+ with Discord.py %s' % self.bot.lib_version, icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
         emb.add_field(name='Servers Accessible', value=len(self.bot.servers))
         emb.add_field(name='Author', value='Dragon5232#1841')
         emb.add_field(name='Version', value=self.bot.version)
         emb.add_field(name='Uptime', value=up)
         emb.add_field(name='Library', value='discord.py')
+        emb.add_field(name='Library Version', value=self.bot.lib_version)
         emb.add_field(name='Git Revision', value=self.bot.git_rev)
         emb.add_field(name='Commands', value=str(len(self.bot.commands)))
         emb.add_field(name='Files of Code', value=self.bot.files)
@@ -285,6 +289,20 @@ Group DM: {4}'''
     async def poll(self, ctx, *rquestion: str):
         """Start a public poll with reactions.
         Syntax: poll [emojis] [question] [time in seconds]"""
+        async def cem_help():
+            if raw_c_emojis:
+                try:
+                    for i in ctx.message.server.emojis:
+                        cem_map[str(i)] = i
+                except AttributeError:
+                    return
+                for i in raw_c_emojis:
+                    try:
+                        c_emojis.append(cem_map[i])
+                    except KeyError:
+                        await self.bot.say('**Custom emoji `%s` doesn\'t exist!**' % i)
+                        return
+                emojis += c_emojis
         question = ''
         if rquestion:
             question = ' '.join(rquestion)
@@ -312,16 +330,7 @@ Group DM: {4}'''
         raw_c_emojis = re.findall(re.compile(r'<:[a-z]+:[0-9]{18}>', flags=re.IGNORECASE), question)
         c_emojis = []
         emojis = u_emojis
-        if raw_c_emojis:
-            for i in ctx.message.server.emojis:
-                cem_map[str(i)] = i
-            for i in raw_c_emojis:
-                try:
-                    c_emojis.append(cem_map[i])
-                except KeyError:
-                    await self.bot.say('**Custom emoji `%s` doesn\'t exist!**' % i)
-                    return
-            emojis += c_emojis
+        await cem_help()
         emojis = list(OrderedDict.fromkeys(emojis))
         for ri in emojis:
             i = str(ri)

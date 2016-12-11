@@ -2,7 +2,7 @@
 import asyncio
 import random
 
-from discord.ext import commands
+import util.commands as commands
 from .cog import Cog
 
 class Luck(Cog):

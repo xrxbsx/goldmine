@@ -111,3 +111,6 @@ st2.json
 
 # Google Search
 .google-cookie
+
+# Dragon only stuff
+d_props.py

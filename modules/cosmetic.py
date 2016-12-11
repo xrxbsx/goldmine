@@ -2,7 +2,7 @@
 import asyncio
 import random
 import discord
-from discord.ext import commands
+import util.commands as commands
 import util.datastore as store
 import util.ranks as rank
 from .cog import Cog
@@ -26,7 +26,7 @@ class Cosmetic(Cog):
         Syntax: role|color [role name]"""
         await self.bot.say('Role setting is not implemented yet!')
 
-    @commands.command(pass_context=True, aliases=['xp', 'level', 'lvl', 'exp', 'levels'])
+    @commands.command(pass_context=True, aliases=['xp', 'level', 'lvl', 'exp', 'levels'], no_pm=True)
     async def rank(self, ctx):
         """Check your experience, level, and rank!
         Syntax: xp|rank|level|lvl|exp|levels"""
@@ -119,22 +119,26 @@ cool right?''',
     async def animation(self, ctx, anim_seq, runs: int):
         """Do a 0.9 fps animation x times from the given sequence.
         Syntax: af [packed animation] [number of runs]"""
-        if ctx.message.server.id not in self.playing_anim:
-            self.playing_anim.append(ctx.message.server.id)
+        try:
+            cmid = ctx.message.server.id
+        except AttributeError:
+            cmid = 'dm' + ctx.message.author.id
+        if cmid not in self.playing_anim:
+            self.playing_anim.append(cmid)
             msg = await self.bot.say('Starting animation...')
             for _xi in range(runs):
                 for frame in anim_seq:
-                    if ctx.message.server.id not in self.stop_anim:
+                    if cmid not in self.stop_anim:
                         await self.bot.edit_message(msg, frame)
                         await asyncio.sleep(0.93)
                     else:
                         await self.bot.edit_message(msg, '**Animation stopped!**')
                         await self.bot.say('**Animation stopped!**')
-                        self.playing_anim.remove(ctx.message.server.id)
+                        self.playing_anim.remove(cmid)
                         return
             await self.bot.edit_message(msg, '**Animation stopped!**')
             await self.bot.say('**Animation stopped!**')
-            self.playing_anim.remove(ctx.message.server.id)
+            self.playing_anim.remove(cmid)
         else:
             await self.bot.say('**Already playing an animation in this server!**')
 
@@ -142,11 +146,15 @@ cool right?''',
     async def stopanim(self, ctx):
         """Stop the animation playing in this server, if any.
         Syntax: stopanim"""
-        if ctx.message.server.id in self.playing_anim:
+        try:
+            cmid = ctx.message.server.id
+        except AttributeError:
+            cmid = 'dm' + ctx.message.author.id
+        if cmid in self.playing_anim:
             await self.bot.say('**Stopping animation...**')
-            self.stop_anim.append(ctx.message.server.id)
+            self.stop_anim.append(cmid)
             await asyncio.sleep(1.9)
-            self.stop_anim.remove(ctx.message.server.id)
+            self.stop_anim.remove(ctmid)
         else:
             await self.bot.say('**Not playing any animation here!**')
 
@@ -155,3 +163,10 @@ cool right?''',
         """List the packed animations I have saved.
         Syntax: animlist"""
         await self.bot.say('**Listing stored packed animations.**```\n' + '\n'.join(spinners) + '```')
+
+    @commands.command(pass_context=True, aliases=['spider', 'spiders'])
+    async def webs(self, ctx):
+        """Some web developers that like bugs.
+        Syntax: web"""
+        with open('assets/webs.jpeg', 'rb') as image:
+            await self.bot.send_file(ctx.message.channel, image, filename='spiders_webs.jpg')

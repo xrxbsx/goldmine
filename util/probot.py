@@ -97,6 +97,8 @@ class ProBot(commands.Bot):
             self.storage = pickledb.load(self.storepath, False)
         self.modules = sys.modules
         self.continued_index_errors = 0
+        self.dc_ver = discord.version_info
+        self.lib_version = '.'.join([str(i) for i in self.dc_ver])
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -155,7 +157,12 @@ class ProBot(commands.Bot):
         cprocessed = cproc[len(cmdfix):]
         c_key = str(exp)
         bc_key = bdel(c_key, 'Command raised an exception: ')
-        self.logger.error('s' + ctx.message.server.id + ': ' + str(type(exp)) + ' - ' + str(exp))
+        try:
+            cmid = ctx.message.server.id
+        except AttributeError:
+            cmid = 'dm' + ctx.message.author.id
+        eprefix = 's' if not cmid.startswith('dm') else ''
+        self.logger.error(eprefix + cmid + ': ' + str(type(exp)) + ' - ' + str(exp))
         if isinstance(exp, commands.NoPrivateMessage):
             await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandNotFound):
@@ -164,7 +171,7 @@ class ProBot(commands.Bot):
         elif isinstance(exp, commands.DisabledCommand):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandOnCooldown):
-            await self.csend(ctx, coc_fmt.format(ctx.message.author, cprocessed, cmdfix, bdel(c_key, 'You are on cooldown. Try again in ')))
+            await self.send_message(exp.ctx.message.author, coc_fmt.format(ctx.message.author, cprocessed, cmdfix, bdel(c_key, 'You are on cooldown. Try again in ')))
         elif isinstance(exp, commands.CommandInvokeError):
             if bc_key.startswith('CommandPermissionError: ' + cmdfix):
                 _perms = ''
@@ -202,7 +209,7 @@ class ProBot(commands.Bot):
                     key = bdel(bc_key, 'TypeError: <_ast.')
                     await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
-                await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
+                await self.csend(ctx, 'An internal error occured while responding to `%s`!```' % cmdfix + cprocessed + bc_key + '```')
         elif isinstance(exp, commands.MissingRequiredArgument):
             await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         elif isinstance(exp, commands.TooManyArguments):
@@ -210,7 +217,7 @@ class ProBot(commands.Bot):
         elif isinstance(exp, commands.BadArgument):
             await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         else:
-            await self.csend(ctx, 'An internal error has occured!```' + bc_key + '```')
+            await self.csend(ctx, 'An internal error occured while responding to` %s`!```' % cmdfix + cprocessed + bc_key + '```')
 
     def casein(self, substr, clist):
         """Return if a substring is found in any of clist."""

@@ -1,4 +1,7 @@
-from discord.ext.commands.core import Group, GroupMixin, Command, cooldown, bot_has_permissions, bot_has_role, bot_has_any_role, has_permissions, has_any_role
+import asyncio
+import inspect
+from discord.ext.commands.core import *
+from .errors import *
 
 class ProCommand(Command):
     """A class that implements the protocol for a bot text command.
@@ -70,8 +73,7 @@ class ProCommand(Command):
             bucket = self._buckets.get_bucket(ctx)
             retry_after = bucket.is_rate_limited()
             if retry_after:
-                #raise CommandOnCooldown(bucket, retry_after)
-                raise TypeError()
+                raise CommandOnCooldown(bucket, retry_after, ctx)
 
 def command(name=None, cls=None, **attrs):
     """A decorator that transforms a function into a :class:`Command`

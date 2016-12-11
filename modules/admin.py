@@ -6,7 +6,7 @@ import subprocess
 from datetime import datetime, timedelta
 
 import discord
-from discord.ext import commands
+import util.commands as commands
 from util.perms import echeck_perms, check_perms
 import util.datastore as store
 from util.func import bdel
@@ -121,7 +121,10 @@ class Admin(Cog):
             await self.bot.say('**You need to specify a name, nickname, name#discriminator, or ID!**')
             return
         rtarget = ' '.join(rrtarget)
-        _target = ctx.message.server.get_member_named(rtarget)
+        try:
+            _target = ctx.message.server.get_member_named(rtarget)
+        except AttributeError:
+            _target = None
         if _target:
             target = _target.id
         elif len(rtarget) == 18:
@@ -150,7 +153,10 @@ class Admin(Cog):
             await self.bot.say('**You need to specify a name, nickname, name#discriminator, or ID!**')
             return
         rtarget = ' '.join(rrtarget)
-        _target = ctx.message.server.get_member_named(rtarget)
+        try:
+            _target = ctx.message.server.get_member_named(rtarget)
+        except AttributeError:
+            _target = None
         if _target:
             target = _target.id
         elif len(rtarget) == 18:
@@ -178,7 +184,10 @@ class Admin(Cog):
         rstore = await store.dump()
         alist = ''
         for i in rstore['bot_admins']:
-            _name = ctx.message.server.get_member(i)
+            try:
+                _name = ctx.message.server.get_member(i)
+            except AttributeError:
+                _name = None
             if not _name:
                 _name = await self.bot.get_user_info(i)
             alist += '**' + str(_name) + '**\n'
@@ -191,7 +200,7 @@ class Admin(Cog):
         pout = await store.get_prop(ctx.message, pname)
         await self.bot.say(pout)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, no_pm=True)
     async def setprop(self, ctx, pname: str, *values: str):
         """Set the value of a property on server level.
         Syntax: setprop [property name] [value]"""

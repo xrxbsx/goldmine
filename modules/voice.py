@@ -6,9 +6,10 @@ import subprocess
 import re
 import textwrap
 import discord
-from discord.ext import commands
+import util.commands as commands
 import aiohttp
 import async_timeout
+from gtts_token import gtts_token
 from util.const import sem_cells
 import util.datastore as store
 from .cog import Cog
@@ -25,9 +26,8 @@ class VoiceEntry:
         fmt = '**{0}**'
         p = self.player
         tags = []
-        url_r = r'http:\/\/[A-Z0-9\-]*.acapela-group.com\/MESSAGES\/[0-9]{33,}\/AcapelaGroup_WebDemo_HTML\/sounds\/[0-9]{6,10}_[a-z0-9]{10,15}\.mp3'
-        if re.match(url_r, p.url):
-            fmt = fmt.format('Purple Shep speech line :smiley:')
+        if p.title == 'translate_tts':
+            fmt = fmt.format('Speech line :smiley:')
         else:
             fmt = fmt.format(p.title)
         if p.uploader:
@@ -132,6 +132,7 @@ class Voice(Cog):
     """
     def __init__(self, bot):
         self.voice_states = {}
+        self.tokenizer = gtts_token.Token()
         super().__init__(bot)
 
     def get_voice_state(self, server):
@@ -209,6 +210,7 @@ class Voice(Cog):
             if not success:
                 return
 
+        state.voice.encoder_options(sample_rate=48000, channels=2)
         player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
 
         player.volume = 0.7
@@ -309,7 +311,7 @@ class Voice(Cog):
             skip_count = len(state.skip_votes)
             await self.bot.say('Now playing {} [skips: {}/3]'.format(state.current, skip_count))
 
-    @commands.command(pass_context=True, no_pm=False)
+    @commands.command(pass_context=True, no_pm=True)
     async def speak(self, ctx, *args):
         """Uses the SVOX pico TTS engine to speak a message.
         Syntax: speak [message]"""
@@ -327,12 +329,6 @@ class Voice(Cog):
         player.volume = 1.0
         player.start()
         await self.bot.say('Now speaking.')
-
-    async def getform(self, session, url, data):
-        with async_timeout.timeout(10):
-            async with session.post(url, data=data) as response:
-                tmp = await response.text()
-                return tmp
 
     @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 'season'])
     async def christmas(self, ctx):
@@ -380,7 +376,7 @@ class Voice(Cog):
             await asyncio.sleep(1)
         await self.bot.say('**All Christmas songs have been quened!** :tada::santa:')
 
-    @commands.command(pass_context=True, no_pm=False)
+    @commands.command(pass_context=True, no_pm=True)
     async def gspeak(self, ctx, *args):
         """Uses a TTS voice to speak a message.
         Syntax: gspeak [message]"""
@@ -393,23 +389,24 @@ class Voice(Cog):
 
         opts = {
             'quiet': True,
+            'user-agent': 'stagefright/1.2 (Linux;Android 6.0)',
+            'referer': 'https://translate.google.com/'
         }
+        base_url = 'http://translate.google.com/translate_tts'
         rounds = textwrap.wrap(' '.join(args), width=100)
         for intxt in rounds:
-            payload = {
-                'MyLanguages': 'sonid10',
-                'MySelectedVoice': 'WillFromAfar (emotive voice)',
-                'MyTextForTTS': intxt,
-                't': '1',
-                'SendToVaaS': ''
+            g_args = {
+                'ie': 'UTF-8',
+                'q': intxt.replace(' ', '%20'),
+                'tl': 'en-us',
+                'client': 'tw-ob',
+                'idx': '0',
+                'total': '1',
+                'textlen': '12',
+                'tk': str(self.tokenizer.calculate_token(intxt))
             }
-            async with aiohttp.ClientSession(loop=self.loop) as session:
-                rtml = await self.getform(session, 'http://www.acapela-group.com/demo-tts/DemoHTML5Form_V2.php', payload)
-            keyout = re.findall("^.*var myPhpVar = .*$", rtml, re.MULTILINE)[0]
-            keyline = keyout.split("'")[1]
             await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *15 seconds* to quene.**')
-            player = await state.voice.create_ytdl_player(keyline, ytdl_options=opts, after=state.toggle_next)
-
+            player = await state.voice.create_ytdl_player(base_url + '?' + '&'.join([i + '=' + g_args[i] for i in g_args]), ytdl_options=opts, after=state.toggle_next)
             player.volume = 0.75
             entry = VoiceEntry(ctx.message, player, False)
             await state.songs.put(entry)
