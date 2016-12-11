@@ -73,7 +73,7 @@ class Admin(Cog):
 #        await self.bot.logout() # Comment for people to not see that the bot restarted (to trick uptime)
         self.loop.stop()
 
-    @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'reval'])
+    @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'reval', 'reref'])
     async def eref(self, ctx, *rawtxt: str):
         """Evaluate some code in command scope.
         Syntax: eref [string to reference]"""
@@ -82,8 +82,12 @@ class Admin(Cog):
             ev_output = eval(bdel(' '.join(rawtxt), '```python').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
-        await self.bot.say('```python\n' + str(ev_output) + '```')
-    @commands.command(pass_context=True, hidden=True)
+        o = str(ev_output)
+        if ctx.invoked_with.startswith('r'):
+            await self.bot.say(o)
+        else:
+            await self.bot.say('```python\n' + o + '```')
+    @commands.command(pass_context=True, hidden=True, aliases=['rseref'])
     async def seref(self, ctx, *rawtxt: str):
         """Evaluate a statement in command scope.
         Syntax:s eref [string to reference]"""
@@ -92,7 +96,11 @@ class Admin(Cog):
             ev_output = exec(bdel(' '.join(rawtxt), '```python').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
-        await self.bot.say('```python\n' + str(ev_output) + '```')
+        o = str(ev_output)
+        if ctx.invoked_with.startswith('r'):
+            await self.bot.say(o)
+        else:
+            await self.bot.say('```python\n' + o + '```')
 
     @commands.command(pass_context=True, aliases=['amiadmin', 'isadmin', 'admin'])
     async def admintest(self, ctx):
