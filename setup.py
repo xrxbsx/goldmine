@@ -17,7 +17,7 @@ with open('README.md') as f:
     readme = f.read()
 
 extras_require = {
-    'full': ['plyvel'],
+    'full': ['plyvel', 'uvloop'],
 }
 
 setup(name='goldmine',

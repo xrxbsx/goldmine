@@ -24,11 +24,21 @@ if sys.version_info[1] == 3:
     exit(0)
 import os
 import asyncio
+use_uvloop = False
+print(' - Detecting uvloop...')
+try:
+    import uvloop
+except ImportError:
+    print(' - Could not load uvloop')
+    pass
+else:
+    print(' - Will use uvloop.')
+    use_uvloop = True
 while True:
     print(' - Loading bot code')
     import core
     print(' - Ready to start bot!')
-    retval = core.main()
+    retval = core.main(use_uvloop)
     print(' - Bot stopped.')
     if retval: # restart
         print(' - Restarting bot.')
@@ -43,7 +53,10 @@ while True:
             loop_old = asyncio.get_event_loop()
             loop_old.close()
             print(' - Creating new event loop')
-            loop = asyncio.new_event_loop()
+            if use_uvloop:
+                loop = uvloop.new_event_loop()
+            else:
+                loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             print(' - Ready to start bot!')
     else:

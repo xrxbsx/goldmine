@@ -40,8 +40,10 @@ def runbot(loop, bot):
         loop.run_until_complete(bot.logout())
         # cancel all tasks lingering
 
-def main():
+def main(use_uvloop):
     """Executes the main bot."""
+    if use_uvloop:
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     print(' - Getting cog folder')
     cogs_dir = os.path.join(cur_dir, 'cogs')
     bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
@@ -61,4 +63,14 @@ def main():
     return bot.is_restart
 
 if __name__ == '__main__':
-    main()
+    use_uvloop = False
+    print(' - Detecting uvloop...')
+    try:
+        import uvloop
+    except ImportError:
+        print(' - Could not load uvloop')
+        pass
+    else:
+        print(' - Will use uvloop.')
+        use_uvloop = True
+    main(use_uvloop)
