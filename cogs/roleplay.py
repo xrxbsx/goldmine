@@ -112,7 +112,10 @@ class Roleplay(Cog):
     async def cleverbot(self, *args):
         """Queries the Cleverbot service. Because why not.
         Syntax: cleverbot [message here]"""
-        reply_bot = await self.bot.askcb(' '.join(args))
+        try:
+            reply_bot = await self.bot.askcb(' '.join(args))
+        except IndexError:
+            reply_bot = '**Couldn\'t get a response from Cleverbot!**'
         await self.bot.say(reply_bot)
 
     @commands.command(aliases=['randquote', 'getquote'])
