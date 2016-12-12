@@ -15,7 +15,7 @@ import discord
 import util.commands as commands
 from .commands.bot import Context, StringView, CommandError, CommandNotFound
 from google import search
-from cleverbot import Cleverbot
+from util.cleverbot import Cleverbot
 import pickledb
 from convert_to_old_syntax import cur_dir, rc_files
 from properties import storage_backend
@@ -144,9 +144,8 @@ class ProBot(commands.Bot):
         queue.set()
     async def askcb(self, query):
         """A method of querying Cleverbot safe for async."""
-        blocking_cb = self.loop.run_in_executor(None, self.cb.ask, query)
-        tmp = await blocking_cb
-        return tmp
+        ret = await self.cb.ask(query)
+        return ret
     async def google(self, query, **kwargs):
         """A method of querying Google safe for async."""
         blocking_g = self.loop.run_in_executor(None, functools.partial(search, query, **kwargs))
