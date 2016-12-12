@@ -25,8 +25,7 @@ async def get(**kwargs):
         raise ValueError('Too many arguments. Only pass 1 argument')
 
     if list(kwargs.keys())[0] in endpoints:
-        tmp = await make_request(kwargs)
-        return tmp
+        return await make_request(kwargs)
 
     else:
         raise ValueError('An invalid argument was passed')

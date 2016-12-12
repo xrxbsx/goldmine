@@ -252,10 +252,12 @@ DM: {3}'''
     async def google(self, *rawin: str):
         """Search something on Google.
         Syntax: google [search terms]"""
-        intxt = ' '.join(rawin)
-        f_query = await self.bot.google(intxt, stop=5)
-        fql = list(f_query)
-        await self.bot.say('Google returned: ' + fql[0] + ' and ' + fql[1])
+        if rawin:
+            intxt = ' '.join(rawin)
+            fql = await self.bot.google(intxt, num=2)
+            await self.bot.say('Google returned: ' + fql[0] + ' and ' + fql[1])
+        else:
+            await self.bot.say('**You must specify some search terms!**')
 
     @commands.cooldown(1, 9.5, type=commands.BucketType.server)
     @commands.command(pass_context=True, aliases=['ping', 'pong', 'delay', 'net', 'network', 'lag', 'netlag'])

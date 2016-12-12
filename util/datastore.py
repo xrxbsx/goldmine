@@ -58,8 +58,7 @@ class DataStore():
 
     async def get_cmdfix(self, msg):
         """Easy method to retrieve the command prefix in current scope."""
-        tmp = await self.get_prop(msg, 'command_prefix')
-        return tmp
+        return await self.get_prop(msg, 'command_prefix')
 
     async def get_props_s(self, msg):
         """Get the server properties of a message."""

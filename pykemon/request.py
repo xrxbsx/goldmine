@@ -43,8 +43,7 @@ async def _request(uri):
             async with session.get(uri) as r:
                 if r.status == 200:
                     txt = await r.text()
-                    tmp = await _to_json(txt)
-                    return tmp
+                    return await _to_json(txt)
                 else:
                     raise ResourceNotFoundError(
                         'API responded with error code %s' % str(r.status))

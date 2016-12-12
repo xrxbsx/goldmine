@@ -14,7 +14,7 @@ import logging
 import discord
 import util.commands as commands
 from .commands.bot import Context, StringView, CommandError, CommandNotFound
-from google import search
+from util.google import search
 from util.cleverbot import Cleverbot
 import pickledb
 from convert_to_old_syntax import cur_dir, rc_files
@@ -144,13 +144,10 @@ class ProBot(commands.Bot):
         queue.set()
     async def askcb(self, query):
         """A method of querying Cleverbot safe for async."""
-        ret = await self.cb.ask(query)
-        return ret
-    async def google(self, query, **kwargs):
+        return await self.cb.ask(query) # now just an alias
+    async def google(self, query, num=3):
         """A method of querying Google safe for async."""
-        blocking_g = self.loop.run_in_executor(None, functools.partial(search, query, **kwargs))
-        tmp = await blocking_g
-        return tmp
+        return await search(query, num=num)
 
     async def send(self, *apass, **kwpass):
         await self.send_message(*apass, **kwpass)

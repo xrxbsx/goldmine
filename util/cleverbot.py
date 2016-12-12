@@ -136,8 +136,7 @@ class Cleverbot(object):
 
         with async_timeout.timeout(8):
             async with aiohttp.request('POST', Cleverbot.API_URL, data=self.data, headers=Cleverbot.headers, cookies=self.cookies) as response:
-                ret = await response.text()
-                return ret
+                return await response.text()
 
     async def get_cookies(self):
         """Get the cookie to use with Cleverbot."""
