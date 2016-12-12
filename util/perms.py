@@ -1,7 +1,6 @@
 """Permission handling code."""
 import asyncio
 from properties import bot_owner
-import util.datastore as store
 from util.commands import CommandError
 
 class CommandPermissionError(CommandError):
@@ -15,7 +14,6 @@ async def check_perms(ctx, perms_required):
     perms_satisfied = 0
     sender = ctx.message.author
     sender_id = sender.id
-    rstore = await store.dump()
     try:
         sowner = ctx.message.server.owner
         sowner_id = sowner.id
@@ -33,7 +31,7 @@ async def check_perms(ctx, perms_required):
             if sender_id == sowner_id:
                 perms_satisfied += 1
         if i == 'bot_admin':
-            if (sender_id in rstore['bot_admins']) or (sender_id == bot_owner):
+            if (sender_id in ctx.bot.store.store['bot_admins']) or (sender_id == bot_owner):
                 perms_satisfied += 1
         if i == 'server_admin':
             if sender.server_permissions.manage_server:

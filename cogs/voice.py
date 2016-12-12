@@ -11,7 +11,6 @@ import aiohttp
 import async_timeout
 from gtts_token import gtts_token
 from util.const import sem_cells
-import util.datastore as store
 from .cog import Cog
 
 class VoiceEntry:

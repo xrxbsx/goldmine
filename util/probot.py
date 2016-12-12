@@ -19,10 +19,16 @@ from cleverbot import Cleverbot
 import pickledb
 from convert_to_old_syntax import cur_dir, rc_files
 from properties import storage_backend
-from util.datastore import get_cmdfix, get_prop, set_prop, f_exts
+from util.datastore import DataStore
 import util.ranks as rank
 from util.const import *
 from util.func import bdel
+
+try:
+    from d_props import store_path
+    opath = store_path
+except ImportError:
+    opath = None
 
 class CleverQuery():
     def __init__(self, channel_to, query, prefix, suffix):
@@ -81,14 +87,16 @@ class ProBot(commands.Bot):
         self.start_time = datetime.now()
         self.dir = os.path.dirname(os.path.realpath(__file__))
         self.storepath = os.path.join(self.dir, '..', 'storage.')
-        try:
-            self.storepath += f_exts[storage_backend]
-        except KeyError:
+        if storage_backend not in DataStore.exts:
             self.logger.critical('Invalid storage backend specified, quitting!')
-            exit(1)
         self.version = '0.0.1'
         with open(os.path.join(cur_dir, '__init__.py')) as f:
             self.version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+        self.store = None
+        if opath:
+            self.store = DataStore(storage_backend, path=opath, join_path=False)
+        else:
+            self.store = DataStore(storage_backend)
         self.storage = None
         if storage_backend == 'leveldb':
             import plyvel
@@ -99,6 +107,7 @@ class ProBot(commands.Bot):
         self.continued_index_errors = 0
         self.dc_ver = discord.version_info
         self.lib_version = '.'.join([str(i) for i in self.dc_ver])
+        self.store_writer = self.loop.create_task(self.store.commit_task())
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -152,7 +161,7 @@ class ProBot(commands.Bot):
         await self.send_message(ctx.message.channel, *apass, **kwpass)
 
     async def on_command_error(self, exp, ctx):
-        cmdfix = await get_cmdfix(ctx.message)
+        cmdfix = await self.store.get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
         c_key = str(exp)
@@ -281,22 +290,22 @@ class ProBot(commands.Bot):
         fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
 If you need any help, contact someone with your :question::question:s.
 Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.'''
-        bc = await get_prop(member, 'broadcast_join')
-        cmdfix = await get_prop(member, 'command_prefix')
+        bc = await self.store.get_prop(member, 'broadcast_join')
+        cmdfix = await self.store.get_prop(member, 'command_prefix')
         if str(bc).lower() in bool_true:
             await self.send_message(member.server, fmt.format(member, member.server, em_string, cmdfix))
     async def on_member_remove(self, member: discord.Member):
         """On_member_remove event for members leaving."""
         fmt = '''Aw, **{0}** has just left this server. Bye!
 **{1.name}** has now lost a {2}. We'll miss you! :bear:'''
-        bc = await get_prop(member, 'broadcast_leave')
+        bc = await self.store.get_prop(member, 'broadcast_leave')
         if str(bc).lower() in bool_true:
             utype = ('bot' if member.bot else 'member')
             await self.send_message(member.server, fmt.format(str(member), member.server, utype))
 
     async def on_message(self, msg):
-        cmdfix = await get_cmdfix(msg)
-        bname = await get_prop(msg, 'bot_name')
+        cmdfix = await self.store.get_cmdfix(msg)
+        bname = await self.store.get_prop(msg, 'bot_name')
         try:
             myself = msg.server.me
         except AttributeError:
@@ -317,26 +326,26 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                     await asyncio.sleep(1)
             else:
                 if not msg.channel.is_private:
-                    int_name = await get_prop(msg, 'bot_name')
+                    int_name = await self.store.get_prop(msg, 'bot_name')
                     if msg.server.me.display_name != int_name:
-                        sntn = await get_prop(msg, 'set_nick_to_name')
+                        sntn = await self.store.get_prop(msg, 'set_nick_to_name')
                         if isinstance(sntn, str):
                             sntn = sntn.lower()
                         if sntn in bool_true:
                             await self.change_nickname(msg.server.me, int_name)
                     if not msg.content.startswith(cmdfix):
                         prof_name = 'profile_' + msg.server.id
-                        prof = await get_prop(msg, prof_name)
+                        prof = await self.store.get_prop(msg, prof_name)
                         prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
                         new_level = rank.xp_level(prof['exp'])[0]
                         if new_level > prof['level']:
-                            bclu = await get_prop(msg, 'broadcast_level_up')
+                            bclu = await self.store.get_prop(msg, 'broadcast_level_up')
                             if isinstance(bclu, str):
                                 bclu = bclu.lower()
                             if bclu in bool_true:
                                 await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**. Nice! Gotta get to **level {2}** now :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
                         prof['level'] = new_level
-                        await set_prop(msg, 'by_user', prof_name, prof)
+                        await self.store.set_prop(msg, 'by_user', prof_name, prof)
                     if self.status == 'invisible': return
                     if str(msg.channel) == 'cleverbutts':
                         if msg.content.lower() == 'kickstart':

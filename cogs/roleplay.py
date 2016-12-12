@@ -11,7 +11,6 @@ from pykemon.api import get as pokeget
 from pykemon import ResourceNotFoundError
 from pykemon.request import _request, Description
 
-import util.datastore as store
 import util.quote as quote
 from util.perms import check_perms, echeck_perms
 from util.const import *
@@ -42,7 +41,7 @@ class Roleplay(Cog):
     async def slap(self, ctx, target: str):
         """Slaps someone like a boss, for the win.
         Syntax: slap [person]"""
-        cmdfix = await store.get_cmdfix(ctx.message.content)
+        cmdfix = await self.store.get_cmdfix(ctx.message.content)
         keystr = '* ' + ctx.message.content.split(' ')[0].strip(cmdfix) + 's *'
         await self.bot.say('*' + ctx.message.author.display_name + keystr +
                            target + '* **' + random.choice(adjs) + '**.')
@@ -120,14 +119,13 @@ class Roleplay(Cog):
     async def quote(self, *args):
         """References a quote from the quote collection.
         Syntax: quote {optional: quote number}"""
-        temp_ref = await store.dump()
         try:
             qindx = args[0]
         except IndexError:
-            qindx = random.randint(1, temp_ref['quotes'].__len__())
+            qindx = random.randint(1, self.dstore['quotes'].__len__())
         qindex = int(qindx)
         try:
-            out_msg = await quote.qrender(temp_ref['quotes'][qindex - 1], qindex - 1)
+            out_msg = await quote.qrender(self.dstore['quotes'][qindex - 1], qindex - 1, self.bot)
         except IndexError:
             out_msg = 'That quote does not exist, try again!'
         await self.bot.say(out_msg)
@@ -138,12 +136,11 @@ class Roleplay(Cog):
         Syntax: quotelist"""
         # maybe PM this
         show_pages = [i for i in rshow_pages]
-        rstore = await store.dump()
         pager = commands.Paginator(prefix='', suffix='', max_size=1595)
         if not show_pages:
             show_pages.append(1)
-        for n, i in enumerate(rstore['quotes']):
-            qout = await quote.qrender(i, n)
+        for n, i in enumerate(self.dstore['quotes']):
+            qout = await quote.qrender(i, n, self.bot)
             pager.add_line(qout)
         for page_n in show_pages:
             try:
@@ -157,7 +154,7 @@ class Roleplay(Cog):
         Syntax: quoteadd [text here]"""
         if args:
             fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
-            bname = await store.get_prop(ctx.message, 'bot_name')
+            bname = await self.store.get_prop(ctx.message, 'bot_name')
             q_template = {
                 'id': 0,
                 'quote': 'The bot has encountered an internal error.',
@@ -171,10 +168,8 @@ class Roleplay(Cog):
             if mauthor.display_name != mauthor.name:
                 q_template['author'] += ' (' + mauthor.name + ')'
             q_template['author_ids'] = [mauthor.id]
-            rstore = await store.dump()
-            q_template['id'] = len(rstore['quotes']) # +1 for next id, but len() counts from 1
-            rstore['quotes'].extend([q_template])
-            await store.write(rstore)
+            q_template['id'] = len(self.dstore['quotes']) # +1 for next id, but len() counts from 1
+            self.dstore['quotes'].extend([q_template])
             await self.bot.say('The quote specified has been successfully added!')
         else:
             await self.bot.say(ctx.message.author.mention + ' You need to specify some text to add!')
@@ -186,7 +181,7 @@ class Roleplay(Cog):
         await echeck_perms(ctx, ['bot_admin'])
         if args:
             fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
-            bname = await store.get_prop(ctx.message, 'bot_name')
+            bname = await self.store.get_prop(ctx.message, 'bot_name')
             q_template = {
                 'id': 0,
                 'quote': 'The bot has encountered an internal error.',
@@ -200,10 +195,9 @@ class Roleplay(Cog):
             if mauthor.display_name != mauthor.name:
                 q_template['author'] += ' (' + mauthor.name + ')'
             q_template['author_ids'] = [mauthor.id]
-            rstore = await store.dump()
-            q_template['id'] = len(rstore['quotes']) # +1 for next id, but len() counts from 1
-            rstore['quotes'].extend([q_template])
-            await store.write(rstore)
+            q_template['id'] = len(self.dstore['quotes']) # +1 for next id, but len() counts from 1
+            self.dstore['quotes'].extend([q_template])
+            await self.store.write(rstore)
             await self.bot.say('The quote specified has been successfully added!')
         else:
             await self.bot.say(ctx.message.author.mention + ' You need to specify some text to add!')
@@ -213,9 +207,8 @@ class Roleplay(Cog):
         """Modifies an existing quote.
         Syntax: quotemod [quote number] [new text here]"""
         if qraw:
-            rstore = await store.dump()
             try:
-                q_template = rstore['quotes'][qindex1 - 1]
+                q_template = self.dstore['quotes'][qindex1 - 1]
             except IndexError:
                 await self.bot.say(ctx.message.author.mention + ' That quote doesn\'t already exist, maybe create it?')
                 return
@@ -227,9 +220,7 @@ class Roleplay(Cog):
                     q_template['author'] += ' (' + mauthor.name + ')'
             q_template['author_ids'].extend([mauthor.id])
             q_template['date'] = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
-            rstore = await store.dump() # keep store as fresh as possible
-            rstore['quotes'][qindex1 - 1] = q_template
-            await store.write(rstore)
+            self.dstore['quotes'][qindex1 - 1] = q_template
             await self.bot.say('The quote specified has been successfully modified!')
         else:
             await self.bot.say(ctx.message.author.mention + ' You can\'t empty an existing quote!')
@@ -238,18 +229,15 @@ class Roleplay(Cog):
     async def quotedel(self, ctx, qindex: int):
         """Deletes an existing quote. You may only delete your own quotes unless you are the bot owner.
         Syntax: quotedel [quote number]"""
-        rstore = await store.dump()
         try:
-            q_target = rstore['quotes'][qindex - 1]
+            q_target = self.dstore['quotes'][qindex - 1]
         except IndexError:
             await self.bot.say(ctx.message.author.mention + ' That quote doesn\'t already exist, maybe create it for deletion? :stuck_out_tongue:')
             return
         mauthor = ctx.message.author
         _pcheck = await check_perms(ctx, ['bot_owner'])
         if (mauthor.id == q_target['author_ids'][0]) or (_pcheck):
-            rstore = await store.dump() # keep store as fresh as possible
-            del rstore['quotes'][qindex - 1]
-            await store.write(rstore)
+            del self.dstore['quotes'][qindex - 1]
             await self.bot.say('The quote specified has been successfully deleted!')
         else:
             await self.bot.say('The quote specified could not be deleted because you do not own it, and are not the bot owner. Sorry!')

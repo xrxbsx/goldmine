@@ -3,7 +3,6 @@ import asyncio
 import random
 import discord
 import util.commands as commands
-import util.datastore as store
 import util.ranks as rank
 from .cog import Cog
 from util.const import charsets, spinners
@@ -37,7 +36,7 @@ TOTAL EXPERIENCE: {4}**
 *Try getting some more! :smiley:*
 '''
 #        if ctx.message.split(' '):
-        prof = await store.get_prop(ctx.message, 'profile_' + ctx.message.server.id)
+        prof = await self.store.get_prop(ctx.message, 'profile_' + ctx.message.server.id)
         rlevel = rank.xp_level(prof['exp'])
         await self.bot.say(stat_fmt.format(ctx.message, str(rlevel[0]), str(int(rlevel[1])),
                                            str(int((rlevel[0] + 1) * 75)), str(prof['exp'])))

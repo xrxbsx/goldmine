@@ -1,8 +1,9 @@
 """A few fake container classes to make some functions work."""
 
 class FakeContextMember():
-    def __init__(self, member):
+    def __init__(self, member, bot):
         self.message = member
+        self.bot = bot
 
 class FakeMessageMember():
     def __init__(self, member):

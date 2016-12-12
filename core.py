@@ -8,13 +8,13 @@ import discord
 from btoken import bot_token
 from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
-import util.datastore as store
+from util.datastore import initialize as init_store
 from util.const import description
 from util.proformatter import RichFormatter
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('discord')
-store.initialize()
+init_store()
 
 if not discord.opus.is_loaded():
     # Windows: opus.dll (auto provided)

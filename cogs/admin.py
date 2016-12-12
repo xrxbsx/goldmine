@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 import discord
 import util.commands as commands
 from util.perms import echeck_perms, check_perms
-import util.datastore as store
 from util.func import bdel
 from .cog import Cog
 
@@ -17,16 +16,12 @@ class Admin(Cog):
     Can be extremely powerful, use with caution!
     """
 
-    def is_me(self, mem):
-        """Checks if author of a message is this bot."""
-        return mem.author == self.bot.user
-
     @commands.command(pass_context=True)
     async def purge(self, ctx):
         """Removes all of this bot's messages on a channel.
         Syntax: purge"""
         await echeck_perms(ctx, ['server_admin'])
-        deleted = await self.bot.purge_from(ctx.message.channel, limit=500, check=self.is_me)
+        deleted = await self.bot.purge_from(ctx.message.channel, limit=500, check=lambda m: m == self.bot.user)
         await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command(pass_context=True)
@@ -67,11 +62,34 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_admin'])
 #        for i in self.bot.servers:
 #            await self.bot.send_message(i.default_channel, 'This bot (' + self.bname + ') is now restarting!')
-        await self.bot.say('This bot is now restarting! Hopefully I come back alive :)')
-        self.logger.info('This bot is now restarting!')
+        self.bot.store_writer.cancel()
+        await self.bot.store.commit()
+        await self.bot.say('I\'ll try to restart. Hopefully I come back alive :stuck_out_tongue:')
+        self.logger.info('The bot is now restarting!')
         self.bot.is_restart = True
 #        await self.bot.logout() # Comment for people to not see that the bot restarted (to trick uptime)
         self.loop.stop()
+
+    @commands.command(pass_context=True, aliases=['dwrite', 'storecommit', 'commitstore', 'commit_store', 'write_store'], hidden=True)
+    async def dcommit(self, ctx):
+        """Commit the current datastore.
+        Syntax: dcommit"""
+        await echeck_perms(ctx, ['bot_owner'])
+        await self.bot.store.commit()
+        await self.bot.say('**Commited the current copy of the datastore!**')
+
+    @commands.command(pass_context=True, aliases=['dread', 'storeread', 'readstore', 'load_store', 'read_store'], hidden=True)
+    async def dload(self, ctx):
+        """Load the datastore from disk. POTENTIALLY DESTRUCTIVE!
+        Syntax: dload"""
+        await echeck_perms(ctx, ['bot_owner'])
+        await self.bot.say('**ARE YOU SURE YOU WANT TO LOAD THE DATASTORE?** *yes, no*')
+        resp = await self.bot.wait_for_message(author=ctx.message.author)
+        if resp.content.lower() == 'yes':
+            await self.bot.store.commit()
+            await self.bot.say('**Read the datastore from disk, overwriting current copy!**')
+        else:
+            await self.bot.say('**Didn\'t say yes, aborting.**')
 
     @commands.cooldown(1, 16, type=commands.BucketType.default)
     @commands.command(pass_context=True)
@@ -145,10 +163,8 @@ class Admin(Cog):
             return
         if tmp:
             aentry = target
-            rstore = await store.dump()
-            if aentry not in rstore['bot_admins']:
-                rstore['bot_admins'].extend([aentry])
-                await store.write(rstore)
+            if aentry not in self.dstore['bot_admins']:
+                self.dstore['bot_admins'].extend([aentry])
                 await self.bot.say('The user specified has successfully been added to the bot admin list!')
             else:
                 await self.bot.say('The user specified is already a bot admin!')
@@ -177,10 +193,8 @@ class Admin(Cog):
             return
         if tmp:
             aentry = target
-            rstore = await store.dump()
             try:
-                del rstore['bot_admins'][rstore['bot_admins'].index(aentry)]
-                await store.write(rstore)
+                self.dstore['bot_admins'].remove(aentry)
             except ValueError:
                 await self.bot.say('The user specified is not a bot admin!')
             else:
@@ -192,9 +206,8 @@ class Admin(Cog):
     async def adminlist(self, ctx):
         """List all bot admins defined.
         Syntax: adminlist"""
-        rstore = await store.dump()
         alist = ''
-        for i in rstore['bot_admins']:
+        for i in self.dstore['bot_admins']:
             try:
                 _name = ctx.message.server.get_member(i)
             except AttributeError:
@@ -208,7 +221,7 @@ class Admin(Cog):
     async def getprop(self, ctx, pname: str):
         """Fetch a property from the datastore.
         Syntax: getprop [property name]"""
-        pout = await store.get_prop(ctx.message, pname)
+        pout = await self.store.get_prop(ctx.message, pname)
         await self.bot.say(pout)
 
     @commands.command(pass_context=True, no_pm=True)
@@ -217,7 +230,7 @@ class Admin(Cog):
         Syntax: setprop [property name] [value]"""
         await echeck_perms(ctx, ['server_admin'])
         value = ' '.join(values)
-        await store.set_prop(ctx.message, 'by_server', pname, value)
+        await self.store.set_prop(ctx.message, 'by_server', pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
         if pname == 'bot_name':
             await self.bot.change_nickname(ctx.message.server.me, value)
@@ -229,17 +242,17 @@ class Admin(Cog):
         if prefix:
             await echeck_perms(ctx, ['server_admin'])
             jprefix = ' '.join(list(prefix))
-            await store.set_prop(ctx.message, 'by_server', 'command_prefix', jprefix)
+            await self.store.set_prop(ctx.message, 'by_server', 'command_prefix', jprefix)
             await self.bot.say('Successfully set command prefix as `' + jprefix + '`!')
         else:
-            oprefix = await store.get_cmdfix(ctx.message)
+            oprefix = await self.store.get_cmdfix(ctx.message)
             await self.bot.say('**Current server command prefix is: **`' + oprefix + '`')
 
     @commands.command(pass_context=True, aliases=['usersetprop', 'psetprop'])
     async def usetprop(self, ctx, pname: str, value: str):
         """Set the value of a property on user level.
         Syntax: setprop [property name] [value]"""
-        await store.set_prop(ctx.message, 'by_user', pname, value)
+        await self.store.set_prop(ctx.message, 'by_user', pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}` for {2.mention}!'.format(pname, value, ctx.message.author))
 
     @commands.command(pass_context=True, aliases=['rsetprop'])
@@ -247,7 +260,7 @@ class Admin(Cog):
         """Set the value of a property on any level.
         Syntax: rawsetprop [scope] [property name] [value]"""
         await echeck_perms(ctx, ['bot_admin'])
-        await store.set_prop(ctx.message, scope, pname, value)
+        await self.store.set_prop(ctx.message, scope, pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
 
     @commands.command(pass_context=True)

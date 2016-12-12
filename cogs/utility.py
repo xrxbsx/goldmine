@@ -13,7 +13,6 @@ from util.safe_math import eval_expr as emath
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast
 from util.perms import check_perms
 from util.fake import FakeContextMember, FakeMessageMember
-import util.datastore as store
 from properties import bot_owner
 from .cog import Cog
 
@@ -128,15 +127,14 @@ class Utility(Cog):
             c_srv = False
             c_sown = False
             try:
-                tg_ctx = FakeContextMember(FakeMessageMember(target))
+                tg_ctx = FakeContextMember(FakeMessageMember(target), self.bot)
             except AttributeError:
                 tg_ctx = None
             else:
                 c_srv = await check_perms(tg_ctx, ['server_admin'])
                 c_sown = await check_perms(tg_ctx, ['server_owner'])
             c_own = bool(target.id == bot_owner)
-            rstore = await store.dump()
-            c_adm = bool(target.id in rstore['bot_admins'])
+            c_adm = bool(target.id in self.dstore['bot_admins'])
             is_server = bool(isinstance(target, discord.Member))
             if c_own:
                 b_roles.append('Bot Owner')

@@ -8,3 +8,5 @@ class Cog:
         self.bot = bot
         self.logger = logging.getLogger('discord').getChild('client')
         self.loop = asyncio.get_event_loop()
+        self.store = self.bot.store
+        self.dstore = self.store.store
