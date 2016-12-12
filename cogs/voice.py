@@ -189,7 +189,7 @@ class Voice(Cog):
 
         return True
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=['yt', 'youtube'])
     async def play(self, ctx, *, song: str):
         """Plays a song.
         Adds the requested song to the playlist (quene) for playing.
