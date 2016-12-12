@@ -78,8 +78,9 @@ class Cleverbot(object):
         # the log of our conversation with Cleverbot
         self.conversation = []
         self.loop = asyncio.get_event_loop()
+        self.cookies = {}
         # get the main page to get a cookie (see bug #13)
-        self.session = None
+        asyncio.ensure_future(self.get_cookies())
 
     async def ask(self, question):
         """Asks Cleverbot a question.
@@ -93,7 +94,6 @@ class Cleverbot(object):
 
         # Connect to Cleverbot's API and remember the response
         resp = await self._send()
-        print(resp)
 
         # Add the current question to the conversation log
         self.conversation.append(question)
@@ -134,11 +134,18 @@ class Cleverbot(object):
         token = hashlib.md5(digest_txt.encode('utf-8')).hexdigest()
         self.data['icognocheck'] = token
 
+        with async_timeout.timeout(8):
+            async with aiohttp.request('POST', Cleverbot.API_URL, data=self.data, headers=Cleverbot.headers, cookies=self.cookies) as response:
+                ret = await response.text()
+                return ret
+
+    async def get_cookies(self):
+        """Get the cookie to use with Cleverbot."""
         async with aiohttp.ClientSession(loop=self.loop) as session:
-            with async_timeout.timeout(8):
-                async with session.post(Cleverbot.API_URL, data=self.data, headers=Cleverbot.headers) as response:
-                    ret = await response.text()
-                    return ret
+            with async_timeout.timeout(6):
+                async with session.get(Cleverbot.PROTOCOL + Cleverbot.HOST):
+                    for cookie in session.cookie_jar:
+                        self.cookies[cookie.key] = cookie.value
 
     @staticmethod
     async def _parse(resp_text):
