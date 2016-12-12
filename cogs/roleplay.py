@@ -175,7 +175,7 @@ class Roleplay(Cog):
             self.dstore['quotes'].extend([q_template])
             await self.bot.say('The quote specified has been successfully added as **#%s**!' % str(len(self.dstore['quotes'])))
         else:
-            await self.bot.say(ctx.message.author.mention + ' You need to specify some text to add!')
+            await self.bot.say(ctx.message.author.mention + ' **You need to specify some text to add!**')
 
     @commands.command(pass_context=True, aliases=['rnewquote', 'rquotenew', 'raddquote', 'rmakequote', 'rquotemake', 'rcreatequote', 'rquotecreate', 'raq'])
     async def rquoteadd(self, ctx, target: discord.Member, *args):
@@ -202,7 +202,7 @@ class Roleplay(Cog):
             self.dstore['quotes'].extend([q_template])
             await self.bot.say('The quote specified has been successfully added as **#%s**!' % str(len(self.dstore['quotes'])))
         else:
-            await self.bot.say(ctx.message.author.mention + ' You need to specify some text to add!')
+            await self.bot.say(ctx.message.author.mention + ' **You need to specify some text to add!**')
 
     @commands.command(pass_context=True, aliases=['quoteedit', 'modquote', 'editquote'])
     async def quotemod(self, ctx, qindex1: int, *qraw):
