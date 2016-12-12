@@ -173,7 +173,7 @@ class Roleplay(Cog):
             q_template['author_ids'] = [mauthor.id]
             q_template['id'] = len(self.dstore['quotes']) # +1 for next id, but len() counts from 1
             self.dstore['quotes'].extend([q_template])
-            await self.bot.say('The quote specified has been successfully added!')
+            await self.bot.say('The quote specified has been successfully added as **#%s**!' % str(len(self.dstore['quotes'])))
         else:
             await self.bot.say(ctx.message.author.mention + ' You need to specify some text to add!')
 
@@ -200,7 +200,7 @@ class Roleplay(Cog):
             q_template['author_ids'] = [mauthor.id]
             q_template['id'] = len(self.dstore['quotes']) # +1 for next id, but len() counts from 1
             self.dstore['quotes'].extend([q_template])
-            await self.bot.say('The quote specified has been successfully added!')
+            await self.bot.say('The quote specified has been successfully added as **#%s**!' % str(len(self.dstore['quotes'])))
         else:
             await self.bot.say(ctx.message.author.mention + ' You need to specify some text to add!')
 
