@@ -1,6 +1,9 @@
 """Definition of the bot's Cosmetic module.'"""
 import asyncio
 import random
+import json
+import aiohttp
+import async_timeout
 import discord
 import util.commands as commands
 import util.ranks as rank
@@ -163,6 +166,17 @@ cool right?''',
         Syntax: web"""
         with open('assets/webs.jpeg', 'rb') as image:
             await self.bot.send_file(ctx.message.channel, image, filename='spiders_webs.jpg')
+
+#    @commands.cooldown(1, 4, type=commands.BucketType.user)
+    @commands.command(aliases=['random.cat', 'randomcat', 'rcat', 'cats', 'catrandom', 'random_cat'])
+    async def cat(self):
+        """Get a random cat! Because why not.
+        Syntax: cat"""
+        async with aiohttp.ClientSession(loop=self.loop) as session:
+            with async_timeout.timeout(8):
+                async with session.get('http://random.cat/meow') as response:
+                    ret = await response.text()
+        await self.bot.say(json.loads(ret)['file'])
 
 def setup(bot):
     c = Cosmetic(bot)
