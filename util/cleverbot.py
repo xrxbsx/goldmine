@@ -9,7 +9,7 @@ import hashlib
 import asyncio
 import async_timeout
 import aiohttp
-from requests.compat import urlencode
+from urllib.parse import urlencode
 from future.backports.html import parser
 
 # Only use the instance method `unescape` of entity_parser. (I wish it was a

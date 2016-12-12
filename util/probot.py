@@ -472,3 +472,79 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         final = fmt.format(int(time_days[0]), int(time_days[1]), int(time_hrs[1]), int(time_mins[1]),
                            s(time_days[0]), s(time_days[1]), s(time_hrs[1]), s(time_mins[1]))
         return final
+
+    async def send_message(self, destination, content=None, *, tts=False, embed=None):
+        """|coro|
+        Sends a message to the destination given with the content given.
+        The destination could be a :class:`Channel`, :class:`PrivateChannel` or :class:`Server`.
+        For convenience it could also be a :class:`User`. If it's a :class:`User` or :class:`PrivateChannel`
+        then it sends the message via private message, otherwise it sends the message to the channel.
+        If the destination is a :class:`Server` then it's equivalent to calling
+        :attr:`Server.default_channel` and sending it there.
+        If it is a :class:`Object` instance then it is assumed to be the
+        destination ID. The destination ID is a *channel* so passing in a user
+        ID will not be a valid destination.
+        .. versionchanged:: 0.9.0
+            ``str`` being allowed was removed and replaced with :class:`Object`.
+        The content must be a type that can convert to a string through ``str(content)``.
+        If the content is set to ``None`` (the default), then the ``embed`` parameter must
+        be provided.
+        If the ``embed`` parameter is provided, it must be of type :class:`Embed` and
+        it must be a rich embed type.
+        Parameters
+        ------------
+        destination
+            The location to send the message.
+        content
+            The content of the message to send. If this is missing,
+            then the ``embed`` parameter must be present.
+        tts : bool
+            Indicates if the message should be sent using text-to-speech.
+        embed: :class:`Embed`
+            The rich embed for the content.
+        Raises
+        --------
+        HTTPException
+            Sending the message failed.
+        Forbidden
+            You do not have the proper permissions to send the message.
+        NotFound
+            The destination was not found and hence is invalid.
+        InvalidArgument
+            The destination parameter is invalid.
+        Examples
+        ----------
+        Sending a regular message:
+        .. code-block:: python
+            await client.send_message(message.channel, 'Hello')
+        Sending a TTS message:
+        .. code-block:: python
+            await client.send_message(message.channel, 'Goodbye.', tts=True)
+        Sending an embed message:
+        .. code-block:: python
+            em = discord.Embed(title='My Embed Title', description='My Embed Content.', colour=0xDEADBF)
+            em.set_author(name='Someone', icon_url=client.user.default_avatar_url)
+            await client.send_message(message.channel, embed=em)
+        Returns
+        ---------
+        :class:`Message`
+            The message that was sent.
+        """
+
+        channel_id, guild_id = await self._resolve_destination(destination)
+
+        if content:
+            content = str(content)
+            if len(content) > 2000:
+                truncate_msg = '**... (truncated)**'
+                content = content[:2000 - len(truncate_msg)] + truncate_msg
+        else:
+            content = None
+
+        if embed:
+            embed = embed.to_dict()
+
+        data = await self.http.send_message(channel_id, content, guild_id=guild_id, tts=tts, embed=embed)
+        channel = self.get_channel(data.get('channel_id'))
+        message = self.connection._create_message(channel=channel, **data)
+        return message

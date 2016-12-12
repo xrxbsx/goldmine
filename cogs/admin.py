@@ -3,6 +3,7 @@ from __future__ import print_function
 import asyncio
 import random
 import subprocess
+from importlib import import_module as imp
 from datetime import datetime, timedelta
 
 import discord
@@ -107,6 +108,9 @@ class Admin(Cog):
         """Evaluate some code in command scope.
         Syntax: eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
+        def print(*ina: str):
+            asyncio.ensure_future(self.bot.say(' '.join(ina)))
+            return None
         try:
             ev_output = eval(bdel(' '.join(rawtxt), '```python').strip('`'))
         except Exception as e:
@@ -121,6 +125,9 @@ class Admin(Cog):
         """Evaluate a statement in command scope.
         Syntax:s eref [string to reference]"""
         await echeck_perms(ctx, ['bot_owner'])
+        def print(*ina: str):
+            asyncio.ensure_future(self.bot.say(' '.join(ina)))
+            return None
         try:
             ev_output = exec(bdel(' '.join(rawtxt), '```python').strip('`'))
         except Exception as e:
