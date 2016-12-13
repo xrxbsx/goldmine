@@ -17,7 +17,7 @@ with open('README.md') as f:
     readme = f.read()
 
 extras_require = {
-    'full': ['plyvel', 'uvloop', 'cchardet'],
+    'full': ['plyvel', 'uvloop', 'cchardet', 'https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py[voice]'],
 }
 
 setup(name='goldmine',

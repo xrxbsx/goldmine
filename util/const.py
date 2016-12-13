@@ -361,3 +361,5 @@ spinners = [
 ]
 
 home_broadcast = 'I\'d appreciate it if you visited my home at <https://blog.khronodragon.com>, my creator\'s websites at <https://khronodragon.com> and <http://gh.khronodragon.com>, and my GitHub at <https://github.com/Armored-Dragon/goldmine>. You can invite me to your guilds with <https://tiny.cc/goldbot>, and get to my support guild with <https://discord.gg/E2ADFu2>. :wink:'
+
+lvl_base = 100

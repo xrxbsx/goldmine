@@ -255,7 +255,10 @@ DM: {3}'''
         if rawin:
             intxt = ' '.join(rawin)
             fql = await self.bot.google(intxt, num=2)
-            await self.bot.say('Google returned: ' + fql[0] + ' and ' + fql[1])
+            try:
+                await self.bot.say('Google returned: ' + fql[0] + ' and ' + fql[1])
+            except IndexError:
+                await self.bot.say('**There were no results!**')
         else:
             await self.bot.say('**You must specify some search terms!**')
 

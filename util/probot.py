@@ -1,6 +1,5 @@
 """The bot's ProBot subclass module, to operate the whole bot."""
 import asyncio
-import functools
 import random
 import inspect
 import subprocess
@@ -284,7 +283,6 @@ class ProBot(commands.Bot):
         if cemotes:
             em_string = ': ' + ' '.join([str(i) for i in cemotes])
         fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
-If you need any help, contact someone with your :question::question:s.
 Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.'''
         bc = await self.store.get_prop(member, 'broadcast_join')
         cmdfix = await self.store.get_prop(member, 'command_prefix')
@@ -339,7 +337,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                             if isinstance(bclu, str):
                                 bclu = bclu.lower()
                             if bclu in bool_true:
-                                await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**. Nice! Gotta get to **level {2}** now :stuck_out_tongue:'.format(msg.author, str(new_level), str(new_level + 1)))
+                                await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**.'.format(msg.author, str(new_level)))
                         prof['level'] = new_level
                         await self.store.set_prop(msg, 'by_user', prof_name, prof)
                     if self.status == 'invisible': return
@@ -537,6 +535,8 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             content = str(content)
             if len(content) > 2000:
                 truncate_msg = '**... (truncated)**'
+                if bool(len(re.findall('```', content)) & 1): # odd number
+                    truncate_msg = '```' + truncate_msg
                 content = content[:2000 - len(truncate_msg)] + truncate_msg
         else:
             content = None

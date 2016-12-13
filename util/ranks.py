@@ -1,7 +1,8 @@
 """Experience, ranking, and leveling related utility functions."""
+from util.const import lvl_base
 def get_level_xp(n):
     """Calculate the XP required to be a level."""
-    return 75*(n**2 + n)/2 + 75
+    return lvl_base * (n**2 + n)/2 + lvl_base
 
 def xp_level(ixp):
     """Calculate current level from XP."""

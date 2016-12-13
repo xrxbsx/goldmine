@@ -8,7 +8,7 @@ import discord
 import util.commands as commands
 import util.ranks as rank
 from .cog import Cog
-from util.const import charsets, spinners
+from util.const import charsets, spinners, lvl_base
 
 class Cosmetic(Cog):
     """Commands for some neat-o fun!
@@ -42,7 +42,7 @@ TOTAL EXPERIENCE: {4}**
         prof = await self.store.get_prop(ctx.message, 'profile_' + ctx.message.server.id)
         rlevel = rank.xp_level(prof['exp'])
         await self.bot.say(stat_fmt.format(ctx.message, str(rlevel[0]), str(int(rlevel[1])),
-                                           str(int((rlevel[0] + 1) * 75)), str(prof['exp'])))
+                                           str(int((rlevel[0] + 1) * lvl_base)), str(prof['exp'])))
 
     @commands.command(pass_context=True)
     async def emotes(self, ctx):
