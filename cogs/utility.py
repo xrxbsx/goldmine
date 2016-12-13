@@ -2,9 +2,11 @@
 import asyncio
 import time
 import sys
+from io import BytesIO
 from fnmatch import filter
 import re
 import random
+from PIL import Image, ImageOps
 from datetime import datetime, timedelta
 from collections import OrderedDict
 import discord
@@ -279,6 +281,13 @@ DM: {3}'''
         """Do a basic test of the bot.
         Syntax: test"""
         await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')
+        im = Image.open('assets/avatar_raw.png')
+        im = ImageOps.grayscale(im)
+        im = ImageOps.autocontrast(im)
+        imBytes = BytesIO()
+        im.save(imBytes, 'PNG')
+        imBytes.seek(0)
+        await self.bot.send_file(ctx.message.channel, fp=imBytes, filename='gsbot.png')
 
     @commands.command(pass_context=True)
     async def uptime(self, ctx):
