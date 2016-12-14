@@ -400,6 +400,7 @@ DM: {3}'''
         msg = await self.bot.say(msg_key + '**POLL NOT ACTIVE YET, ADDING REACTIONS.**')
         for emoji in emojis:
             await self.bot.add_reaction(msg, emoji)
+            await asyncio.sleep(0.14)
         await self.bot.edit_message(msg, msg_key + '**POLL IS NOW ACTIVE. Give it a vote!**')
         emojis = list(emojis)
         poll_table = OrderedDict((str(i), []) for i in emojis)
