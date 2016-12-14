@@ -296,12 +296,35 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_owner'])
         pager = commands.Paginator(prefix='```diff')
         for server in self.bot.servers:
-            pager.add_line('+ ' + server.name + ' [%s members]' % str(len(server.members)))
+            pager.add_line('+ ' + server.name + ' [{0} members] [ID {1}]'.format(str(len(server.members)), server.id))
             for channel in server.channels:
                 xname = channel.name
                 if str(channel.type) == 'voice':
                     xname = '[voice] ' + xname
                 pager.add_line('  - ' + xname)
+        for page in pager.pages:
+            await self.bot.say(page)
+
+    @commands.command(pass_context=True, hidden=True, aliases=['mlist', 'members', 'listmembers'])
+    async def memberlist(self, ctx, *server_ids: str):
+        """List the members of a server.
+        Syntax: memberlist [server ids]"""
+        await echeck_perms(ctx, ['bot_owner'])
+        if not server_ids:
+            await self.bot.say('**You need to specify at least 1 server ID!**')
+            return
+        pager = commands.Paginator(prefix='```diff')
+        pager.add_line('< -- SERVERS <-> MEMBERS -- >')
+        server_table = {i.id: i for i in self.bot.servers}
+        for sid in server_ids:
+            try:
+                server = server_table[sid]
+            except KeyError:
+                await self.bot.say('**ID** `%s` **was not found.**' % sid)
+                return
+            pager.add_line('+ ' + server.name + ' [{0} members] [ID {1}]'.format(str(len(server.members)), server.id))
+            for member in server.members:
+                pager.add_line('- ' + str(member))
         for page in pager.pages:
             await self.bot.say(page)
 

@@ -415,19 +415,29 @@ DM: {3}'''
         await self.bot.edit_message(msg, msg_key + '**POLL HAS ALREADY FINISHED.**')
         await self.bot.say('VT `' + str(vote_table) + '`')
 
-        @commands.command(aliases=["sw"], pass_context=True)
-        async def stopwatch(self, ctx):
-            """A stopwatch for your convenience."""
-            author = ctx.message.author
-            if not author.id in self.stopwatches:
-                self.stopwatches[author.id] = int(time.perf_counter())
-                await self.bot.say(author.mention + " Stopwatch started!")
-            else:
-                tmp = abs(self.stopwatches[author.id] - int(time.perf_counter()))
-                tmp = str(timedelta(seconds=tmp))
-                await self.bot.say(author.mention + " Stopwatch stopped! Time: **" + tmp + "**")
-                self.stopwatches.pop(author.id, None)
+    @commands.command(aliases=["sw"], pass_context=True)
+    async def stopwatch(self, ctx):
+        """A stopwatch for your convenience."""
+        author = ctx.message.author
+        if not author.id in self.stopwatches:
+            self.stopwatches[author.id] = int(time.perf_counter())
+            await self.bot.say(author.mention + " Stopwatch started!")
+        else:
+            tmp = abs(self.stopwatches[author.id] - int(time.perf_counter()))
+            tmp = str(timedelta(seconds=tmp))
+            await self.bot.say(author.mention + " Stopwatch stopped! Time: **" + tmp + "**")
+            self.stopwatches.pop(author.id, None)
 
+    @commands.command(pass_context=True, name='id', aliases=['myid', 'sid', 'serverid'])
+    async def _id(self, ctx):
+        """Get all the current scope IDs."""
+        fmt = '''**ID Party!**
+Server ID: `{0.server.id}` (same as default channel ID and @\u200beveryone role ID!)
+Channel ID: `{0.channel.id}`
+Your ID: `{0.author.id}`
+Server Owner\'s ID: `{0.server.owner.id}`
+**You can also look up the ID of other people with** `{1.prefix}user [name / id / mention]`**.**'''
+        await self.bot.say(fmt.format(ctx.message, ctx))
 def setup(bot):
     c = Utility(bot)
     bot.add_cog(c)
