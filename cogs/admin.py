@@ -289,6 +289,22 @@ class Admin(Cog):
         for page in pager.pages:
             await self.bot.say(page)
 
+    @commands.command(pass_context=True, hidden=True, aliases=['treelist', 'stree', 'treeservers', 'trees', 'tservers'])
+    async def servertree(self, ctx):
+        """List the servers I am in (tree version).
+        Syntax: servertree"""
+        await echeck_perms(ctx, ['bot_owner'])
+        pager = commands.Paginator(prefix='```diff')
+        for server in self.bot.servers:
+            pager.add_line('+ ' + server.name + ' [%s members]' % str(len(server.members)))
+            for channel in server.channels:
+                xname = channel.name
+                if str(channel.type) == 'voice':
+                    xname = '[voice] ' + xname
+                pager.add_line('  - ' + xname)
+        for page in pager.pages:
+            await self.bot.say(page)
+
 def setup(bot):
     c = Admin(bot)
     bot.add_cog(c)
