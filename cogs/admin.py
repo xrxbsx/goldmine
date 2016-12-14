@@ -278,16 +278,16 @@ class Admin(Cog):
         await self.bot.suspend()
         await self.bot.say('Successfully **suspended** the bot\'s command and conversation processing!')
 
-    @commands.command(hidden=True, aliases=['serverlist'])
-    async def servers(self):
-       """List the servers I am in.
-       Syntax: servers"""
-       await echeck_perms(ctx, ['bot_owner'])
-       pager = commands.Paginator()
-       for server in self.bot.servers:
-           pager.add_line(server.name)
-       for page in pager.pages:
-           await self.bot.say(page)
+    @commands.command(pass_context=True, hidden=True, aliases=['serverlist'])
+    async def servers(self, ctx):
+        """List the servers I am in.
+        Syntax: servers"""
+        await echeck_perms(ctx, ['bot_owner'])
+        pager = commands.Paginator()
+        for server in self.bot.servers:
+            pager.add_line(server.name)
+        for page in pager.pages:
+            await self.bot.say(page)
 
 def setup(bot):
     c = Admin(bot)

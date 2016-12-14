@@ -6,7 +6,6 @@ from io import BytesIO
 from fnmatch import filter
 import re
 import random
-from PIL import Image, ImageOps
 from datetime import datetime, timedelta
 from collections import OrderedDict
 import discord
@@ -17,6 +16,14 @@ from util.perms import check_perms
 from util.fake import FakeContextMember, FakeMessageMember
 from properties import bot_owner
 from .cog import Cog
+
+have_pil = True
+print(' - Loading PIL...')
+try:
+    from PIL import Image, ImageOps
+except ImportError:
+    print(' - Could not load PIL!')
+    have_pil = False
 
 if sys.platform in ['linux', 'linux2', 'darwin']:
     import resource
@@ -281,13 +288,14 @@ DM: {3}'''
         """Do a basic test of the bot.
         Syntax: test"""
         await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')
-        im = Image.open('assets/avatar_raw.png')
-        im = ImageOps.grayscale(im)
-        im = ImageOps.autocontrast(im)
-        imBytes = BytesIO()
-        im.save(imBytes, 'PNG')
-        imBytes.seek(0)
-        await self.bot.send_file(ctx.message.channel, fp=imBytes, filename='gsbot.png')
+        if have_pil:
+            im = Image.open('assets/avatar_raw.png')
+            im = ImageOps.grayscale(im)
+            im = ImageOps.autocontrast(im)
+            imBytes = BytesIO()
+            im.save(imBytes, 'PNG')
+            imBytes.seek(0)
+            await self.bot.send_file(ctx.message.channel, fp=imBytes, filename='gsbot.png')
 
     @commands.command(pass_context=True)
     async def uptime(self, ctx):
@@ -334,7 +342,8 @@ DM: {3}'''
     async def poll(self, ctx, *rquestion: str):
         """Start a public poll with reactions.
         Syntax: poll [emojis] [question] [time in seconds]"""
-        async def cem_help():
+        async def cem_help(emojis, raw_c_emojis, cem_map, c_emojis):
+            """Custom emoji helper."""
             if raw_c_emojis:
                 try:
                     for i in ctx.message.server.emojis:
@@ -365,17 +374,15 @@ DM: {3}'''
         _question = question.split(' ')
         del _question[-1:]
         question = ' '.join(_question)
-        try:
-            # UCS-4
+        try: # UCS-4
             highpoints = re.compile(u'[\U00010000-\U0010ffff]')
-        except re.error:
-            # UCS-2
+        except re.error: # UCS-2
             highpoints = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
         u_emojis = re.findall(highpoints, question)
         raw_c_emojis = re.findall(re.compile(r'<:[a-z]+:[0-9]{18}>', flags=re.IGNORECASE), question)
         c_emojis = []
         emojis = u_emojis
-        await cem_help()
+        await cem_help(emojis, raw_c_emojis, cem_map, c_emojis)
         emojis = list(OrderedDict.fromkeys(emojis))
         for ri in emojis:
             i = str(ri)
@@ -385,6 +392,9 @@ DM: {3}'''
         question = question.strip()
         if not emojis:
             await self.bot.say('**You must specify some emojis!**')
+            return
+        elif len(emojis) < 2:
+            await self.bot.say('**You need at least 2 emojis to poll!**')
             return
         msg_key = ctx.message.author.mention + ' is now polling:\n    \u2022 ' + question + '\n'
         msg = await self.bot.say(msg_key + '**POLL NOT ACTIVE YET, ADDING REACTIONS.**')
@@ -402,6 +412,7 @@ DM: {3}'''
         winner = max(vote_table, key=vote_table.get)
         await self.bot.say('**Poll time is over, stopped! Winner is...** ' + str(winner) + '\nResults were:\n' + _totals)
         await self.bot.edit_message(msg, msg_key + '**POLL HAS ALREADY FINISHED.**')
+        await self.bot.say('VT `' + str(vote_table) + '`')
 
         @commands.command(aliases=["sw"], pass_context=True)
         async def stopwatch(self, ctx):

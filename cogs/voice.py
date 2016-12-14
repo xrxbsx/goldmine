@@ -227,8 +227,11 @@ class Voice(Cog):
         state = self.get_voice_state(ctx.message.server)
         if state.is_playing():
             player = state.player
-            player.volume = value / 100
-            await self.bot.say('Set the volume to {:.0%}'.format(player.volume))
+            if (value >= 10) and (value <= 200):
+                player.volume = value / 100
+                await self.bot.say('**Volume is now {:.0%}.**'.format(player.volume))
+            else:
+                await self.bot.say('**Volume must be in the range of 10% and 200%!**')
 
     @commands.command(pass_context=True, no_pm=True)
     async def pause(self, ctx):
