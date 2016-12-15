@@ -94,25 +94,21 @@ class Admin(Cog):
 
     @commands.cooldown(1, 16, type=commands.BucketType.default)
     @commands.command(pass_context=True)
-    async def broadcast(self, ctx, *msg):
+    async def broadcast(self, ctx, filler_string: str):
         await echeck_perms(ctx, ['bot_owner'])
-        _msg = ' '.join(msg)
-        if msg:
-            for i in self.bot.servers:
-                await self.bot.send_message(i.default_channel, _msg)
-        else:
-            await self.bot.say('**You need to specify a message!**')
+        for i in self.bot.servers:
+            await self.bot.send_message(i.default_channel, ctx.raw_args)
 
-    @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'reval', 'reref'])
-    async def eref(self, ctx, *rawtxt: str):
+    @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'rxeval', 'reref', 'xeval'])
+    async def eref(self, ctx, filler_string: str):
         """Evaluate some code in command scope.
-        Syntax: eref [string to reference]"""
+        Syntax: eref [code to execute]"""
         await echeck_perms(ctx, ['bot_owner'])
         def print(*ina: str):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return None
         try:
-            ev_output = eval(bdel(' '.join(rawtxt), '```python').strip('`'))
+            ev_output = eval(bdel(ctx.raw_args, '```python').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
@@ -120,16 +116,16 @@ class Admin(Cog):
             await self.bot.say(o)
         else:
             await self.bot.say('```python\n' + o + '```')
-    @commands.command(pass_context=True, hidden=True, aliases=['rseref'])
-    async def seref(self, ctx, *rawtxt: str):
-        """Evaluate a statement in command scope.
-        Syntax:s eref [string to reference]"""
+    @commands.command(pass_context=True, hidden=True, aliases=['rseref', 'meref', 'rmeref'])
+    async def seref(self, ctx, filler_string: str):
+        """Evaluate some code (multi-statement) in command scope.
+        Syntax: seref [code to execute]"""
         await echeck_perms(ctx, ['bot_owner'])
         def print(*ina: str):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return None
         try:
-            ev_output = exec(bdel(' '.join(rawtxt), '```python').strip('`'))
+            ev_output = exec(bdel(ctx.raw_args, '```python').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)

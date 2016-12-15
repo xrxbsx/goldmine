@@ -26,7 +26,7 @@ class VoiceEntry:
         p = self.player
         tags = []
         if p.title == 'translate_tts':
-            fmt = fmt.format('Speech line :smiley:')
+            fmt = fmt.format('Speech')
         else:
             fmt = fmt.format(p.title)
         if p.uploader:
@@ -99,7 +99,7 @@ class VoiceState:
             await self.bot.send_message(self.current.channel, 'Now playing ' + str(self.current))
             self.current.player.start()
             if self.current.jukebox:
-                if not re.match(r'http:\/\/[A-Z0-9\-]*.acapela-group.com\/MESSAGES\/[0-9]{33,}\/AcapelaGroup_WebDemo_HTML\/sounds\/[0-9]{6,10}_[a-z0-9]{10,15}\.mp3', self.current.player.url):
+                if not self.current.player.title == 'translate_tts':
                     k_str = 'JUKEBOX FOR **' + self.current.player.title + '**\n'
                     juke_m = await self.bot.send_message(self.current.channel, k_str)
                     juke_cells = [':red_circle:', ':large_blue_circle:', ':green_heart:', ':diamond_shape_with_a_dot_inside:']
@@ -177,7 +177,7 @@ class Voice(Cog):
         """Summons the bot to join your voice channel.
         Syntax: summon"""
         summoned_channel = ctx.message.author.voice_channel
-        if summoned_channel is None:
+        if not summoned_channel:
             await self.bot.say('You aren\'t in a voice channel.')
             return False
 
@@ -186,6 +186,7 @@ class Voice(Cog):
             state.voice = await self.bot.join_voice_channel(summoned_channel)
         else:
             await state.voice.move_to(summoned_channel)
+        await self.bot.say('Ready to play audio in **' + summoned_channel.name + '**!')
 
         return True
 
@@ -241,6 +242,7 @@ class Voice(Cog):
         if state.is_playing():
             player = state.player
             player.pause()
+            await self.bot.say('Paused.')
 
     @commands.command(pass_context=True, no_pm=True)
     async def resume(self, ctx):
@@ -250,6 +252,7 @@ class Voice(Cog):
         if state.is_playing():
             player = state.player
             player.resume()
+            await self.bot.say('Resumed.')
 
     @commands.command(pass_context=True, no_pm=True)
     async def stop(self, ctx):

@@ -198,11 +198,11 @@ class RichFormatter(ProFormatter):
         if isinstance(self.command, Command):
             # <signature portion>
             signature = self.get_command_signature()
-            self._paginator.add_line(signature, empty=True)
+            self._paginator.add_line('```' + signature, empty=True)
 
             # <long doc> section
             if self.command.help:
-                self._paginator.add_line(self.command.help, empty=True)
+                self._paginator.add_line(self.command.help + '```')
 
             # end it here if it's just a regular command
             if not self.has_subcommands():

@@ -10,9 +10,10 @@ from fnmatch import filter
 from datetime import datetime
 import math
 import logging
+from asteval import Interpreter
 import discord
 import util.commands as commands
-from .commands.bot import Context, StringView, CommandError, CommandNotFound
+from .commands.bot import ProContext, StringView, CommandError, CommandNotFound
 from util.google import search
 from util.cleverbot import Cleverbot
 import pickledb
@@ -107,6 +108,9 @@ class ProBot(commands.Bot):
         self.dc_ver = discord.version_info
         self.lib_version = '.'.join([str(i) for i in self.dc_ver])
         self.store_writer = self.loop.create_task(self.store.commit_task())
+        self.cleverbutt_timers = []
+        self.cleverbutt_latest = {}
+        self.asteval = Interpreter(use_numpy=False)
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -210,15 +214,9 @@ class ProBot(commands.Bot):
                 key = key.replace("' is not defined", '')
                 await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
             elif bc_key.startswith('TimeoutError:'):
-                key = bdel(bc_key, 'TimeoutError:')
                 await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
             elif (cprocessed in self.commands['calc'].aliases) or (cprocessed == 'calc'):
-                if bc_key.startswith('ValueError: ('):
-                    pass
-                else:
-                    key = bdel(bc_key, 'SyntaxError: invalid syntax (<unknown>, line ')
-                    key = bdel(bc_key, 'TypeError: <_ast.')
-                    await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
+                await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.csend(ctx, 'An internal error occured while responding to `%s`!```' % (cmdfix + cprocessed) + bc_key + '```')
         elif isinstance(exp, commands.MissingRequiredArgument):
@@ -308,16 +306,29 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             if msg.author.bot:
                 if self.status == 'invisible': return
                 if str(msg.channel) == 'cleverbutts':
-                    await asyncio.sleep((random.random()) * 2)
-                    await self.send_typing(msg.channel)
-                    #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
-                    reply_bot = await self.askcb(msg.content)
-                    s_duration = (((len(reply_bot) / 10) * 1.5) + random.random()) - 0.2
-                    await asyncio.sleep(s_duration / 2)
-                    await self.send_typing(msg.channel)
-                    await asyncio.sleep((s_duration / 2) - 0.4)
-                    await self.msend(msg, reply_bot)
-                    await asyncio.sleep(1)
+                    if msg.server.id in self.cleverbutt_timers: # still on timer for next response
+                        self.cleverbutt_latest[msg.server.id] = msg.content
+                    else:
+                        self.cleverbutt_timers.append(msg.server.id)
+                        await asyncio.sleep((random.random()) * 2)
+                        await self.send_typing(msg.channel)
+                        #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
+                        try:
+                            query = self.cleverbutt_latest[msg.server.id]
+                        except KeyError:
+                            query = msg.content
+                        reply_bot = await self.askcb(query)
+                        s_duration = (((len(reply_bot) / 15) * 1.4) + random.random()) - 0.2
+                        await asyncio.sleep(s_duration / 2)
+                        await self.send_typing(msg.channel)
+                        await asyncio.sleep((s_duration / 2) - 0.4)
+                        await self.msend(msg, reply_bot)
+                        await asyncio.sleep(1)
+                        try:
+                            del self.cleverbutt_latest[msg.server.id]
+                        except Exception:
+                            pass
+                        self.cleverbutt_timers.remove(msg.server.id)
             else:
                 if not msg.channel.is_private:
                     int_name = await self.store.get_prop(msg, 'bot_name')
@@ -425,7 +436,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             'view': view,
             'prefix': prefix
         }
-        ctx = Context(**tmp)
+        ctx = ProContext(**tmp)
         del tmp
         cl = cmd.lower().replace('é', 'e').replace('è', 'e') # TODO: Real accent parsing
 
@@ -548,3 +559,13 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         channel = self.get_channel(data.get('channel_id'))
         message = self.connection._create_message(channel=channel, **data)
         return message
+
+    async def send_cmd_help(self, ctx):
+        if ctx.invoked_subcommand:
+            pages = self.formatter.format_help_for(ctx, ctx.invoked_subcommand)
+            for page in pages:
+                await self.csend(ctx, page)
+        else:
+            pages = self.formatter.format_help_for(ctx, ctx.command)
+            for page in pages:
+                await self.csend(ctx, page)

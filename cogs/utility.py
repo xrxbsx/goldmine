@@ -1,20 +1,22 @@
 """Definition of the bot's Utility module.'"""
 import asyncio
-import time
-import sys
-from io import BytesIO
-from fnmatch import filter
-import re
 import random
-from datetime import datetime, timedelta
+import re
+import sys
+import time
 from collections import OrderedDict
+from datetime import datetime, timedelta
+from fnmatch import filter
+from io import BytesIO
+import async_timeout
 import discord
 import util.commands as commands
-from util.safe_math import eval_expr as emath
-from util.const import _mention_pattern, _mentions_transforms, home_broadcast
-from util.perms import check_perms
-from util.fake import FakeContextMember, FakeMessageMember
 from properties import bot_owner
+from util.const import _mention_pattern, _mentions_transforms, home_broadcast
+from util.fake import FakeContextMember, FakeMessageMember
+from util.func import bdel
+from util.perms import check_perms
+
 from .cog import Cog
 
 have_pil = True
@@ -47,17 +49,35 @@ class Utility(Cog):
         else:
             await self.bot.say('The current server, ' + sname + ', does not have an icon set! :slight_frown:')
 
-    @commands.command()
-    async def say(self, *args):
+    @commands.command(pass_context=True)
+    async def say(self, ctx, filler_string: str):
         """Simply sends the input as a message. For testing.
         Syntax: say [message]"""
-        await self.bot.say('\u200b' + ' '.join(args))
+        await self.bot.say(ctx.raw_args)
 
-    @commands.command(aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate'])
-    async def calc(self, *args):
+    async def math_task(self, code: str):
+        eval_exc = self.loop.run_in_executor(None, self.bot.asteval.eval(code))
+        return await eval_exc
+
+    @commands.command(pass_context=True, aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate', 'expr', 'expression', 'rcalculate', 'rcalculator', 'rmath', 'remath', 'reval', 'revaluate', 'rexpr', 'rexpression'])
+    async def calc(self, ctx, filler_string: str):
         """Evaluates a mathematical experssion.
         Syntax: calc [expression]"""
-        await self.bot.say('```python\n' + str(emath(' '.join(args))) + '```')
+        code = bdel(ctx.raw_args, '```python').strip('`')
+        try:
+            with async_timeout.timeout(7.5):
+                m_result = await self.math_task(code)
+        except asyncio.TimeoutError:
+            await self.bot.say('{0.author.mention} **It took too long to evaluate your expression!**'.format(ctx.message))
+            return
+        _result = ''
+        if self.bot.asteval.error:
+            raise ValueError('ASTEval Error of type ' + self.bot.asteval.error[0].get_error()[0])
+        else:
+            _result = str(m_result)
+        if not ctx.invoked_with.startswith('r'):
+            _result = '```python\n' + _result + '```'
+        await self.bot.say(_result)
 
     @commands.command(pass_context=True, aliases=['about', 'whois', 'who'])
     async def user(self, ctx, *users: str):
@@ -120,6 +140,7 @@ class Utility(Cog):
                 return
         else:
             targets.append(ctx.message.author)
+        targets = list(OrderedDict.fromkeys(targets))
         for target in targets:
             au = target.avatar_url
             avatar_link = (au if au else target.default_avatar_url)
@@ -302,7 +323,7 @@ DM: {3}'''
         """Report the current uptime of the bot.
         Syntax: uptime"""
         up = await self.bot.format_uptime()
-        await self.bot.say(ctx.message.author.mention + ' My current uptime is **' + up + '**.')
+        await self.bot.say(ctx.message.author.mention + ' I\'ve been up for **' + up + '**.')
 
     @commands.command(pass_context=True, aliases=['link', 'invlink', 'addbot', 'botadd'])
     async def invite(self, ctx, *rids: str):
@@ -438,6 +459,19 @@ Your ID: `{0.author.id}`
 Server Owner\'s ID: `{0.server.owner.id}`
 **You can also look up the ID of other people with** `{1.prefix}user [name / id / mention]`**.**'''
         await self.bot.say(fmt.format(ctx.message, ctx))
+
+    @commands.group(pass_context=True, no_pm=True, aliases=['cleverbutts', 'cbs'])
+    async def cleverbutt(self, ctx):
+        """Manage Cleverbutt stuff.
+        Syntax: cleverbutt {stuff}"""
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+    @cleverbutt.command(pass_context=True, no_pm=True, name='start', aliases=['kickstart'])
+    async def cleverbutt_kickstart(self, ctx):
+        """Kickstart / start cleverbutts conversation
+        Syntax: cleverbutt start {optional: message}"""
+
 def setup(bot):
     c = Utility(bot)
     bot.add_cog(c)
