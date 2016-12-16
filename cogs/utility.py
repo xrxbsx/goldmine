@@ -56,7 +56,7 @@ class Utility(Cog):
         await self.bot.say(ctx.raw_args)
 
     async def math_task(self, code: str):
-        eval_exc = self.loop.run_in_executor(None, self.bot.asteval.eval(code))
+        eval_exc = self.loop.run_in_executor(None, self.bot.asteval.eval, code)
         return await eval_exc
 
     @commands.command(pass_context=True, aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate', 'expr', 'expression', 'rcalculate', 'rcalculator', 'rmath', 'remath', 'reval', 'revaluate', 'rexpr', 'rexpression'])
