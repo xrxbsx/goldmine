@@ -22,3 +22,9 @@ class FakeEmbed():
         print(kwargs)
     def add_field(self, **kwargs):
         print(kwargs)
+
+class FakeObject():
+    def __init__(self, value=None):
+        self.value = value
+    def __getattr__(self, name):
+        return self.value

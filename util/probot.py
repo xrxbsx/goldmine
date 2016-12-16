@@ -23,6 +23,7 @@ from util.datastore import DataStore
 import util.ranks as rank
 from util.const import *
 from util.func import bdel
+from util.fake import FakeObject
 
 try:
     from d_props import store_path
@@ -110,7 +111,7 @@ class ProBot(commands.Bot):
         self.store_writer = self.loop.create_task(self.store.commit_task())
         self.cleverbutt_timers = []
         self.cleverbutt_latest = {}
-        self.asteval = Interpreter(use_numpy=False)
+        self.asteval = Interpreter(use_numpy=False, writer=FakeObject(value=True))
         super().__init__(**options)
 
     async def cb_task(self, queue):

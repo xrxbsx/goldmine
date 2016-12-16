@@ -67,8 +67,15 @@ class Utility(Cog):
         try:
             with async_timeout.timeout(7.5):
                 m_result = await self.math_task(code)
-        except asyncio.TimeoutError:
-            await self.bot.say('{0.author.mention} **It took too long to evaluate your expression!**'.format(ctx.message))
+        except (asyncio.TimeoutError, RuntimeError) as exp:
+            resp = '{0.author.mention} **It took too long to evaluate your expression!**'.format(ctx.message)
+            if isinstance(exp, RuntimeError):
+                if str(exp).startswith('Execution exceeded time limit, max runtime is '):
+                    await self.bot.say(resp)
+                else:
+                    raise ValueError('ASTEval Error of type TimeoutError')
+            else:
+                await self.bot.say(resp)
             return
         _result = ''
         if self.bot.asteval.error:

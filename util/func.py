@@ -4,11 +4,11 @@ from functools import partial
 def bdel(s, r): return (s[len(r):] if s.startswith(r) else s)
 
 class dc_wrapper:
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
     def __getattr__(self, name):
         new_func = None
-        coro = getattr(self.client, name)
+        coro = getattr(self.bot, name)
         if not callable(coro):
             raise AttributeError('Class can only access client functions')
         def async_wrap(coro, *args, **kwargs):
