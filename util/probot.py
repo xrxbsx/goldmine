@@ -358,8 +358,8 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                                 await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**.'.format(msg.author, str(new_level)))
                         prof['level'] = new_level
                         await self.store.set_prop(msg, 'by_user', prof_name, prof)
-                    if self.status == 'invisible': return
                     if str(msg.channel) == 'cleverbutts':
+                        if self.status == 'invisible': return
                         if msg.content.lower() == 'kickstart':
                             await self.msend(msg, 'Hi, how are you doing?')
                             return

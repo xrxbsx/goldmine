@@ -3,7 +3,8 @@ import re, os
 
 requirements = []
 with open('requirements.txt') as f:
-  requirements = f.read().splitlines()
+    requirements = [i.replace('\n', '') for i in f.readlines()]
+    requirements.remove('https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py')
 
 version = ''
 with open('__init__.py') as f:
@@ -17,8 +18,13 @@ with open('README.md') as f:
     readme = f.read()
 
 extras_require = {
-    'full': ['plyvel', 'uvloop', 'cchardet', 'https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py[voice]'],
+    'full': ['plyvel', 'uvloop', 'cchardet', 'discord.py[voice]>=0.15.1']
 }
+
+dep_links = [
+    'https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py',
+    'https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py[voice]'
+]
 
 setup(name='goldmine',
       author='Dragon5232',
@@ -29,6 +35,7 @@ setup(name='goldmine',
       description='A new bot for Discord that keeps things nice and snug.',
       long_description=readme,
       include_package_data=True,
+      dependency_links=dep_links,
       install_requires=requirements,
       extras_require=extras_require,
       classifiers=[

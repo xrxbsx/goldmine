@@ -9,8 +9,14 @@ from datetime import datetime, timedelta
 import discord
 import util.commands as commands
 from util.perms import echeck_perms, check_perms
-from util.func import bdel, DiscordFuncs
+from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var
 from .cog import Cog
+
+
+def gimport(mod_name, name=None):
+    return exec(_import(mod_name, attr_name=name))
+setvar = lambda v, e: exec(_set_var(v, e))
+delvar = lambda v: exec(_del_var(v))
 
 class Admin(Cog):
     """Commands useful for admins and/or moderators.
@@ -99,6 +105,8 @@ class Admin(Cog):
     @commands.cooldown(1, 16, type=commands.BucketType.default)
     @commands.command(pass_context=True)
     async def broadcast(self, ctx, filler_string: str):
+        """Broadcast a message to all servers.
+        Syntax: broadcast [message]"""
         await echeck_perms(ctx, ['bot_owner'])
         for i in self.bot.servers:
             try:
@@ -127,7 +135,7 @@ class Admin(Cog):
         dc = self.dc_funcs
         def print(*ina: str):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
-            return None
+            return True
         try:
             ev_output = eval(bdel(ctx.raw_args, '```python').strip('`'))
         except Exception as e:
@@ -145,7 +153,7 @@ class Admin(Cog):
         dc = self.dc_funcs
         def print(*ina: str):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
-            return None
+            return True
         try:
             ev_output = exec(bdel(ctx.raw_args, '```python').strip('`'))
         except Exception as e:

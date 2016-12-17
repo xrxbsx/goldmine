@@ -17,3 +17,18 @@ class DiscordFuncs():
         new_func.__name__ = coro.__name__
         new_func.__qualname__ = coro.__qualname__
         return new_func
+
+def _import(mod_name, attr_name=None):
+    ret = "globals()['{}'] = imp('{}')"
+    if attr_name:
+        ret = ret.format(attr_name, mod_name) + "." + attr_name
+    else:
+        ret = ret.format(mod_name, mod_name)
+    return ret
+
+
+def _set_var(var_name, expr):
+    return "globals()['{}'] = {}".format(var_name, expr)
+
+def _del_var(var_name):
+    return "del globals()['{}']".format(var_name)
