@@ -9,13 +9,17 @@ from datetime import datetime, timedelta
 import discord
 import util.commands as commands
 from util.perms import echeck_perms, check_perms
-from util.func import bdel
+from util.func import bdel, gimport, DiscordFuncs
 from .cog import Cog
 
 class Admin(Cog):
     """Commands useful for admins and/or moderators.
     Can be extremely powerful, use with caution!
     """
+
+    def __init__(self, bot):
+        self.dc_funcs = DiscordFuncs(bot)
+        super().__init__(bot)
 
     @commands.command(pass_context=True)
     async def purge(self, ctx):
@@ -104,6 +108,7 @@ class Admin(Cog):
         """Evaluate some code in command scope.
         Syntax: eref [code to execute]"""
         await echeck_perms(ctx, ['bot_owner'])
+        dc = self.dc_funcs
         def print(*ina: str):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return None
@@ -121,6 +126,7 @@ class Admin(Cog):
         """Evaluate some code (multi-statement) in command scope.
         Syntax: seref [code to execute]"""
         await echeck_perms(ctx, ['bot_owner'])
+        dc = self.dc_funcs
         def print(*ina: str):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return None

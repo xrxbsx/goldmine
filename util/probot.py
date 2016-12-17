@@ -31,6 +31,9 @@ try:
 except ImportError:
     opath = None
 
+if sys.platform in ['linux', 'linux2', 'darwin']:
+    import resource
+
 class CleverQuery():
     def __init__(self, channel_to, query, prefix, suffix):
         self.destination = channel_to
@@ -112,6 +115,9 @@ class ProBot(commands.Bot):
         self.cleverbutt_timers = []
         self.cleverbutt_latest = {}
         self.asteval = Interpreter(use_numpy=False, writer=FakeObject(value=True))
+        self.have_resource = False
+        if sys.platform in ['linux', 'linux2', 'darwin']:
+            self.have_resource = True
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -570,3 +576,26 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             pages = self.formatter.format_help_for(ctx, ctx.command)
             for page in pages:
                 await self.csend(ctx, page)
+
+    async def get_info(self):
+        return None
+
+    async def get_ram(self):
+        raw_musage = 0
+        got_conversion = False
+        musage_dec = 0
+        musage_hex = 0
+        if sys.platform.startswith('linux'): # Linux & Windows report in kilobytes
+            raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            got_conversion = True
+            musage_dec = raw_musage / 1000
+            musage_hex = raw_musage / 1024
+        elif sys.platform == 'darwin': # Mac reports in bytes
+            raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            got_conversion = True
+            musage_dec = raw_musage / 1000000 # 1 million. 1000 * 1000
+            musage_hex = raw_musage / 1048576 # 1024 * 1024
+        if got_conversion:
+            return (got_conversion, musage_dec, musage_hex)
+        else:
+            return (got_conversion)

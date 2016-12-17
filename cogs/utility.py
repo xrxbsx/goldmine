@@ -12,7 +12,7 @@ import async_timeout
 import discord
 import util.commands as commands
 from properties import bot_owner
-from util.const import _mention_pattern, _mentions_transforms, home_broadcast
+from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt
 from util.fake import FakeContextMember, FakeMessageMember
 from util.func import bdel
 from util.perms import check_perms
@@ -26,9 +26,6 @@ try:
 except ImportError:
     print(' - Could not load PIL!')
     have_pil = False
-
-if sys.platform in ['linux', 'linux2', 'darwin']:
-    import resource
 
 class Utility(Cog):
     """Random commands that can be useful here and there.
@@ -91,25 +88,15 @@ class Utility(Cog):
     async def user(self, ctx, *users: str):
         """Extract information about an user.
         Syntax: user"""
-        absfmt = '%a %b %d, %Y %I:%M %p UTC'
-        status_map = {
-            'online': 'Online',
-            'offline': 'Offline',
-            'idle': 'Idle',
-            'dnd': 'Do Not Disturb'
-        }
         targets = []
         s = ctx.message.server
         if users:
             members = {}
-            try:
-                for i in s.members:
-                    members[i.mention] = i
-                    members[i.id] = i
-                    members[i.display_name] = i
-                    members[i.name] = i
-            except AttributeError:
-                pass
+            for i in getattr(s, 'members', []):
+                members[i.mention] = i
+                members[i.id] = i
+                members[i.display_name] = i
+                members[i.name] = i
             for i in users:
                 try:
                     member = s.get_member(i)
@@ -202,17 +189,6 @@ class Utility(Cog):
     async def info(self, ctx):
         """Get bot info.
         Syntax: info"""
-        ch_fmt = '''Total: {0}
-Text: {1}
-Voice: {2}
-DM: {3}'''
-        absfmt = '%a %b %d, %Y %I:%M:%S %p'
-        status_map = {
-            'online': 'Online',
-            'offline': 'Offline',
-            'idle': 'Idle',
-            'dnd': 'Do Not Disturb'
-        }
         target = self.bot.user
         au = target.avatar_url
         avatar_link = (au if au else target.default_avatar_url)
@@ -227,20 +203,11 @@ DM: {3}'''
             elif at == 'private':
                 chlist[3] += 1
         up = await self.bot.format_uptime()
-        raw_musage = 0
-        got_conversion = False
-        musage_dec = 0
-        musage_hex = 0
-        if sys.platform.startswith('linux'): # Linux & Windows report in kilobytes
-            raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-            got_conversion = True
-            musage_dec = raw_musage / 1000
-            musage_hex = raw_musage / 1024
-        elif sys.platform == 'darwin': # Mac reports in bytes
-            raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-            got_conversion = True
-            musage_dec = raw_musage / 1000000 # 1 million. 1000 * 1000
-            musage_hex = raw_musage / 1048576 # 1024 * 1024
+        ram = await self.bot.get_ram()
+        try:
+            got_conversion = ram[0]
+        except TypeError:
+            got_conversion = ram
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
         emb.set_thumbnail(url=avatar_link) #top right
@@ -260,7 +227,7 @@ DM: {3}'''
         emb.add_field(name='Code Size', value=str(round(self.bot.size_kb, 1)) + ' KB')
         emb.add_field(name='Average File Size', value=str(round(self.bot.avg_size_kb, 1)) + ' KB')
         emb.add_field(name='Cogs Loaded', value=len(self.bot.cogs))
-        emb.add_field(name='Memory Used', value=(str(round(musage_dec, 1)) + ' MB (%s MiB)' % str(round(musage_hex, 1))) if got_conversion else 'Couldn\'t fetch')
+        emb.add_field(name='Memory Used', value=(str(round(ram[0], 1)) + ' MB (%s MiB)' % str(round(ram[1], 1))) if got_conversion else 'Couldn\'t fetch')
         emb.add_field(name='Modules Loaded', value=len(self.bot.modules))
         emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())))
         emb.add_field(name='Channels', value=ch_fmt.format(*[str(i) for i in chlist]))
