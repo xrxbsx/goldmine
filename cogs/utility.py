@@ -311,14 +311,17 @@ class Utility(Cog):
         for iid in ids:
             try:
                 int(iid)
-            except ValueError:
-                await self.bot.say('**Invalid ID!**')
-            else:
-                if iid == self.bot.user.id:
-                    msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<https://tiny.cc/goldbot> for short)\n'.format(iid, self.bot.perm_mask)
+                if len(iid) == 18:
+                    if iid == self.bot.user.id:
+                        msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<https://tiny.cc/goldbot> for short)\n'.format(iid, self.bot.perm_mask)
+                    else:
+                        msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
                 else:
-                    msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
-        await self.bot.say(msg)
+                    await self.bot.say('**Invalid ID **`%s`** (must be 18 numbers)!**' % iid)
+            except ValueError:
+                await self.bot.say('**Invalid ID **`%s`** (must be made of numbers)!**' % iid)
+        if msg:
+            await self.bot.say(msg)
 
     @commands.command(aliases=['homeland', 'web', 'website', 'webpage'])
     async def home(self):
