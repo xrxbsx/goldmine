@@ -107,17 +107,17 @@ class Admin(Cog):
                 satisfied = False
                 c_count = 0
                 try_channels = list(i.channels)
-                channel_count = len(try_channels)
+                channel_count = len(try_channels) - 1
                 while not satisfied:
                     try:
                         await self.bot.send_message(try_channels[c_count], ctx.raw_args)
                         satisfied = True
                     except (discord.Forbidden, discord.HTTPException):
                         pass
-                    c_count += 1
                     if c_count > channel_count:
                         await self.bot.say('`[WARN]` Couldn\'t broadcast to server **' + i.name + '**')
                         satisfied = True
+                    c_count += 1
 
     @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'rxeval', 'reref', 'xeval'])
     async def eref(self, ctx, filler_string: str):
