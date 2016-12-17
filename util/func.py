@@ -17,6 +17,3 @@ class DiscordFuncs():
         new_func.__name__ = coro.__name__
         new_func.__qualname__ = coro.__qualname__
         return new_func
-
-def gimport(name):
-    exec("globals()['{0}'] = __import__('{0}')".format(name))
