@@ -106,7 +106,7 @@ class Admin(Cog):
             except discord.Forbidden:
                 satisfied = False
                 c_count = 0
-                try_channels = i.channels
+                try_channels = list(i.channels)
                 channel_count = len(try_channels)
                 while not satisfied:
                     try:
