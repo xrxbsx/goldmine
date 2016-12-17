@@ -285,7 +285,7 @@ class Utility(Cog):
         Syntax: test"""
         await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')
         if have_pil:
-            im = Image.open('assets/avatar_raw.png')
+            im = Image.open('assets/avatar.png')
             im = ImageOps.grayscale(im)
             im = ImageOps.autocontrast(im)
             imBytes = BytesIO()
