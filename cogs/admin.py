@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import discord
 import util.commands as commands
 from util.perms import echeck_perms, check_perms
-from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var
+from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime
 from .cog import Cog
 
 

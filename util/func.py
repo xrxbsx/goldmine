@@ -1,6 +1,7 @@
 """General utility functions."""
 from asyncio import ensure_future
 from functools import partial
+import datetime
 def bdel(s, r): return (s[len(r):] if s.startswith(r) else s)
 
 class DiscordFuncs():
@@ -32,3 +33,5 @@ def _set_var(var_name, expr):
 
 def _del_var(var_name):
     return "del globals()['{}']".format(var_name)
+
+snowtime = lambda i: datetime.datetime.fromtimestamp(((float(i) / 4194304.0) + 1420070400000.0) / 1000.0).strftime('%a %b %d, %Y %I:%M:%S %p')
