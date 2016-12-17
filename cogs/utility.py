@@ -305,7 +305,7 @@ class Utility(Cog):
         """Generate an invite link for myself or another bot.
         Syntax: invite {optional: bot ids}"""
         ids = list(rids)
-        msg = ''
+        msg = []
         if not ids:
             ids.append(self.bot.user.id)
         for iid in ids:
@@ -313,15 +313,15 @@ class Utility(Cog):
                 int(iid)
                 if len(iid) == 18:
                     if iid == self.bot.user.id:
-                        msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<https://tiny.cc/goldbot> for short)\n'.format(iid, self.bot.perm_mask)
+                        msg.append('https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<https://tiny.cc/goldbot> for short)'.format(iid, self.bot.perm_mask))
                     else:
-                        msg += 'https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions=66321471\n'.format(iid)
+                        msg.append('https://discordapp.com/api/oauth2/authorize?client_id=%s&scope=bot&permissions=66321471' % iid)
                 else:
-                    await self.bot.say('**Invalid ID **`%s`** (must be 18 numbers)!**' % iid)
+                    msg.append('**Invalid ID **`%s`** (must be 18 numbers)!**' % iid)
             except ValueError:
-                await self.bot.say('**Invalid ID **`%s`** (must be made of numbers)!**' % iid)
+                msg.append('**Invalid ID **`%s`** (must be made of numbers)!**' % iid)
         if msg:
-            await self.bot.say(msg)
+            await self.bot.say('\n'.join(msg))
 
     @commands.command(aliases=['homeland', 'web', 'website', 'webpage'])
     async def home(self):
