@@ -72,6 +72,7 @@ class Utility(Cog):
             if isinstance(exp, RuntimeError):
                 if str(exp).startswith('Execution exceeded time limit, max runtime is '):
                     await self.bot.say(resp)
+                    return
                 else:
                     raise ValueError('ASTEval Error of type TimeoutError')
             else:
