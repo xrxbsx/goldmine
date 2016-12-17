@@ -13,8 +13,8 @@ from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime
 from .cog import Cog
 
 
-def gimport(mod_name, name=None):
-    return exec(_import(mod_name, attr_name=name))
+def gimport(mod_name, name=None, attr=None):
+    return exec(_import(mod_name, var_name=name, attr_name=attr))
 setvar = lambda v, e: exec(_set_var(v, e))
 delvar = lambda v: exec(_del_var(v))
 

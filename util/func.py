@@ -19,10 +19,12 @@ class DiscordFuncs():
         new_func.__qualname__ = coro.__qualname__
         return new_func
 
-def _import(mod_name, attr_name=None):
+def _import(mod_name, var_name=None, attr_name=''):
     ret = "globals()['{}'] = imp('{}')"
-    if attr_name:
-        ret = ret.format(attr_name, mod_name) + "." + attr_name
+    if var_name:
+        if attr_name:
+            attr_name = '.' + attr_name
+        ret = ret.format(var_name, mod_name) + attr_name
     else:
         ret = ret.format(mod_name, mod_name)
     return ret
