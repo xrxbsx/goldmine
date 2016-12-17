@@ -298,11 +298,18 @@ class Admin(Cog):
 
     @commands.command(pass_context=True)
     async def suspend(self, ctx):
-        """Temporarily suspend the bot's command and conversation features.
+        """Bring the bot offline (in a resumable state).
         Syntax: suspend'"""
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.suspend()
-        await self.bot.say('Successfully **suspended** the bot\'s command and conversation processing!')
+        await self.bot.say('Successfully **suspended** me! (I should now be offline.)\nI will still count experience.')
+    @commands.command(pass_context=True, aliases=['ssuspend'])
+    async def ususpend(self, ctx):
+        """Temporarily suspend the bot's command and conversation features.
+        Syntax: suspend'"""
+        await echeck_perms(ctx, ['bot_owner'])
+        self.bot.status = 'invisible'
+        await self.bot.say('Successfully **suspended** my message processing! (I should stay online.)\nI will still count experience.')
 
     @commands.command(pass_context=True, hidden=True, aliases=['serverlist'])
     async def servers(self, ctx):
@@ -316,12 +323,23 @@ class Admin(Cog):
             await self.bot.say(page)
 
     @commands.command(pass_context=True, hidden=True, aliases=['treelist', 'stree', 'treeservers', 'trees', 'tservers'])
-    async def servertree(self, ctx):
+    async def servertree(self, ctx, *ids):
         """List the servers I am in (tree version).
         Syntax: servertree"""
         await echeck_perms(ctx, ['bot_owner'])
         pager = commands.Paginator(prefix='```diff')
-        for server in self.bot.servers:
+        servers = []
+        if ids:
+            s_map = {i.id: i for i in self.bot.servers}
+            for sid in ids:
+                try:
+                    servers.append(s_map[sid])
+                except KeyError:
+                    await self.bot.say('Server ID **%s** not found.' % sid)
+                    return
+        else:
+            servers = self.bot.servers
+        for server in servers:
             pager.add_line('+ ' + server.name + ' [{0} members] [ID {1}]'.format(str(len(server.members)), server.id))
             for channel in server.channels:
                 xname = channel.name

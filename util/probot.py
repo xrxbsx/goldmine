@@ -350,12 +350,13 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                         prof = await self.store.get_prop(msg, prof_name)
                         prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
                         new_level = rank.xp_level(prof['exp'])[0]
-                        if new_level > prof['level']:
-                            bclu = await self.store.get_prop(msg, 'broadcast_level_up')
-                            if isinstance(bclu, str):
-                                bclu = bclu.lower()
-                            if bclu in bool_true:
-                                await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**.'.format(msg.author, str(new_level)))
+                        if self.status != 'invisible':
+                            if new_level > prof['level']:
+                                bclu = await self.store.get_prop(msg, 'broadcast_level_up')
+                                if isinstance(bclu, str):
+                                    bclu = bclu.lower()
+                                if bclu in bool_true:
+                                    await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**.'.format(msg.author, str(new_level)))
                         prof['level'] = new_level
                         await self.store.set_prop(msg, 'by_user', prof_name, prof)
                     if str(msg.channel) == 'cleverbutts':
@@ -367,7 +368,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                     if msg.content.lower().startswith(cmdfix + 'resume'):
                         self.status = 'dnd'
                         await self.update_presence()
-                        await self.msend(msg, 'Successfully **resumed** the bot\'s command and conversation processing!')
+                        await self.msend(msg, 'Successfully **resumed** my features!')
                 elif myself.mentioned_in(msg) and ('@everyone' not in msg.content) and ('@here' not in msg.content):
                     await self.auto_cb_convo(msg, self.user.mention, replace=True)
                 elif msg.channel.is_private:
