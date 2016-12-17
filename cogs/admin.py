@@ -101,7 +101,24 @@ class Admin(Cog):
     async def broadcast(self, ctx, filler_string: str):
         await echeck_perms(ctx, ['bot_owner'])
         for i in self.bot.servers:
-            await self.bot.send_message(i.default_channel, ctx.raw_args)
+            try:
+                await self.bot.send_message(i.default_channel, ctx.raw_args)
+            except discord.Forbidden:
+                satisfied = False
+                c_count = 0
+                try_channels = i.channels
+                channel_count = len(try_channels)
+                while not satisfied:
+                    try:
+                        await self.bot.send_message(try_channels[c_count], ctx.raw_args)
+                    except discord.Forbidden:
+                        pass
+                    else:
+                        satisfied = True
+                    c_count += 1
+                    if c_count > channel_count:
+                        await self.bot.say('`[WARN]` Couldn\'t broadcast to server **' + i.name + '**')
+                        satisfied = True
 
     @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'rxeval', 'reref', 'xeval'])
     async def eref(self, ctx, filler_string: str):
