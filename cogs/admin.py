@@ -111,10 +111,9 @@ class Admin(Cog):
                 while not satisfied:
                     try:
                         await self.bot.send_message(try_channels[c_count], ctx.raw_args)
-                    except discord.Forbidden:
-                        pass
-                    else:
                         satisfied = True
+                    except (discord.Forbidden, discord.HTTPException):
+                        pass
                     c_count += 1
                     if c_count > channel_count:
                         await self.bot.say('`[WARN]` Couldn\'t broadcast to server **' + i.name + '**')
