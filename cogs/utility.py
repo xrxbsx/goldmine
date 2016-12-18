@@ -502,7 +502,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
 **Uptime**: {5}
 **Lines of Code**: {6}'''
         up = await self.bot.format_uptime()
-        await self.bot.say(fmt.format(ctx.message, ctx.prefix, str(len(self.bot.servers)), str(len(list(self.bot.get_all_members()))), up, str(self.bot.lines)))
+        await self.bot.say(fmt.format(ctx.message, ctx.prefix, str(len(self.bot.servers)), str(len(list(self.bot.get_all_channels()))), str(len(list(self.bot.get_all_members()))), up, str(self.bot.lines)))
 
 def setup(bot):
     c = Utility(bot)
