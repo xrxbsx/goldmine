@@ -56,7 +56,7 @@ class ProBot(commands.Bot):
             'type': 1,
             'url': 'https://www.twitch.tv/dragon5232'
         }
-        self.status = 'dnd'
+        self.status = 'online'
         self.presence = {}
         self.main_cb_queue = asyncio.Queue() # For cleverbot
         self.alt_cb_queue = asyncio.Queue() # For cleverbutts
@@ -178,7 +178,10 @@ class ProBot(commands.Bot):
         except AttributeError:
             cmid = ctx.message.author.id
             eprefix = 'dm'
-        self.logger.error(eprefix + cmid + ': ' + str(type(exp)) + ' - ' + str(exp))
+        if isinstance(exp, commands.CommandNotFound):
+            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': command \'' + cprocessed + '\' not found')
+        else:
+            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': ' + str(exp) + ' (%s)' % type(exp).__name__)
         if isinstance(exp, commands.NoPrivateMessage):
             await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandNotFound):

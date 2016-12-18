@@ -4,10 +4,13 @@ import random
 import re
 import sys
 import time
+import textwrap
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from fnmatch import filter
 from io import BytesIO
+import aiohttp
+import json
 import async_timeout
 import discord
 import util.commands as commands
@@ -32,7 +35,7 @@ class Utility(Cog):
     Settings, properties, and other stuff can be found here.
     """
     def __init__(self, bot):
-        self.stopwatches = []
+        self.stopwatches = {}
         super().__init__(bot)
 
     @commands.command(pass_context=True, no_pm=True)
@@ -60,7 +63,7 @@ class Utility(Cog):
     async def calc(self, ctx, filler_string: str):
         """Evaluates a mathematical experssion.
         Syntax: calc [expression]"""
-        code = bdel(ctx.raw_args, '```python').strip('`')
+        code = bdel(ctx.raw_args, '```py').strip('`')
         try:
             with async_timeout.timeout(7.5):
                 m_result = await self.math_task(code)
@@ -81,7 +84,7 @@ class Utility(Cog):
         else:
             _result = str(m_result)
         if not ctx.invoked_with.startswith('r'):
-            _result = '```python\n' + _result + '```'
+            _result = '```py\n' + _result + '```'
         await self.bot.say(_result)
 
     @commands.command(pass_context=True, aliases=['about', 'whois', 'who'])
@@ -258,12 +261,16 @@ class Utility(Cog):
         """Search something on Google.
         Syntax: google [search terms]"""
         if rawin:
+            m = ''
             intxt = ' '.join(rawin)
             fql = await self.bot.google(intxt, num=2)
             try:
-                await self.bot.say('Google returned: ' + fql[0] + ' and ' + fql[1])
+                m = 'Google returned: ' + fql[0]
             except IndexError:
-                await self.bot.say('**There were no results!**')
+                m = '**There were no results!**'
+            if len(fql) >= 2:
+                m += ' and ' + fql[1]
+            await self.bot.say(m)
         else:
             await self.bot.say('**You must specify some search terms!**')
 
@@ -414,17 +421,17 @@ class Utility(Cog):
         await self.bot.edit_message(msg, msg_key + '**POLL HAS ALREADY FINISHED.**')
         await self.bot.say('VT `' + str(vote_table) + '`')
 
-    @commands.command(aliases=["sw"], pass_context=True)
+    @commands.command(aliases=['sw'], pass_context=True)
     async def stopwatch(self, ctx):
         """A stopwatch for your convenience."""
         author = ctx.message.author
         if not author.id in self.stopwatches:
             self.stopwatches[author.id] = int(time.perf_counter())
-            await self.bot.say(author.mention + " Stopwatch started!")
+            await self.bot.say(author.mention + ' Stopwatch started!')
         else:
             tmp = abs(self.stopwatches[author.id] - int(time.perf_counter()))
             tmp = str(timedelta(seconds=tmp))
-            await self.bot.say(author.mention + " Stopwatch stopped! Time: **" + tmp + "**")
+            await self.bot.say(author.mention + ' Stopwatch stopped! Time: **' + tmp + '**')
             self.stopwatches.pop(author.id, None)
 
     @commands.command(pass_context=True, name='id', aliases=['myid', 'sid', 'serverid'])
@@ -449,6 +456,53 @@ Server Owner\'s ID: `{0.server.owner.id}`
     async def cleverbutt_kickstart(self, ctx):
         """Kickstart / start cleverbutts conversation
         Syntax: cleverbutt start {optional: message}"""
+
+    @commands.command(pass_context=True, aliases=['memegen'])
+    async def meme(self, ctx, filler_string: str):
+        """Generate a meme!
+        Syntax: meme [top text] [bottom text]"""
+        char_table = {
+            '-': '--',
+            '_': '__',
+            '?': '~q',
+            '%': '~p',
+            '#': '~h',
+            '/': '~s',
+            '"': "''",
+            '\n': ' '
+        }
+        pre_text = ctx.raw_args
+        for key in char_table:
+            pre_text = pre_text.replace(key, char_table[key])
+        pre_text = pre_text.replace('    ', '__bottom__')
+        pre_text = pre_text.replace(' ', '-')
+        if '__bottom__' in pre_text:
+            segments = pre_text.split('__bottom__')
+        else:
+            segments = textwrap.wrap(pre_text, width=int(len(pre_text) / 2))
+        async with aiohttp.ClientSession(loop=asyncio.get_event_loop()) as session:
+            with async_timeout.timeout(10):
+                async with session.get('https://memegen.link/api/templates/') as r:
+                    rtext = await r.text()
+                    templates = list(json.loads(rtext).values())
+                rtemp = random.choice(templates)
+                meme_url = rtemp + '/' + segments[0] + '/' + segments[1] + '.jpg'
+                async with session.get(meme_url) as r:
+                    raw_image = await r.read()
+        await self.bot.send_file(ctx.message.channel, fp=BytesIO(raw_image), filename='meme.jpg')
+
+    @commands.command(pass_context=True, aliases=['statistics', 'servers', 'channels', 'members', 'users', 'seen'])
+    async def stats(self, ctx):
+        """Dump some of my stats. Full version = info command.
+        Syntax: stats"""
+        fmt = '''{0.author.mention} Here are my stats: (get even more with `{1}info`!)
+**Servers**: {2}
+**Channels**: {3}
+**Members**: {4}
+**Uptime**: {5}
+**Lines of Code**: {6}'''
+        up = await self.bot.format_uptime()
+        await self.bot.say(fmt.format(ctx.message, ctx.prefix, str(len(self.bot.servers)), str(len(list(self.bot.get_all_members()))), up, str(self.bot.lines)))
 
 def setup(bot):
     c = Utility(bot)

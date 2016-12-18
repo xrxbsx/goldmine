@@ -70,12 +70,13 @@ class Admin(Cog):
     async def restart(self, ctx):
         """Restarts this bot.
         Syntax: restart"""
-        await echeck_perms(ctx, ['bot_admin'])
+        await echeck_perms(ctx, ['bot_owner'])
 #        for i in self.bot.servers:
 #            await self.bot.send_message(i.default_channel, 'This bot (' + self.bname + ') is now restarting!')
         self.bot.store_writer.cancel()
         await self.bot.store.commit()
-        await self.bot.say('I\'ll try to restart. Hopefully I come back alive :stuck_out_tongue:')
+        if ctx.invoked_with != 'update':
+            await self.bot.say('I\'ll try to restart. Hopefully I come back alive :stuck_out_tongue:')
         self.logger.info('The bot is now restarting!')
         self.bot.is_restart = True
 #        await self.bot.logout() # Comment for people to not see that the bot restarted (to trick uptime)
@@ -137,14 +138,14 @@ class Admin(Cog):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
         try:
-            ev_output = eval(bdel(ctx.raw_args, '```python').strip('`'))
+            ev_output = eval(bdel(ctx.raw_args, '```py').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
         if ctx.invoked_with.startswith('r'):
             await self.bot.say(o)
         else:
-            await self.bot.say('```python\n' + o + '```')
+            await self.bot.say('```py\n' + o + '```')
     @commands.command(pass_context=True, hidden=True, aliases=['rseref', 'meref', 'rmeref'])
     async def seref(self, ctx, filler_string: str):
         """Evaluate some code (multi-statement) in command scope.
@@ -155,14 +156,14 @@ class Admin(Cog):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
         try:
-            ev_output = exec(bdel(ctx.raw_args, '```python').strip('`'))
+            ev_output = exec(bdel(ctx.raw_args, '```py').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
         if ctx.invoked_with.startswith('r'):
             await self.bot.say(o)
         else:
-            await self.bot.say('```python\n' + o + '```')
+            await self.bot.say('```py\n' + o + '```')
 
     @commands.command(pass_context=True, aliases=['amiadmin', 'isadmin', 'admin'])
     async def admintest(self, ctx):
@@ -311,10 +312,10 @@ class Admin(Cog):
         self.bot.status = 'invisible'
         await self.bot.say('Successfully **suspended** my message processing! (I should stay online.)\nI will still count experience.')
 
-    @commands.command(pass_context=True, hidden=True, aliases=['serverlist'])
-    async def servers(self, ctx):
+    @commands.command(pass_context=True, hidden=True, aliases=['slist'])
+    async def serverlist(self, ctx):
         """List the servers I am in.
-        Syntax: servers"""
+        Syntax: serverlist"""
         await echeck_perms(ctx, ['bot_owner'])
         pager = commands.Paginator()
         for server in self.bot.servers:
@@ -349,7 +350,7 @@ class Admin(Cog):
         for page in pager.pages:
             await self.bot.say(page)
 
-    @commands.command(pass_context=True, hidden=True, aliases=['mlist', 'members', 'listmembers'])
+    @commands.command(pass_context=True, hidden=True, aliases=['mlist', 'listmembers'])
     async def memberlist(self, ctx, *server_ids: str):
         """List the members of a server.
         Syntax: memberlist [server ids]"""

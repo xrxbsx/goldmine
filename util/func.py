@@ -37,3 +37,10 @@ def _del_var(var_name):
     return "del globals()['{}']".format(var_name)
 
 snowtime = lambda i: datetime.datetime.fromtimestamp(((float(i) / 4194304.0) + 1420070400000.0) / 1000.0).strftime('%a %b %d, %Y %I:%M:%S %p')
+
+class PrintException(Exception):
+    """An exception that prints the error."""
+    def __init__(self, err):
+        print(str(err))
+        self.err = err
+        super().__init__()
