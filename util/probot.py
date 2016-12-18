@@ -359,7 +359,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                                 if isinstance(bclu, str):
                                     bclu = bclu.lower()
                                 if bclu in bool_true:
-                                    await self.msend(msg, '**Hooray!** {0.mention} has just *advanced to* **level {1}**.'.format(msg.author, str(new_level)))
+                                    await self.msend(msg, '**Hooray!** {0.mention} has just *advanced* to **level {1}**.'.format(msg.author, str(new_level)))
                         prof['level'] = new_level
                         await self.store.set_prop(msg, 'by_user', prof_name, prof)
                     if str(msg.channel) == 'cleverbutts':
