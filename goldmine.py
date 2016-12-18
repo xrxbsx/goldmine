@@ -41,8 +41,11 @@ while True:
     retval = core.main(use_uvloop)
     print(' - Bot stopped.')
     if retval: # restart
+        print(' - Flushing buffers')
+        sys.stdout.flush()
+        os.fsync()
         print(' - Restarting bot.')
-        if sys.platform.startswith('linux'):
+        if sys.platform in ['linux', 'linux2', 'darwin']:
             os.execl(sys.executable, sys.executable, *sys.argv)
         else:
             exit(0)

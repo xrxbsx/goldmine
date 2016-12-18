@@ -85,34 +85,34 @@ class ProFormatter(HelpFormatter):
         discord.Embed
             A formatted embed of the help command.
         """
-        self._paginator = Paginator()
         em_data = {
-            'title': 'Bot Help with Embed!',
-            'description': self.command.description if not self.is_cog() else inspect.getdoc(self.command),
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
+        return [Embed(**em_data, title='Not yet working!', description='Check back later for embed help.')]
         t_i = 0
         cmds = []
         pages = []
 
         if isinstance(self.command, Command):
+            _paginator = Paginator(prefix='', suffix='')
             # <signature portion>
             signature = self.get_command_signature()
-            self._paginator.add_line(signature, empty=True)
+            _paginator.add_line(signature, empty=True)
 
             # <long doc> section
             if self.command.help:
-                self._paginator.add_line(self.command.help, empty=True)
+                _paginator.add_line(self.command.help, empty=True)
 
             # end it here if it's just a regular command
             if not self.has_subcommands():
-                self._paginator.close_page()
-                return self._paginator.pages
+                _paginator.close_page()
+                return Embed(**em_data, title=self.command.name, description='\n'.join(_paginator.pages))
 
         max_width = self.max_name_size
 
         def category(tup):
             cog = tup[1].cog_name
+            print(tup)
             # we insert the zero width space there to give it approximate
             # last place sorting position.
             return cog + ':' if cog is not None else '\u200bNo Category:'
@@ -137,14 +137,8 @@ class ProFormatter(HelpFormatter):
 
         ending_note = self.get_ending_note()
         e = Embed(**em_data)
-        for entry in cmds:
-            if t_i < 100:
-                e.add_field(name=entry[0], value=entry[1])
-                t_i += len(entry[0]) + len(entry[1])
-            else:
-                pages.append(e)
-                e = Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
-                t_i = 0
+        for cog in self.command:
+            pass
         pages[-1].set_footer(text=ending_note)
         return pages
 

@@ -138,7 +138,7 @@ class Admin(Cog):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
         try:
-            ev_output = eval(bdel(ctx.raw_args, '```py').strip('`'))
+            ev_output = eval(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
@@ -156,7 +156,7 @@ class Admin(Cog):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
         try:
-            ev_output = exec(bdel(ctx.raw_args, '```py').strip('`'))
+            ev_output = exec(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)

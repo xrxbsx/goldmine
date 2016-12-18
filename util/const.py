@@ -250,6 +250,7 @@ cnf_fmt = '{0.mention} The command you tried to execute, `{2}{1}`, does not exis
 npm_fmt = '{0.mention} Sorry, the `{2}{1}` command does not work in DMs. Try a channel.'
 ccd_fmt = '{0.mention} Sorry, the `{2}{1}` command is currently disabled. Try again later!'
 cpe_fmt = '{0.mention} Sorry, you don\'t have enough **permissions** to execute `{2}{1}`! Permissions needed: **{3}**'
+ocpe_fmt = '{0.mention} Sorry, you don\'t have enough **permissions** to execute `{2}{1}`! **{3}** will work.'
 ece_fmt = '{0.mention} Hey, we don\'t have empty commands here! Try `{2}help` instead of `{2}` for help.'
 emp_msg = '{0.mention} The bot tried to send an empty message for `{2}{1}`. Maybe try again?'
 msg_err = '{0.mention} Something went wrong in the bot while responding to `{2}{1}`. Maybe try again? Error: `{3}`'
@@ -288,7 +289,6 @@ charsets = {
 orig_store = {
     'version': 3,
     'date_format': '{0}/{1}/{2}',
-    'quote_format': '**#{0}**: *"{1}"* \u2014 `{2}` [{3}]',
     'quotes': [
         {
             'id': 0,
@@ -429,3 +429,9 @@ status_map = {
     'idle': 'Idle',
     'dnd': 'Do Not Disturb'
 }
+code_stats = '''Files: {files}
+Lines: {lines}
+Words: {words}
+Characters: {chars}'''
+
+quote_format = '**#{0}**: {4}"{1}"{4} \u2014 `{2}` [{3}]'

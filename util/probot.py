@@ -24,6 +24,7 @@ import util.ranks as rank
 from util.const import *
 from util.func import bdel
 from util.fake import FakeObject
+from util.perms import CommandPermissionError, OrCommandPermissionError
 
 try:
     from d_props import store_path
@@ -191,15 +192,24 @@ class ProBot(commands.Bot):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandOnCooldown):
             await self.send_message(exp.ctx.message.author, coc_fmt.format(ctx.message.author, cprocessed, cmdfix, bdel(c_key, 'You are on cooldown. Try again in ')))
+        elif isinstance(exp, CommandPermissionError):
+            _perms = ''
+            if exp.original.perms_required:
+                _perms = ', '.join([i.lower().replace('_', ' ').title() for i in exp.original.perms_required])
+            else:
+                _perms = 'Not specified'
+            await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
+        elif isinstance(exp, OrCommandPermissionError):
+            _perms = ''
+            if exp.original.perms_ok:
+                perm_list = [i.lower().replace('_', ' ').title() for i in exp.original.perms_required]
+                perm_list[-1] = 'or ' + perm_list[-1]
+                _perms = ', '.join(perm_list)
+            else:
+                _perms = 'Not specified'
+            await self.csend(ctx, ocpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
         elif isinstance(exp, commands.CommandInvokeError):
-            if bc_key.startswith('CommandPermissionError: ' + cmdfix):
-                _perms = ''
-                if exp.original.perms_required:
-                    _perms = ', '.join([i.replace('_', ' ').title() for i in exp.original.perms_required])
-                else:
-                    _perms = 'Not specified'
-                await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
-            elif bc_key.startswith('HTTPException: '):
+            if isinstance(exp.original, discord.HTTPException):
                 key = bdel(bc_key, 'HTTPException: ')
                 if key.startswith('BAD REQUEST'):
                     key = bdel(bc_key, 'BAD REQUEST')
@@ -379,7 +389,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
 #                        await self.send_typing(msg.channel)
 #                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
                     if msg.content.startswith(cmdfix):
-                        await self.sprocess_commands(msg, cmdfix)
+                        await self.process_commands(msg, cmdfix)
                     else:
                         await self.send_typing(msg.channel)
                         cb_reply = await self.askcb(msg.content)
@@ -404,7 +414,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
 #                        await self.send_typing(msg.channel)
 #                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
                     if msg.content.startswith(cmdfix):
-                        await self.sprocess_commands(msg, cmdfix)
+                        await self.process_commands(msg, cmdfix)
         else:
             pass
 
@@ -413,7 +423,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         self.status = 'invisible'
         await self.update_presence()
 
-    async def sprocess_commands(self, message, prefix):
+    async def process_commands(self, message, prefix):
         """|coro|
         This function processes the commands that have been registered
         to the bot and other groups. Without this coroutine, none of the
@@ -602,4 +612,4 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         if got_conversion:
             return (got_conversion, musage_dec, musage_hex)
         else:
-            return (got_conversion)
+            return (got_conversion, 0) # to force tuple

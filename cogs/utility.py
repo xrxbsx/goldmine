@@ -15,10 +15,10 @@ import async_timeout
 import discord
 import util.commands as commands
 from properties import bot_owner
-from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt
+from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats
 from util.fake import FakeContextMember, FakeMessageMember
 from util.func import bdel
-from util.perms import check_perms
+from util.perms import check_perms, or_check_perms
 
 from .cog import Cog
 
@@ -207,54 +207,49 @@ class Utility(Cog):
                 chlist[3] += 1
         up = await self.bot.format_uptime()
         ram = await self.bot.get_ram()
-        try:
-            got_conversion = ram[0]
-        except TypeError:
-            got_conversion = ram
+        got_conversion = ram[0]
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
-        emb.set_thumbnail(url=avatar_link) #top right
         emb.set_footer(text='Made in Python 3.3+ with Discord.py %s' % self.bot.lib_version, icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
         emb.add_field(name='Servers Accessible', value=len(self.bot.servers))
         emb.add_field(name='Author', value='Dragon5232#1841')
         emb.add_field(name='Version', value=self.bot.version)
         emb.add_field(name='Uptime', value=up)
-        emb.add_field(name='Library', value='discord.py')
-        emb.add_field(name='Library Version', value=self.bot.lib_version)
+        emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
         emb.add_field(name='Git Revision', value=self.bot.git_rev)
-        emb.add_field(name='Commands', value=str(len(self.bot.commands)))
-        emb.add_field(name='Files of Code', value=self.bot.files)
-        emb.add_field(name='Lines of Code', value=self.bot.lines)
-        emb.add_field(name='Characters of Code', value=self.bot.chars)
-        emb.add_field(name='Words in Code', value=self.bot.words)
-        emb.add_field(name='Code Size', value=str(round(self.bot.size_kb, 1)) + ' KB')
-        emb.add_field(name='Average File Size', value=str(round(self.bot.avg_size_kb, 1)) + ' KB')
+        emb.add_field(name='Code Stats', value=code_stats.format(files=self.bot.lines, chars=self.bot.chars, lines=self.bot.lines, words=self.bot.words))
+        emb.add_field(name='Code Size', value=str(round(self.bot.size_kb, 1)) + ' KB\nAverage: ' + str(round(self.bot.avg_size_kb, 1)) + ' KB')
         emb.add_field(name='Cogs Loaded', value=len(self.bot.cogs))
-        emb.add_field(name='Memory Used', value=(str(round(ram[0], 1)) + ' MB (%s MiB)' % str(round(ram[1], 1))) if got_conversion else 'Couldn\'t fetch')
+        emb.add_field(name='Memory Used', value=(str(round(ram[1], 1)) + ' MB (%s MiB)' % str(round(ram[2], 1))) if got_conversion else 'Couldn\'t fetch')
         emb.add_field(name='Modules Loaded', value=len(self.bot.modules))
         emb.add_field(name='Members Seen', value=len(list(self.bot.get_all_members())))
         emb.add_field(name='Channels', value=ch_fmt.format(*[str(i) for i in chlist]))
         emb.add_field(name='Custom Emojis', value=len(list(self.bot.get_all_emojis())))
-        emb.add_field(name='Local Time', value=time.strftime(absfmt, time.localtime()))
+        emb.add_field(name='Commands', value=str(len(self.bot.commands)))
         emb.add_field(name='ID', value=target.id)
-        emb.add_field(name='My Homeland', value='https://blog.khronodragon.com')
         emb.add_field(name='Invite Link', value='https://tiny.cc/goldbot')
         await self.bot.say(home_broadcast, embed=emb)
 
-    @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp'])
+    @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp', 'pembedhelp', 'pembedshelp', 'pemhelp', 'pebhelp', 'pembhelp', 'pehelp'])
     async def ehelp(self, ctx, *commands: str):
         """Shows an experimental embed-based help.
         Syntax: ehelp|embedhelp"""
-        bot = ctx.bot
-        destination = ctx.message.author if bot.pm_help else ctx.message.channel
-        pages = bot.formatter.format_help_for(ctx, bot)
+        if ctx.invoked_with.startswith('p'):
+            await or_check_perms(ctx, ['bot_admin', 'server_admin'])
+        pages = self.bot.formatter.eformat_help_for(ctx, self.bot)
         target = self.bot.user
         au = target.avatar_url
         avatar_link = (au if au else target.default_avatar_url)
+        if len(pages) > 1:
+            destination = ctx.message.author
+        else:
+            destination = ctx.message.channel
+        if ctx.invoked_with.startswith('p'):
+            destination = ctx.message.channel
         for page in pages:
-            emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16), description=page.replace('```diff', '').replace('```', ''), title='Commands & Other Help')
-            emb.set_author(name=str(self.bot.user), icon_url=avatar_link, url='https://blog.khronodragon.com/')
-            await bot.send_message(destination, embed=emb)
+            await self.bot.send_message(destination, embed=page)
+        if destination == ctx.message.author:
+            await self.bot.say(ctx.message.author.mention + ' **__I\'ve private messaged you my help, please check your DMs!__**')
 
     @commands.command(aliases=['g', 'search', 's', 'query', 'q'])
     async def google(self, *rawin: str):
@@ -291,14 +286,6 @@ class Utility(Cog):
         """Do a basic test of the bot.
         Syntax: test"""
         await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')
-        if have_pil:
-            im = Image.open('assets/avatar.png')
-            im = ImageOps.grayscale(im)
-            im = ImageOps.autocontrast(im)
-            imBytes = BytesIO()
-            im.save(imBytes, 'PNG')
-            imBytes.seek(0)
-            await self.bot.send_file(ctx.message.channel, fp=imBytes, filename='gsbot.png')
 
     @commands.command(pass_context=True)
     async def uptime(self, ctx):

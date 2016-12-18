@@ -9,6 +9,12 @@ class CommandPermissionError(CommandError):
         self.perms_required = perms_required
         super().__init__(message=message, *args)
 
+class OrCommandPermissionError(CommandError):
+    """Subclass of CommandError for permission handling errors."""
+    def __init__(self, perms_ok, message=None, *args):
+        self.perms_ok = perms_ok
+        super().__init__(message=message, *args)
+
 async def check_perms(ctx, perms_required):
     """Check permissions required for an action."""
     perms_satisfied = 0
@@ -45,3 +51,12 @@ async def echeck_perms(ctx, perms_required):
     tmp = await check_perms(ctx, perms_required)
     if not tmp:
         raise CommandPermissionError(perms_required, message=ctx.message.content)
+
+async def or_check_perms(ctx, perms_ok):
+    """Easy wrapper for permission checking."""
+    results = []
+    for perm in perms_ok:
+        res = await check_perms(ctx, perms_ok)
+        results.append(res)
+    if True not in results:
+        raise OrCommandPermissionError(perms_ok, message=ctx.message.content)
