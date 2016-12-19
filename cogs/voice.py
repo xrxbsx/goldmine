@@ -445,6 +445,25 @@ class Voice(Cog):
             await self.bot.say('Queued **Speech**! :smiley:')
             await asyncio.sleep(1)
 
+    @commands.command()
+    async def recog(self):
+        print('recognizing')
+        await self.bot.say('starting')
+        data = sr.AudioData(self.bot.pcm_data, 48000, 2)
+        final = r.recognize_sphinx(data)
+        await self.bot.say(final)
+    @commands.command(pass_context=True)
+    async def rplay(self, ctx):
+        state = self.get_voice_state(ctx.message.server)
+        if state.voice is None:
+            success = await ctx.invoke(self.summon)
+            if not success:
+                return
+        state.voice.encoder_options(sample_rate=48000, channels=2)
+        player = state.voice.create_stream_player(io.BytesIO(self.bot.pcm_data))
+        player.start()
+        await self.bot.say('playing')
+
 def setup(bot):
     c = Voice(bot)
     bot.add_cog(c)

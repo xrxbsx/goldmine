@@ -12,3 +12,4 @@ plyvel
 uvloop
 cchardet
 ujson
+opuslib

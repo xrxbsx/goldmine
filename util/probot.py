@@ -10,6 +10,7 @@ from fnmatch import filter
 from datetime import datetime
 import math
 import logging
+from opuslib import Decoder
 from asteval import Interpreter
 import discord
 import util.commands as commands
@@ -30,6 +31,11 @@ try:
     opath = store_path
 except ImportError:
     opath = None
+try:
+    import speech_recognition as sr
+    r = sr.Recognizer()
+except ImportError:
+    r = None
 
 if sys.platform in ['linux', 'linux2', 'darwin']:
     import resource
@@ -118,6 +124,8 @@ class ProBot(commands.Bot):
         self.have_resource = False
         if sys.platform in ['linux', 'linux2', 'darwin']:
             self.have_resource = True
+        self.opus_decoder = Decoder(48000, 2)
+        self.pcm_data = b''
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -444,9 +452,11 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
     async def on_speaking(self, speaking, uid):
         """Event for when someone is speaking."""
         pass
-    async def on_speak(self, data, ssrc, timestamp, sequence):
+    async def on_speak(self, data, timestamp, voice):
         """Event for when a voice packet is received."""
-        pass
+        audio_data = self.opus_decoder.decode(data, voice.encoder.frame_size)
+        self.pcm_data += audio_data
+        #await self.send_message(voice.server.default_channel, r.recognize_sphinx(sr.AudioData(audio_data, 48000, 2)))
 
     async def suspend(self):
         """Suspend the bot."""
