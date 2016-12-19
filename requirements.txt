@@ -8,4 +8,3 @@ gTTS-token
 bs4
 future
 asteval
-opuslib
