@@ -421,9 +421,11 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         else:
             pass
 
-    async def on_server_join(server):
+    async def on_server_join(self, server):
+        """Send the bot introduction message when invited."""
+        print('JOIN !@#@!')
         try:
-            await self.bot.send_message(server.default_channel, join_msg)
+            await self.send_message(server.default_channel, join_msg)
         except discord.Forbidden:
             satisfied = False
             c_count = 0
@@ -431,7 +433,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             channel_count = len(try_channels) - 1
             while not satisfied:
                 try:
-                    await self.bot.send_message(try_channels[c_count], join_msg)
+                    await self.send_message(try_channels[c_count], join_msg)
                     satisfied = True
                 except (discord.Forbidden, discord.HTTPException):
                     pass
