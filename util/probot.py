@@ -423,7 +423,6 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
 
     async def on_server_join(self, server):
         """Send the bot introduction message when invited."""
-        print('JOIN !@#@!')
         try:
             await self.send_message(server.default_channel, join_msg)
         except discord.Forbidden:
@@ -441,6 +440,13 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                     self.logger.warning('Couldn\'t announce join to server ' + server.name)
                     satisfied = True
                 c_count += 1
+
+    async def on_speaking(self, speaking, uid):
+        """Event for when someone is speaking."""
+        pass
+    async def on_speak(self, data, ssrc, timestamp, sequence):
+        """Event for when a voice packet is received."""
+        pass
 
     async def suspend(self):
         """Suspend the bot."""

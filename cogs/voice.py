@@ -12,6 +12,11 @@ import async_timeout
 from gtts_token import gtts_token
 from util.const import sem_cells
 from .cog import Cog
+try:
+    import speech_recognition as sr
+    r = sr.Recognizer()
+except ImportError:
+    r = None
 
 class VoiceEntry:
     """Class to represent an entry in the standard voice quene."""
@@ -146,6 +151,7 @@ class Voice(Cog):
     async def create_voice_client(self, channel):
         """Create a new voice client on a specified channel."""
         voice = await self.bot.join_voice_channel(channel)
+        await voice.enable_voice_events()
         state = self.get_voice_state(channel.server)
         state.voice = voice
 
@@ -184,11 +190,29 @@ class Voice(Cog):
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
             state.voice = await self.bot.join_voice_channel(summoned_channel)
+            await state.voice.enable_voice_events()
         else:
             await state.voice.move_to(summoned_channel)
         await self.bot.say('Ready to play audio in **' + summoned_channel.name + '**!')
 
         return True
+
+    async def progress(self, msg):
+        """Play loading animation with dots and moon."""
+        fmt = 'Loading{0} {1}'
+        anim = '🌑🌒🌓🌔🌕🌝🌖🌗🌘🌚'
+        anim_len = len(anim) - 1
+        anim_i = 0
+        dot_i = 1
+        while True:
+            await self.bot.edit_message(msg, fmt.format(('.' * dot_i) + ' ' * (3 - dot_i), anim[anim_i]))
+            dot_i += 1
+            if dot_i > 3:
+                dot_i = 1
+            anim_i += 1
+            if anim_i > anim_len:
+                anim_i = 0
+            await asyncio.sleep(1.1)
 
     @commands.command(pass_context=True, no_pm=True, aliases=['yt', 'youtube'])
     async def play(self, ctx, *, song: str):
@@ -197,8 +221,7 @@ class Voice(Cog):
         This command automatically searches from sites like YouTube.
         The list of supported sites can be found here:
         https://rg3.github.io/youtube-dl/supportedsites.html
-        Syntax: play [song/video name]
-        """
+        Syntax: play [song/video name]"""
         state = self.get_voice_state(ctx.message.server)
         opts = {
             'default_search': 'auto',
@@ -210,6 +233,8 @@ class Voice(Cog):
             if not success:
                 return
 
+        status = await self.bot.say('Loading... 🌑')
+        pg_task = asyncio.ensure_future(self.progress(status))
         state.voice.encoder_options(sample_rate=48000, channels=2)
         player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
 
@@ -219,6 +244,8 @@ class Voice(Cog):
         await state.songs.put(entry)
         if was_empty:
             await self.bot.say('Quened ' + str(entry) + '!')
+        pg_task.cancel()
+        await self.bot.delete_message(status)
 
     @commands.command(pass_context=True, no_pm=True)
     async def volume(self, ctx, value: int):

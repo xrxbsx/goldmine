@@ -4,7 +4,7 @@ import re, os
 requirements = []
 with open('requirements.txt') as f:
     requirements = [i.replace('\n', '') for i in f.readlines()]
-    requirements.remove('https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py')
+    requirements.remove('https://github.com/Armored-Dragon/discord.py/archive/master.zip#egg=discord.py')
 
 version = ''
 with open('__init__.py') as f:
@@ -22,8 +22,8 @@ extras_require = {
 }
 
 dep_links = [
-    'https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py',
-    'https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py[voice]'
+    'https://github.com/Armored-Dragon/discord.py/archive/master.zip#egg=discord.py',
+    'https://github.com/Armored-Dragon/discord.py/archive/master.zip#egg=discord.py[voice]'
 ]
 
 setup(name='goldmine',

@@ -1,5 +1,5 @@
 aiohttp
-https://github.com/Rapptz/discord.py/archive/master.zip#egg=discord.py
+https://github.com/Armored-Dragon/discord.py/archive/master.zip#egg=discord.py
 youtube_dl
 async_timeout
 google
