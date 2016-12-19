@@ -3,6 +3,36 @@ import inspect
 from discord.ext.commands.core import *
 from .errors import *
 
+def quoted_word(view):
+    current = view.current
+
+    if current is None:
+        return None
+
+    result = [current]
+
+    while not view.eof:
+        current = view.get()
+        if not current:
+            return ''.join(result)
+
+        if current == '\\':
+            next_char = view.get()
+            if not next_char:
+                # if we aren't then we just let it through
+                return ''.join(result)
+
+            # different escape character, ignore it
+            view.undo()
+            result.append(current)
+            continue
+
+        if current.isspace():
+            # end of word found
+            return ''.join(result)
+
+        result.append(current)
+
 class ProCommand(Command):
     """A class that implements the protocol for a bot text command.
     These are not created manually, instead they are created via the
@@ -74,6 +104,33 @@ class ProCommand(Command):
             retry_after = bucket.is_rate_limited()
             if retry_after:
                 raise CommandOnCooldown(bucket, retry_after, ctx)
+
+    async def transform(self, ctx, param):
+        required = param.default is param.empty
+        converter = self._get_converter(param)
+        consume_rest_is_special = param.kind == param.KEYWORD_ONLY and not self.rest_is_raw
+        view = ctx.view
+        view.skip_ws()
+
+        if view.eof:
+            if param.kind == param.VAR_POSITIONAL:
+                raise RuntimeError() # break the loop
+            if required:
+                raise MissingRequiredArgument('{0.name} is a required argument that is missing.'.format(param))
+            return param.default
+
+        if consume_rest_is_special:
+            argument = view.read_rest().strip()
+        else:
+            argument = quoted_word(view)
+
+        try:
+            return await self.do_conversion(ctx, converter, argument)
+        except CommandError as e:
+            raise e
+        except Exception as e:
+            raise BadArgument('Converting to "{0.__name__}" failed.'.format(converter)) from e
+
 
 def command(name=None, cls=None, **attrs):
     """A decorator that transforms a function into a :class:`Command`

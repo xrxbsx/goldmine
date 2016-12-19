@@ -6,4 +6,7 @@ except ImportError:
     try:
         from ujson import *
     except ImportError:
-        from json import *
+        try:
+            from simplejson import *
+        except ImportError:
+            from json import *
