@@ -32,15 +32,19 @@ class Admin(Cog):
         """Removes all of this bot's messages on a channel.
         Syntax: purge"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
-        deleted = await self.bot.purge_from(ctx.message.channel, limit=500, check=lambda m: m == self.bot.user)
+        deleted = await self.bot.purge_from(ctx.message.channel, limit=1250tr, check=lambda m: m == self.bot.user)
         await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
 
-    @commands.command(pass_context=True)
-    async def nuke(self, ctx):
+    @commands.command(pass_context=True, aliases=['clear'])
+    async def nuke(self, ctx, *count: int):
         """NUKES a channel by deleting all messages!
         Syntax: nuke"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
-        deleted = await self.bot.purge_from(ctx.message.channel, limit=1300)
+        if count:
+            limit = count[0] + 1
+        else:
+            limit = 1300
+        deleted = await self.bot.purge_from(ctx.message.channel, limit=limit)
         await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command(pass_context=True)
@@ -53,13 +57,13 @@ class Admin(Cog):
         try:
             gitout = subprocess.check_output(['git', 'pull', '-v'], stderr=subprocess.STDOUT).decode('utf-8')
         except subprocess.CalledProcessError as exp:
-            await self.bot.say('An error occured while attempting to update!')
+            await self.bot.edit_message(msg, 'An error occured while attempting to update!')
             await self.bot.send_message(ctx.message.author, '```' + str(exp) + '```')
             gitout = False
         if gitout != False:
             await self.bot.send_message(ctx.message.author, 'Update Output:\n```' + gitout + '```')
         if not gitout:
-            await self.bot.say('Update failed, not restarting.')
+            await self.bot.edit_message(msg, msg.content + '\nUpdate failed, not restarting.')
         elif gitout.split('\n')[-2:][0] == 'Already up-to-date.':
             await self.bot.edit_message(msg, 'Bot was already up-to-date, not restarting.')
         else:

@@ -421,6 +421,25 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         else:
             pass
 
+    async def on_server_join(server):
+        try:
+            await self.bot.send_message(server.default_channel, join_msg)
+        except discord.Forbidden:
+            satisfied = False
+            c_count = 0
+            try_channels = list(server.channels)
+            channel_count = len(try_channels) - 1
+            while not satisfied:
+                try:
+                    await self.bot.send_message(try_channels[c_count], join_msg)
+                    satisfied = True
+                except (discord.Forbidden, discord.HTTPException):
+                    pass
+                if c_count > channel_count:
+                    self.logger.warning('Couldn\'t announce join to server ' + server.name)
+                    satisfied = True
+                c_count += 1
+
     async def suspend(self):
         """Suspend the bot."""
         self.status = 'invisible'

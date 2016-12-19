@@ -438,3 +438,11 @@ quote_format = '**#{0}**: {4}"{1}"{4} \u2014 `{2}` [{3}]'
 non_essential_cogs = [
     'cozmo'
 ]
+
+join_msg = '''👀🤔👀🤔👀🤔👀🤔 **Hmm...** 👀🤔👀🤔👀🤔👀🤔
+This seems like a nice place to be. Thanks for bringing me here!
+My default command prefix is `!`, so type `!help` to learn more about me.
+If you have some higher permissions, you can change it! Just use `!prefix [new prefix]`.
+You can also type `!setprop bot_name [name here]` to change my name!
+If you\'re ever stuck without knowing my prefix, just type `prefix`.
+**Anyways, enjoy, and remember that I can play music!**'''
