@@ -18,7 +18,7 @@ with open('README.md') as f:
     readme = f.read()
 
 extras_require = {
-    'full': ['plyvel', 'uvloop', 'cchardet', 'discord.py[voice]>=0.15.1']
+    'full': ['plyvel', 'uvloop', 'cchardet', 'discord.py[voice]>=0.15.1', 'python-rapidjson']
 }
 
 dep_links = [

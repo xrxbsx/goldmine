@@ -303,14 +303,14 @@ class Admin(Cog):
         Syntax: suspend'"""
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.suspend()
-        await self.bot.say('Successfully **suspended** me! (I should now be offline.)\nI will still count experience.')
+        await self.bot.say('Successfully **suspended** me! (I should now be offline.)\nI will still count experience points.')
     @commands.command(pass_context=True, aliases=['ssuspend'])
     async def ususpend(self, ctx):
         """Temporarily suspend the bot's command and conversation features.
         Syntax: suspend'"""
         await echeck_perms(ctx, ['bot_owner'])
         self.bot.status = 'invisible'
-        await self.bot.say('Successfully **suspended** my message processing! (I should stay online.)\nI will still count experience.')
+        await self.bot.say('Successfully **suspended** my message processing! (I should stay online.)\nI will still count experience points.')
 
     @commands.command(pass_context=True, hidden=True, aliases=['slist'])
     async def serverlist(self, ctx):

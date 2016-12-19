@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from fnmatch import filter
 from io import BytesIO
 import aiohttp
-import json
+import util.json as json
 import async_timeout
 import discord
 import util.commands as commands
@@ -178,14 +178,14 @@ class Utility(Cog):
             r_embed.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
             r_embed.set_thumbnail(url=avatar_link) #top right
             r_embed.set_footer(text=str(target), icon_url=avatar_link)
-            r_embed.add_field(name='Nickname', value=('No nickname set :frowning:' if d_name == target.name else d_name))
+            r_embed.add_field(name='Nickname', value=('No nickname set 😦' if d_name == target.name else d_name))
             r_embed.add_field(name='User ID', value=target.id)
             r_embed.add_field(name='Creation Time', value=target.created_at.strftime(absfmt))
             r_embed.add_field(name='Server Join Time', value=target.joined_at.strftime(absfmt) if is_server else 'Couldn\'t fetch')
-            r_embed.add_field(name='Server Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no server roles :frowning:')
-            r_embed.add_field(name='Bot Roles', value=', '.join(b_roles) if b_roles else 'User has no bot roles :frowning:')
+            r_embed.add_field(name='Server Roles', value=', '.join([str(i) for i in t_roles]) if t_roles else 'User has no server roles 😦')
+            r_embed.add_field(name='Bot Roles', value=', '.join(b_roles) if b_roles else 'User has no bot roles 😦')
             r_embed.add_field(name='Status', value=status_map[str(target.status)] if is_server else 'Couldn\'t fetch')
-            r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing :frowning:'))
+            r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing 😦'))
             await self.bot.say(embed=r_embed)
 
     @commands.command(pass_context=True, aliases=['gm'])
@@ -440,9 +440,20 @@ Server Owner\'s ID: `{0.server.owner.id}`
             await self.bot.send_cmd_help(ctx)
 
     @cleverbutt.command(pass_context=True, no_pm=True, name='start', aliases=['kickstart'])
-    async def cleverbutt_kickstart(self, ctx):
+    async def cleverbutt_kickstart(self, ctx, *msg: str):
         """Kickstart / start cleverbutts conversation
         Syntax: cleverbutt start {optional: message}"""
+        await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
+        c_map = {c.name: c for c in ctx.message.server.channels}
+        if 'cleverbutts' in c_map:
+            ch = c_map['cleverbutts']
+            if msg:
+                await self.bot.send_message(ch, ctx.raw_args)
+            else:
+                await self.bot.send_message(ch, 'Hello, what\'re you up to?')
+            await self.bot.say('**Message sent in <#%s>!**' % str(ch.id))
+        else:
+            await self.bot.say('**There\'s no** `#cleverbutts` **channel in this server!**')
 
     @commands.command(pass_context=True, aliases=['memegen'])
     async def meme(self, ctx, filler_string: str):

@@ -1,7 +1,7 @@
 """Definition of the bot's Cosmetic module.'"""
 import asyncio
 import random
-import json
+import util.json as json
 import aiohttp
 import async_timeout
 import discord

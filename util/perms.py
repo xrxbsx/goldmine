@@ -20,6 +20,7 @@ async def check_perms(ctx, perms_required):
     perms_satisfied = 0
     sender = ctx.message.author
     sender_id = sender.id
+    dc_perms = [k[0] for k in list(ctx.message.author.permissions_in(ctx.message.channel)) if k[1]]
     try:
         sowner = ctx.message.server.owner
         sowner_id = sowner.id
@@ -33,15 +34,12 @@ async def check_perms(ctx, perms_required):
     for i in perms_required:
         if i == 'bot_owner':
             pass
-        if i == 'server_owner':
-            if sender_id == sowner_id:
-                perms_satisfied += 1
-        if i == 'bot_admin':
-            if (sender_id in ctx.bot.store.store['bot_admins']) or (sender_id == bot_owner):
-                perms_satisfied += 1
-        if i == 'server_admin':
-            if sender.server_permissions.manage_server:
-                perms_satisfied += 1
+        elif (i == 'server_owner') and (sender_id == sowner_id):
+            perms_satisfied += 1
+        elif (i == 'bot_admin') and ((sender_id in ctx.bot.store.store['bot_admins']) or (sender_id == bot_owner)):
+            perms_satisfied += 1
+        elif i.lower() in dc_perms:
+            perms_satisfied += 1
     if sender_id == bot_owner:
         return True
     return bool(perms_required.__len__() == perms_satisfied)

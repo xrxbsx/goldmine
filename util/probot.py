@@ -46,7 +46,7 @@ class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
 
     def __init__(self, **options):
-        self.logger = logging.getLogger('discord').getChild('client')
+        self.logger = logging.getLogger('bot')
         self.cb = Cleverbot()
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
@@ -208,6 +208,10 @@ class ProBot(commands.Bot):
             else:
                 _perms = 'Not specified'
             await self.csend(ctx, ocpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
+        elif isinstance(exp, commands.PassException):
+            pass
+        elif isinstance(exp, commands.ReturnError):
+            await self.bot.say(exp.text)
         elif isinstance(exp, commands.CommandInvokeError):
             if isinstance(exp.original, discord.HTTPException):
                 key = bdel(bc_key, 'HTTPException: ')

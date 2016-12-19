@@ -9,11 +9,17 @@ from btoken import bot_token
 from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
 from util.datastore import initialize as init_store
-from util.const import description
+from util.const import description, non_essential_cogs
 from util.proformatter import RichFormatter
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('discord')
+logger = logging.getLogger('bot')
+try:
+    handler = logging.FileHandler(filename='bot.log', encoding='utf-8', mode='r+')
+except FileNotFoundError:
+    handler = logging.FileHandler(filename='bot.log', encoding='utf-8', mode='w+')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 init_store()
 
 if not discord.opus.is_loaded():
@@ -45,33 +51,47 @@ def main(use_uvloop):
     if use_uvloop:
         import uvloop
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-    print(' - Getting cog folder')
+    logger.info('Init: Getting cog folder')
     cogs_dir = os.path.join(cur_dir, 'cogs')
     bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
-    print(' - Searching for cogs')
+    logger.info('Init: Searching for cogs')
     cogs = [i.replace('.py', '').replace(cogs_dir + os.path.sep, '') for i in filter(rc_files(cogs_dir), '*.py')]
-    print(' - Cleaning up list')
+    logger.info('Init: Cleaning up list')
     cogs.remove('__init__')
     cogs.remove('cog')
-    print(' - Loading cogs')
+    for cog in non_essential_cogs:
+        cogs.remove(cog)
+    logger.info('Init: Loading cogs')
     for cog in cogs:
-        print(' - Loading cog: ' + cog)
+        logger.info('Init: Loading cog: ' + cog)
         bot.load_extension('cogs.' + cog)
-    print(' - Initializing event loop')
+    logger.info('Init: Loading extra cogs')
+    try:
+        with open('cogs.txt', 'r+') as f:
+            for cog in [i.replace('\r', '').replace('\n', '') for i in f.readlines()]:
+                try:
+                    logger.info('Init: Loading extra cog: ' + cog)
+                    bot.load_extension('cogs.' + cog)
+                except ImportError:
+                    logger.error('Could not load extra cog %s!' % cog)
+                    exit(1)
+    except FileNotFoundError:
+        pass
+    logger.info('Init: Initializing event loop')
     loop = asyncio.get_event_loop()
-    print(' - Starting bot!')
+    logger.info('Init: Starting bot!')
     runbot(loop, bot)
     return bot.is_restart
 
 if __name__ == '__main__':
     use_uvloop = False
-    print(' - Detecting uvloop...')
+    logger.info('Init: Detecting uvloop...')
     try:
         import uvloop
     except ImportError:
-        print(' - Could not load uvloop')
+        logger.info('Init: Could not load uvloop')
         pass
     else:
-        print(' - Will use uvloop.')
+        logger.info('Init: Will use uvloop.')
         use_uvloop = True
     main(use_uvloop)

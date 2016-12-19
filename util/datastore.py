@@ -1,7 +1,7 @@
 """Functions for handling the Data Store."""
 import asyncio
 import os
-import json
+import util.json as json
 from util.commands import CommandInvokeError
 from util.const import orig_store
 from properties import storage_backend
@@ -49,7 +49,7 @@ class DataStore():
     async def commit(self):
         """Commit the current datastore to disk."""
         with open(self.path, 'w') as storefile:
-            storefile.write(json.dumps(self.store, separators=(',', ':')))
+            storefile.write(json.dumps(self.store))
 
     async def commit_task(self):
         while True:

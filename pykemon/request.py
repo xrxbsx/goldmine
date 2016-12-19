@@ -6,7 +6,7 @@ This is the request factory for pykemon.
 All API calls made to the PokeAPI website go from here."""
 
 import asyncio
-import json
+import util.json as json
 import aiohttp
 import async_timeout
 from .models import Pokemon, Move, Type, Ability, Egg, Description, Sprite, Game

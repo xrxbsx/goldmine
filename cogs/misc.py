@@ -1,4 +1,4 @@
-"""Definition of the bot's Miscellaneous module.'"""
+"""Definition of the bot's Miscellaneous module."""
 import asyncio
 import util.commands as commands
 from .cog import Cog
@@ -10,13 +10,14 @@ class Miscellaneous(Cog):
 
     @commands.command()
     async def lmgtfy(self, *args):
-        """Generates a Let Me Google That For You link.
+        """Generate a Let Me Google That For You link.
         Syntax: lmgtfy [search terms]"""
         await self.bot.say('http://lmgtfy.com/?q=' + '+'.join(args))
 
     @commands.command()
     async def buzz(self, *count: int):
-        """Barry Bee Benson Buzz :smirk:"""
+        """Barry Bee Benson Buzz :smirk:
+        Syntax: buzz"""
         fn_i = 8
         if count:
             fn_i = count[0]
@@ -25,3 +26,4 @@ class Miscellaneous(Cog):
 def setup(bot):
     c = Miscellaneous(bot)
     bot.add_cog(c)
+

@@ -11,3 +11,4 @@ asteval
 plyvel
 uvloop
 cchardet
+ujson
