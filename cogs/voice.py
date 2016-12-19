@@ -10,12 +10,13 @@ import util.commands as commands
 import aiohttp
 import async_timeout
 from gtts_token import gtts_token
+from util.perms import echeck_perms
 from util.const import sem_cells
 from .cog import Cog
 try:
     import speech_recognition as sr
     r = sr.Recognizer()
-except ImportError:
+except Exception:
     r = None
 
 class VoiceEntry:
@@ -445,15 +446,19 @@ class Voice(Cog):
             await self.bot.say('Queued **Speech**! :smiley:')
             await asyncio.sleep(1)
 
-    @commands.command()
-    async def recog(self):
+    @commands.command(pass_context=True, hidden=True)
+    async def recog(self, ctx):
+        """Speech recognize the current PCM recording."""
+        await echeck_perms(ctx, ['bot_owner'])
         print('recognizing')
         await self.bot.say('starting')
         data = sr.AudioData(self.bot.pcm_data, 48000, 2)
         final = r.recognize_sphinx(data)
         await self.bot.say(final)
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, hidden=True)
     async def rplay(self, ctx):
+        """Play the current PCM recording."""
+        await echeck_perms(ctx, ['bot_owner'])
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
             success = await ctx.invoke(self.summon)

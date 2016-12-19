@@ -34,7 +34,7 @@ except ImportError:
 try:
     import speech_recognition as sr
     r = sr.Recognizer()
-except ImportError:
+except Exception:
     r = None
 
 if sys.platform in ['linux', 'linux2', 'darwin']:
