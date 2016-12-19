@@ -32,7 +32,7 @@ if not discord.opus.is_loaded():
         try:
             discord.opus.load_opus('libopus')
         except OSError:
-            logger.getChild('client').warning('could not load libopus, voice will NOT be available.')
+            logger.warning('could not load libopus, voice will NOT be available.')
 
 def runbot(loop, bot):
     """Start the bot and handle Ctrl-C."""

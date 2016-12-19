@@ -159,7 +159,7 @@ class Utility(Cog):
             except AttributeError:
                 tg_ctx = None
             else:
-                c_srv = await check_perms(tg_ctx, ['server_admin'])
+                c_srv = await check_perms(tg_ctx, ['manage_server'])
                 c_sown = await check_perms(tg_ctx, ['server_owner'])
             c_own = bool(target.id == bot_owner)
             c_adm = bool(target.id in self.dstore['bot_admins'])
@@ -235,7 +235,7 @@ class Utility(Cog):
         """Shows an experimental embed-based help.
         Syntax: ehelp|embedhelp"""
         if ctx.invoked_with.startswith('p'):
-            await or_check_perms(ctx, ['bot_admin', 'server_admin'])
+            await or_check_perms(ctx, ['bot_admin', 'manage_server', 'manage_messages', 'manage_channels'])
         pages = self.bot.formatter.eformat_help_for(ctx, self.bot)
         target = self.bot.user
         au = target.avatar_url

@@ -28,3 +28,15 @@ class PassException(CommandError):
     """Just pass. Used to simulate the return statement."""
     def __init__(self):
         super().__init__('Pass exception occured. You shouldn\'t be seeing this!')
+
+class CommandPermissionError(CommandError):
+    """Subclass of CommandError for permission handling errors."""
+    def __init__(self, perms_required, message=None, *args):
+        self.perms_required = perms_required
+        super().__init__(message=message, *args)
+
+class OrCommandPermissionError(CommandError):
+    """Subclass of CommandError for permission handling errors."""
+    def __init__(self, perms_ok, message=None, *args):
+        self.perms_ok = perms_ok
+        super().__init__(message=message, *args)

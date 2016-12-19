@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 import discord
 import util.commands as commands
-from util.perms import echeck_perms, check_perms
+from util.perms import or_check_perms, echeck_perms, check_perms
 from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime
 from .cog import Cog
 
@@ -31,7 +31,7 @@ class Admin(Cog):
     async def purge(self, ctx):
         """Removes all of this bot's messages on a channel.
         Syntax: purge"""
-        await echeck_perms(ctx, ['server_admin'])
+        await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
         deleted = await self.bot.purge_from(ctx.message.channel, limit=500, check=lambda m: m == self.bot.user)
         await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
 
@@ -39,7 +39,7 @@ class Admin(Cog):
     async def nuke(self, ctx):
         """NUKES a channel by deleting all messages!
         Syntax: nuke"""
-        await echeck_perms(ctx, ['server_admin'])
+        await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
         deleted = await self.bot.purge_from(ctx.message.channel, limit=1300)
         await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
 
@@ -262,7 +262,7 @@ class Admin(Cog):
     async def setprop(self, ctx, pname: str, *values: str):
         """Set the value of a property on server level.
         Syntax: setprop [property name] [value]"""
-        await echeck_perms(ctx, ['server_admin'])
+        await echeck_perms(ctx, ['manage_server'])
         value = ' '.join(values)
         await self.store.set_prop(ctx.message, 'by_server', pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
@@ -274,7 +274,7 @@ class Admin(Cog):
         """Get or set the command prefix.
         Syntax: prefix {optional: new prefix}"""
         if prefix:
-            await echeck_perms(ctx, ['server_admin'])
+            await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
             jprefix = ' '.join(list(prefix))
             await self.store.set_prop(ctx.message, 'by_server', 'command_prefix', jprefix)
             await self.bot.say('Successfully set command prefix as `' + jprefix + '`!')

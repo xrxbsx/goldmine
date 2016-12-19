@@ -24,7 +24,6 @@ import util.ranks as rank
 from util.const import *
 from util.func import bdel
 from util.fake import FakeObject
-from util.perms import CommandPermissionError, OrCommandPermissionError
 
 try:
     from d_props import store_path
@@ -192,28 +191,28 @@ class ProBot(commands.Bot):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandOnCooldown):
             await self.send_message(exp.ctx.message.author, coc_fmt.format(ctx.message.author, cprocessed, cmdfix, bdel(c_key, 'You are on cooldown. Try again in ')))
-        elif isinstance(exp, CommandPermissionError):
-            _perms = ''
-            if exp.original.perms_required:
-                _perms = ', '.join([i.lower().replace('_', ' ').title() for i in exp.original.perms_required])
-            else:
-                _perms = 'Not specified'
-            await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
-        elif isinstance(exp, OrCommandPermissionError):
-            _perms = ''
-            if exp.original.perms_ok:
-                perm_list = [i.lower().replace('_', ' ').title() for i in exp.original.perms_required]
-                perm_list[-1] = 'or ' + perm_list[-1]
-                _perms = ', '.join(perm_list)
-            else:
-                _perms = 'Not specified'
-            await self.csend(ctx, ocpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
         elif isinstance(exp, commands.PassException):
             pass
         elif isinstance(exp, commands.ReturnError):
-            await self.bot.say(exp.text)
+            await self.csend(ctx, exp.text)
         elif isinstance(exp, commands.CommandInvokeError):
-            if isinstance(exp.original, discord.HTTPException):
+            if isinstance(exp.original, commands.CommandPermissionError):
+                _perms = ''
+                if exp.original.perms_required:
+                    _perms = ', '.join([i.lower().replace('_', ' ').title() for i in exp.original.perms_required])
+                else:
+                    _perms = 'Not specified'
+                await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
+            elif isinstance(exp.original, commands.OrCommandPermissionError):
+                _perms = ''
+                if exp.original.perms_ok:
+                    perm_list = [i.lower().replace('_', ' ').title() for i in exp.original.perms_ok]
+                    perm_list[-1] = 'or ' + perm_list[-1]
+                    _perms = ', '.join(perm_list)
+                else:
+                    _perms = 'Not specified'
+                await self.csend(ctx, ocpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
+            elif isinstance(exp.original, discord.HTTPException):
                 key = bdel(bc_key, 'HTTPException: ')
                 if key.startswith('BAD REQUEST'):
                     key = bdel(bc_key, 'BAD REQUEST')
@@ -233,11 +232,11 @@ class ProBot(commands.Bot):
                         await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
                 else:
                     await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
-            elif bc_key.startswith('NameError: name '):
+            elif isinstance(exp.original, NameError):
                 key = bdel(bc_key, "NameError: name '")
                 key = key.replace("' is not defined", '')
                 await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
-            elif bc_key.startswith('TimeoutError:'):
+            elif isinstance(exp.original, asyncio.TimeoutError):
                 await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
             elif (cprocessed in self.commands['calc'].aliases) or (cprocessed == 'calc'):
                 await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))

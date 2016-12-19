@@ -1,19 +1,7 @@
 """Permission handling code."""
 import asyncio
 from properties import bot_owner
-from util.commands import CommandError
-
-class CommandPermissionError(CommandError):
-    """Subclass of CommandError for permission handling errors."""
-    def __init__(self, perms_required, message=None, *args):
-        self.perms_required = perms_required
-        super().__init__(message=message, *args)
-
-class OrCommandPermissionError(CommandError):
-    """Subclass of CommandError for permission handling errors."""
-    def __init__(self, perms_ok, message=None, *args):
-        self.perms_ok = perms_ok
-        super().__init__(message=message, *args)
+from util.commands.errors import CommandPermissionError, OrCommandPermissionError
 
 async def check_perms(ctx, perms_required):
     """Check permissions required for an action."""
