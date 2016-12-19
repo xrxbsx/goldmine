@@ -32,7 +32,7 @@ class Admin(Cog):
         """Removes all of this bot's messages on a channel.
         Syntax: purge"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
-        deleted = await self.bot.purge_from(ctx.message.channel, limit=1250tr, check=lambda m: m == self.bot.user)
+        deleted = await self.bot.purge_from(ctx.message.channel, limit=1250, check=lambda m: m == self.bot.user)
         await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
 
     @commands.command(pass_context=True, aliases=['clear'])
