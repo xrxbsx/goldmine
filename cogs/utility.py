@@ -503,7 +503,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
     async def rcolor(self):
         """Generate a random color.
         Syntax: rcolor"""
-        col_rgb = (random.randint(1, 255) for i in range(0, 3))
+        col_rgb = [random.randint(1, 255) for i in range(0, 3)]
         col_str = '#%02X%02X%02X' % col_rgb
         await self.bot.say(embed=discord.Embed(color=int(col_str, 16), title='Hex: ' + col_str + ' | RGB: ' + ', '.join(col_rgb)))
 
