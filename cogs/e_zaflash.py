@@ -15,4 +15,12 @@ class ZaFlash(Cog):
 def setup(bot):
     c = ZaFlash(bot)
     bot.add_cog(c)
+    del bot.commands['update']
     del bot.commands['purge']
+    for a in (bot.commands['eref'].aliases + bot.commands['seref'].aliases):
+        del bot.commands[a]
+    del bot.commands['eref']
+    del bot.commands['seref']
+    bot.game['type'] = 0
+    bot.game['name'] = 'with the Owner'
+    bot.game['url'] = ''

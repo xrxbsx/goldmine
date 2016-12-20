@@ -5,7 +5,7 @@ import asyncio
 import os
 from fnmatch import filter
 import discord
-from token_loader import bot_token
+from util.token import bot_token
 from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
 from util.datastore import initialize as init_store
