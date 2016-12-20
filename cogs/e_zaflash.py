@@ -27,4 +27,7 @@ def setup(bot):
     del bot.commands['info']
     del bot.commands['gm']
     del bot.commands['home']
+    bot.commands['nuke'].name = 'clear'
+    del bot.commands['etest']
+    del bot.commands['buzz']
     bot.description = 'ZaFlash\'s cool and shiny bot.'
