@@ -5,6 +5,7 @@ import random
 import subprocess
 import re
 import textwrap
+import youtube_dl
 import discord
 import util.commands as commands
 import aiohttp
@@ -238,7 +239,13 @@ class Voice(Cog):
         status = await self.bot.say('Loading... 🌑')
         pg_task = asyncio.ensure_future(self.progress(status, 'Loading'))
         state.voice.encoder_options(sample_rate=48000, channels=2)
-        player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
+        try:
+            player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
+        except youtube_dl.DownloadError:
+            pg_task.cancel()
+            await self.bot.delete_message(status)
+            await self.bot.say('**That video couldn\t be found!**')
+            return False
 
         player.volume = 0.7
         entry = VoiceEntry(ctx.message, player, False)
@@ -478,11 +485,10 @@ class Voice(Cog):
         """Speech recognize the current voice recording.
         Syntax: recording recog"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'move_members'])
-        try:
+        with assert_msg(ctx, '**The bot owner has not set up this feature!**'):
             assert self.bot.opus_decoder != None
-        except AssertionError:
-            await self.bot.say('**The bot owner has not set up this feature!**')
-            return
+        with assert_msg(ctx, '**This server does not have a recording!**'):
+            assert ctx.message.server.id in self.bot.opus_data
         status = await self.bot.say('Hmm, let me think...')
         pg_task = asyncio.ensure_future(self.progress(status, 'Hmm, let me think'))
         pcm_data = await self.loop.run_in_executor(self.bot.opus_decoder.decode, self.bot.opus_data[ctx.message.server.id], 48000, 2)
@@ -505,9 +511,16 @@ class Voice(Cog):
             success = await ctx.invoke(self.summon)
             if not success:
                 return
-        pcm_data = await self.loop.run_in_executor(self.bot.opus_decoder.decode, self.bot.opus_data[ctx.message.server.id], 48000, 2)
+        with assert_msg(ctx, '**This server does not have a recording!**'):
+            assert ctx.message.server.id in self.bot.opus_data
+        await self.bot.say('assert end')
+        exc = self.loop.run_in_executor(None, self.bot.opus_decoder.decode, self.bot.opus_data[ctx.message.server.id], state.voice.encoder.frame_size)
+        pcm_data = await exc
+        await self.bot.say('decoded')
         state.voice.encoder_options(sample_rate=48000, channels=2)
+        await self.bot.say('encoder set')
         player = state.voice.create_stream_player(io.BytesIO(self.bot.opus_data))
+        await self.bot.say('started player')
         player.volume = 0.7
         entry = VoiceEntry(ctx.message, player, False)
         await state.songs.put(entry)

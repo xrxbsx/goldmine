@@ -6,6 +6,7 @@ import subprocess
 from contextlib import suppress
 import os
 import sys
+import traceback
 import re
 from fnmatch import filter
 from datetime import datetime
@@ -183,6 +184,7 @@ class ProBot(commands.Bot):
         await self.send_message(ctx.message.channel, *apass, **kwpass)
 
     async def on_command_error(self, exp, ctx):
+        traceback.print_exception(type(exp), exp, exp.__traceback__, file=sys.stdout)
         cmdfix = await self.store.get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
@@ -462,7 +464,10 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
     async def on_speak(self, data, timestamp, voice):
         """Event for when a voice packet is received."""
         if voice.server.id in self.servers_recording:
-            self.opus_data[voice.server.id] += data
+            try:
+                self.opus_data[voice.server.id] += data
+            except KeyError:
+                self.opus_data[voice.server.id] = data
 
     async def suspend(self):
         """Suspend the bot."""

@@ -53,5 +53,5 @@ def assert_msg(ctx, msg: str):
     try:
         yield
     except AssertionError:
-        ctx.bot.send_message(ctx.message.channel, msg)
+        ensure_future(ctx.bot.send_message(ctx.message.channel, msg))
         raise PassException()
