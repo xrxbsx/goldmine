@@ -94,10 +94,12 @@ class ProBot(commands.Bot):
         self.size_kb = self.size_bytes / 1000
         self.avg_size_kb = self.size_kb / self.files
         self.git_rev = 'Couldn\'t fetch'
-        with suppress(subprocess.CalledProcessError):
+        try:
             self.git_rev = subprocess.check_output(['git', 'describe', '--always']).decode('utf-8')
+        except Exception:
+            pass
         self.start_time = datetime.now()
-        self.dir = os.path.dirname(os.path.realpath(__file__))
+        self.dir = os.path.dirname(os.path.abspath(__file__))
         self.storepath = os.path.join(self.dir, '..', 'storage.')
         if storage_backend not in DataStore.exts:
             self.logger.critical('Invalid storage backend specified, quitting!')

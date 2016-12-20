@@ -436,7 +436,8 @@ Characters: {chars}'''
 
 quote_format = '**#{0}**: {4}"{1}"{4} \u2014 `{2}` [{3}]'
 non_essential_cogs = [
-    'cozmo'
+    'cozmo',
+    'e_zaflash'
 ]
 
 join_msg = '''👀🤔👀🤔👀🤔👀🤔 **Hmm...** 👀🤔👀🤔👀🤔👀🤔

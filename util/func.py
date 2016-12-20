@@ -3,6 +3,7 @@ import contextlib
 from asyncio import ensure_future
 from functools import partial
 import datetime
+from util.commands.errors import PassException
 def bdel(s, r): return (s[len(r):] if s.startswith(r) else s)
 
 class DiscordFuncs():
