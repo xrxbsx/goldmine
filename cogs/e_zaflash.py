@@ -25,5 +25,6 @@ def setup(bot):
     bot.game['name'] = 'with the Owner'
     bot.game['url'] = ''
     del bot.commands['info']
-    del bot.commands['info']
+    del bot.commands['gm']
+    del bot.commands['home']
     bot.description = 'ZaFlash\'s cool and shiny bot.'
