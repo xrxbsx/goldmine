@@ -55,6 +55,3 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         if str(bc).lower() in bool_true:
             utype = ('bot' if member.bot else 'member')
             await self.send_message(target, fmt.format(str(member), member.server, utype))
-    @bot.event
-    async def on_message(self, msg):
-        print('test')
