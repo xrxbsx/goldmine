@@ -32,9 +32,9 @@ def setup(bot):
     del bot.commands['buzz']
     bot.description = 'ZaFlash\'s cool and shiny bot.'
     @bot.event
-    async def on_member_join(self, member: discord.Member):
+    async def on_member_join(self, member):
         """On_member_join event for newly joined members."""
-        target = member.server
+        target = {c.name: c for c in member.server.channels}['welcomes-and-goodbyes']
         cemotes = member.server.emojis
         em_string = ''
         if cemotes:
@@ -46,9 +46,9 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         if str(bc).lower() in bool_true:
             await self.send_message(target, fmt.format(member, member.server, em_string, cmdfix))
     @bot.event
-    async def on_member_remove(self, member: discord.Member):
+    async def on_member_remove(self, member):
         """On_member_remove event for members leaving."""
-        target = member.server
+        target = {c.name: c for c in member.server.channels}['welcomes-and-goodbyes']
         fmt = '''Aw, **{0}** has just left this server. Bye!
 **{1.name}** has now lost a {2}. We'll miss you! :bear:'''
         bc = await self.store.get_prop(member, 'broadcast_leave')
