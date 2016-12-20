@@ -162,10 +162,10 @@ class Admin(Cog):
         def print(*ina: str):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
-        try:
-            ev_output = exec(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
-        except Exception as e:
-            ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
+#        try:
+        ev_output = exec(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
+#        except Exception as e:
+#            ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
         if ctx.invoked_with.startswith('r'):
             await self.bot.say(o)

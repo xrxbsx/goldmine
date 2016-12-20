@@ -211,24 +211,24 @@ class ProBot(commands.Bot):
             pass
         elif isinstance(exp, commands.ReturnError):
             await self.csend(ctx, exp.text)
+        elif isinstance(exp, commands.CommandPermissionError):
+            _perms = ''
+            if exp.perms_required:
+                _perms = ', '.join([i.lower().replace('_', ' ').title() for i in exp.perms_required])
+            else:
+                _perms = 'Not specified'
+            await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
+        elif isinstance(exp, commands.OrCommandPermissionError):
+            _perms = ''
+            if exp.perms_ok:
+                perm_list = [i.lower().replace('_', ' ').title() for i in exp.perms_ok]
+                perm_list[-1] = 'or ' + perm_list[-1]
+                _perms = ', '.join(perm_list)
+            else:
+                _perms = 'Not specified'
+            await self.csend(ctx, ocpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
         elif isinstance(exp, commands.CommandInvokeError):
-            if isinstance(exp.original, commands.CommandPermissionError):
-                _perms = ''
-                if exp.original.perms_required:
-                    _perms = ', '.join([i.lower().replace('_', ' ').title() for i in exp.original.perms_required])
-                else:
-                    _perms = 'Not specified'
-                await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
-            elif isinstance(exp.original, commands.OrCommandPermissionError):
-                _perms = ''
-                if exp.original.perms_ok:
-                    perm_list = [i.lower().replace('_', ' ').title() for i in exp.original.perms_ok]
-                    perm_list[-1] = 'or ' + perm_list[-1]
-                    _perms = ', '.join(perm_list)
-                else:
-                    _perms = 'Not specified'
-                await self.csend(ctx, ocpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
-            elif isinstance(exp.original, discord.HTTPException):
+            if isinstance(exp.original, discord.HTTPException):
                 key = bdel(bc_key, 'HTTPException: ')
                 if key.startswith('BAD REQUEST'):
                     key = bdel(bc_key, 'BAD REQUEST')
