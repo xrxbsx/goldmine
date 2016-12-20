@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import discord
 import util.commands as commands
 from util.perms import or_check_perms, echeck_perms, check_perms
-from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime
+from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime, assert_msg
 from .cog import Cog
 
 
@@ -162,10 +162,10 @@ class Admin(Cog):
         def print(*ina: str):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
-#        try:
-        ev_output = exec(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
-#        except Exception as e:
-#            ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
+        try:
+            ev_output = exec(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
+        except Exception as e:
+            ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
         if ctx.invoked_with.startswith('r'):
             await self.bot.say(o)
@@ -340,11 +340,13 @@ class Admin(Cog):
         if ids:
             s_map = {i.id: i for i in self.bot.servers}
             for sid in ids:
+                with assert_msg(ctx, '**ID** `%s` **is invalid. (must be 18 numbers)**' % sid):
+                    assert len(sid) == 18
                 try:
                     servers.append(s_map[sid])
                 except KeyError:
                     await self.bot.say('Server ID **%s** not found.' % sid)
-                    return
+                    return False
         else:
             servers = self.bot.servers
         for server in servers:
@@ -353,7 +355,7 @@ class Admin(Cog):
                 xname = channel.name
                 if str(channel.type) == 'voice':
                     xname = '[voice] ' + xname
-                pager.add_line('  - ' + xname)
+                pager.add_line('  • ' + xname)
         for page in pager.pages:
             await self.bot.say(page)
 
@@ -364,16 +366,18 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_owner'])
         if not server_ids:
             await self.bot.say('**You need to specify at least 1 server ID!**')
-            return
+            return False
         pager = commands.Paginator(prefix='```diff')
         pager.add_line('< -- SERVERS <-> MEMBERS -- >')
         server_table = {i.id: i for i in self.bot.servers}
         for sid in server_ids:
+            with assert_msg(ctx, '**ID** `%s` **is invalid. (must be 18 numbers)**' % sid):
+                assert len(sid) == 18
             try:
                 server = server_table[sid]
             except KeyError:
                 await self.bot.say('**ID** `%s` **was not found.**' % sid)
-                return
+                return False
             pager.add_line('+ ' + server.name + ' [{0} members] [ID {1}]'.format(str(len(server.members)), server.id))
             for member in server.members:
                 pager.add_line('- ' + str(member))
