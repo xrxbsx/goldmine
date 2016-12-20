@@ -499,6 +499,14 @@ Server Owner\'s ID: `{0.server.owner.id}`
         up = await self.bot.format_uptime()
         await self.bot.say(fmt.format(ctx.message, ctx.prefix, str(len(self.bot.servers)), str(len(list(self.bot.get_all_channels()))), str(len(list(self.bot.get_all_members()))), up, str(self.bot.lines)))
 
+    @commands.command(aliases=['randcolor', 'randc', 'rc', 'randomcolor', 'colorgen', 'gcolor', 'gencolor'])
+    async def rcolor(self):
+        """Generate a random color.
+        Syntax: rcolor"""
+        col_rgb = (random.randint(1, 255) for i in range(0, 3))
+        col_str = '#%02X%02X%02X' % col_rgb
+        await self.bot.say(embed=discord.Embed(color=int(col_str, 16), title='Hex: ' + col_str + ' | RGB: ' + ', '.join(col_rgb)))
+
 def setup(bot):
     c = Utility(bot)
     bot.add_cog(c)
