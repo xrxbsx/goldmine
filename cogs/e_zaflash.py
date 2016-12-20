@@ -31,3 +31,30 @@ def setup(bot):
     del bot.commands['etest']
     del bot.commands['buzz']
     bot.description = 'ZaFlash\'s cool and shiny bot.'
+    @bot.event
+    async def on_member_join(self, member: discord.Member):
+        """On_member_join event for newly joined members."""
+        target = member.server
+        cemotes = member.server.emojis
+        em_string = ''
+        if cemotes:
+            em_string = ': ' + ' '.join([str(i) for i in cemotes])
+        fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
+Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.'''
+        bc = await self.store.get_prop(member, 'broadcast_join')
+        cmdfix = await self.store.get_prop(member, 'command_prefix')
+        if str(bc).lower() in bool_true:
+            await self.send_message(target, fmt.format(member, member.server, em_string, cmdfix))
+    @bot.event
+    async def on_member_remove(self, member: discord.Member):
+        """On_member_remove event for members leaving."""
+        target = member.server
+        fmt = '''Aw, **{0}** has just left this server. Bye!
+**{1.name}** has now lost a {2}. We'll miss you! :bear:'''
+        bc = await self.store.get_prop(member, 'broadcast_leave')
+        if str(bc).lower() in bool_true:
+            utype = ('bot' if member.bot else 'member')
+            await self.send_message(target, fmt.format(str(member), member.server, utype))
+    @bot.event
+    async def on_message(self, msg):
+        print('test')
