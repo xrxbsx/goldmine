@@ -110,10 +110,7 @@ st2.json
 .kdev4
 *.kdev4
 
-# Google Search
 .google-cookie
-
-# Dragon only stuff
 d_props.py
-
 cogs.txt
+test_data.ogg
