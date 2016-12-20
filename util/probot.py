@@ -3,6 +3,7 @@ import asyncio
 import random
 import inspect
 import subprocess
+from contextlib import suppress
 import os
 import sys
 import re
@@ -10,7 +11,6 @@ from fnmatch import filter
 from datetime import datetime
 import math
 import logging
-from opuslib import Decoder
 from asteval import Interpreter
 import discord
 import util.commands as commands
@@ -34,8 +34,12 @@ except ImportError:
 try:
     import speech_recognition as sr
     r = sr.Recognizer()
-except Exception:
+except ImportError:
     r = None
+try:
+    from opuslib import Decoder
+except Exception:
+    Decoder = None
 
 if sys.platform in ['linux', 'linux2', 'darwin']:
     import resource
@@ -90,10 +94,8 @@ class ProBot(commands.Bot):
         self.size_kb = self.size_bytes / 1000
         self.avg_size_kb = self.size_kb / self.files
         self.git_rev = 'Couldn\'t fetch'
-        try:
+        with suppress(subprocess.CalledProcessError):
             self.git_rev = subprocess.check_output(['git', 'describe', '--always']).decode('utf-8')
-        except subprocess.CalledProcessError:
-            pass
         self.start_time = datetime.now()
         self.dir = os.path.dirname(os.path.realpath(__file__))
         self.storepath = os.path.join(self.dir, '..', 'storage.')
@@ -110,7 +112,7 @@ class ProBot(commands.Bot):
         self.storage = None
         if storage_backend == 'leveldb':
             import plyvel
-            self.storage = plyvel.xp_level
+            self.storage = plyvel.load()
         elif storage_backend == 'pickledb':
             self.storage = pickledb.load(self.storepath, False)
         self.modules = sys.modules
@@ -124,8 +126,12 @@ class ProBot(commands.Bot):
         self.have_resource = False
         if sys.platform in ['linux', 'linux2', 'darwin']:
             self.have_resource = True
-        self.opus_decoder = Decoder(48000, 2)
-        self.pcm_data = b''
+        if Decoder:
+            self.opus_decoder = Decoder(48000, 2)
+        else:
+            self.opus_decoder = None
+        self.opus_data = {}
+        self.servers_recording = []
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -439,11 +445,9 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             try_channels = list(server.channels)
             channel_count = len(try_channels) - 1
             while not satisfied:
-                try:
+                with suppress(discord.Forbidden, discord.HTTPException):
                     await self.send_message(try_channels[c_count], join_msg)
                     satisfied = True
-                except (discord.Forbidden, discord.HTTPException):
-                    pass
                 if c_count > channel_count:
                     self.logger.warning('Couldn\'t announce join to server ' + server.name)
                     satisfied = True
@@ -452,11 +456,11 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
     async def on_speaking(self, speaking, uid):
         """Event for when someone is speaking."""
         pass
+
     async def on_speak(self, data, timestamp, voice):
         """Event for when a voice packet is received."""
-        audio_data = self.opus_decoder.decode(data, voice.encoder.frame_size)
-        self.pcm_data += audio_data
-        #await self.send_message(voice.server.default_channel, r.recognize_sphinx(sr.AudioData(audio_data, 48000, 2)))
+        if voice.server.id in self.servers_recording:
+            self.opus_data[voice.server.id] += data
 
     async def suspend(self):
         """Suspend the bot."""

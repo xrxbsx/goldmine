@@ -10,7 +10,8 @@ import util.commands as commands
 import aiohttp
 import async_timeout
 from gtts_token import gtts_token
-from util.perms import echeck_perms
+from util.perms import echeck_perms, or_check_perms
+from util.func import assert_msg
 from util.const import sem_cells
 from .cog import Cog
 try:
@@ -20,7 +21,7 @@ except Exception:
     r = None
 
 class VoiceEntry:
-    """Class to represent an entry in the standard voice quene."""
+    """Class to represent an entry in the standard voice queue."""
     def __init__(self, message, player, jukebox):
         self.requester = message.author
         self.channel = message.channel
@@ -46,7 +47,7 @@ class VoiceEntry:
         return fmt
 
 class SpeechEntry:
-    """Class to represent an entry in the speech voice quene."""
+    """Class to represent an entry in the speech voice queue."""
     def __init__(self, player):
         self.player = player
 
@@ -90,15 +91,15 @@ class VoiceState:
             self.player.stop()
 
     def toggle_next(self):
-        """Play the next song in quene."""
+        """Play the next song in queue."""
         self.bot.loop.call_soon_threadsafe(self.play_next_song.set)
 
     def toggle_next_speech(self):
-        """Play the next speech line in quene."""
+        """Play the next speech line in queue."""
         self.bot.loop.call_soon_threadsafe(self.play_next_speech.set)
 
     async def audio_player_task(self):
-        """Handle the quene and playing of voice entries."""
+        """Handle the queue and playing of voice entries."""
         while True:
             self.play_next_song.clear()
             self.current = await self.songs.get()
@@ -124,7 +125,7 @@ class VoiceState:
                 await self.play_next_song.wait()
 
     async def speech_player_task(self):
-        """Handle the quene and playing of speech entries."""
+        """Handle the queue and playing of speech entries."""
         while True:
             self.play_next_speech.clear()
             self.currents = await self.speeches.get()
@@ -198,15 +199,15 @@ class Voice(Cog):
 
         return True
 
-    async def progress(self, msg):
+    async def progress(self, msg: discord.Message, begin_txt: str):
         """Play loading animation with dots and moon."""
-        fmt = 'Loading{0} {1}'
+        fmt = '{0}{1} {2}'
         anim = '🌑🌒🌓🌔🌕🌝🌖🌗🌘🌚'
         anim_len = len(anim) - 1
         anim_i = 0
         dot_i = 1
         while True:
-            await self.bot.edit_message(msg, fmt.format(('.' * dot_i) + ' ' * (3 - dot_i), anim[anim_i]))
+            await self.bot.edit_message(msg, fmt.format(begin_txt, ('.' * dot_i) + ' ' * (3 - dot_i), anim[anim_i]))
             dot_i += 1
             if dot_i > 3:
                 dot_i = 1
@@ -218,7 +219,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True, aliases=['yt', 'youtube'])
     async def play(self, ctx, *, song: str):
         """Plays a song.
-        Adds the requested song to the playlist (quene) for playing.
+        Adds the requested song to the playlist (queue) for playing.
         This command automatically searches from sites like YouTube.
         The list of supported sites can be found here:
         https://rg3.github.io/youtube-dl/supportedsites.html
@@ -235,7 +236,7 @@ class Voice(Cog):
                 return
 
         status = await self.bot.say('Loading... 🌑')
-        pg_task = asyncio.ensure_future(self.progress(status))
+        pg_task = asyncio.ensure_future(self.progress(status, 'Loading'))
         state.voice.encoder_options(sample_rate=48000, channels=2)
         player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
 
@@ -244,7 +245,7 @@ class Voice(Cog):
         was_empty = state.songs.empty()
         await state.songs.put(entry)
         if was_empty:
-            await self.bot.say('Quened ' + str(entry) + '!')
+            await self.bot.say('Queued ' + str(entry) + '!')
         pg_task.cancel()
         await self.bot.delete_message(status)
 
@@ -392,7 +393,7 @@ class Voice(Cog):
         songc = len(songs)
         status = [
             'Starting Christmas playlist with jukebox! :tada::christmas_tree:',
-            '**Quened [0/{0}] so far! Be patient :wink:**'.format(songc)
+            '**Queued [0/{0}] so far! Be patient :wink:**'.format(songc)
         ]
         st_msg = await self.bot.say(status[0])
         random.shuffle(songs)
@@ -404,10 +405,10 @@ class Voice(Cog):
             await state.songs.put(entry)
             del status[len(status) - 1]
             status.append('Queued **{0}**! :smiley::christmas_tree:'.format(i[1]))
-            status.append('**Quened *[{0}/{1}]* so far! Be patient :wink:**'.format(n + 1, songc))
+            status.append('**Queued *[{0}/{1}]* so far! Be patient :wink:**'.format(n + 1, songc))
             await self.bot.edit_message(st_msg, '\n'.join(status))
             await asyncio.sleep(1)
-        await self.bot.say('**All Christmas songs have been quened!** :tada::santa:')
+        await self.bot.say('**All Christmas songs have been queued!** :tada::santa:')
 
     @commands.command(pass_context=True, no_pm=True)
     async def gspeak(self, ctx, *args):
@@ -438,7 +439,7 @@ class Voice(Cog):
                 'textlen': '12',
                 'tk': str(self.tokenizer.calculate_token(intxt))
             }
-            await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *15 seconds* to quene.**')
+            await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *15 seconds* to queue.**')
             player = await state.voice.create_ytdl_player(base_url + '?' + '&'.join([i + '=' + g_args[i] for i in g_args]), ytdl_options=opts, after=state.toggle_next)
             player.volume = 0.75
             entry = VoiceEntry(ctx.message, player, False)
@@ -446,28 +447,71 @@ class Voice(Cog):
             await self.bot.say('Queued **Speech**! :smiley:')
             await asyncio.sleep(1)
 
-    @commands.command(pass_context=True, hidden=True)
-    async def recog(self, ctx):
-        """Speech recognize the current PCM recording."""
-        await echeck_perms(ctx, ['bot_owner'])
-        print('recognizing')
-        await self.bot.say('starting')
-        data = sr.AudioData(self.bot.pcm_data, 48000, 2)
-        final = r.recognize_sphinx(data)
-        await self.bot.say(final)
-    @commands.command(pass_context=True, hidden=True)
-    async def rplay(self, ctx):
-        """Play the current PCM recording."""
-        await echeck_perms(ctx, ['bot_owner'])
+    @commands.group(pass_context=True, aliases=['record', 'rec'])
+    async def recording(self, ctx):
+        """Manage voice recording, recognition, and playback.
+        Syntax: recording"""
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
+    @recording.command(pass_context=True, name='toggle', aliases=['start', 'stop'])
+    async def record_toggle(self, ctx):
+        """Toggle (start/stop) voice recording.
+        Syntax: recording toggle"""
+        await or_check_perms(ctx, ['manage_server', 'manage_channels', 'move_members'])
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
             success = await ctx.invoke(self.summon)
             if not success:
                 return
+
+        sid = ctx.message.server.id
+        if sid not in self.bot.servers_recording:
+            self.bot.servers_recording.append(sid)
+            await self.bot.say('**Voice in this server is now being recorded!**')
+        else:
+            self.bot.servers_recording.remove(sid)
+            await self.bot.say('**Voice is no longer being recorded in this server!**')
+
+    @recording.command(pass_context=True, name='recognize', aliases=['recog', 'rec'])
+    async def record_recog(self, ctx):
+        """Speech recognize the current voice recording.
+        Syntax: recording recog"""
+        await or_check_perms(ctx, ['manage_server', 'manage_channels', 'move_members'])
+        try:
+            assert self.bot.opus_decoder != None
+        except AssertionError:
+            await self.bot.say('**The bot owner has not set up this feature!**')
+            return
+        status = await self.bot.say('Hmm, let me think...')
+        pg_task = asyncio.ensure_future(self.progress(status, 'Hmm, let me think'))
+        pcm_data = await self.loop.run_in_executor(self.bot.opus_decoder.decode, self.bot.opus_data[ctx.message.server.id], 48000, 2)
+        sr_data = sr.AudioData(self, 48000, 2)
+        try:
+            with async_timeout.timeout(16):
+                final = await self.loop.run_in_executor(None, r.recognize_sphinx, sr_data)
+        except asyncio.TimeoutError:
+            pg_task.cancel()
+            await self.bot.edit_message(status, '**It took too long to recognize your recording!**')
+            return
+        pg_task.cancel()
+        await self.bot.edit_message(status, 'I think you said: ' + final[:2000])
+
+    @recording.command(pass_context=True, name='play', aliases=['echo', 'playback', 'dump'])
+    async def record_play(self, ctx):
+        """Play the current PCM recording."""
+        state = self.get_voice_state(ctx.message.server)
+        if state.voice is None:
+            success = await ctx.invoke(self.summon)
+            if not success:
+                return
+        pcm_data = await self.loop.run_in_executor(self.bot.opus_decoder.decode, self.bot.opus_data[ctx.message.server.id], 48000, 2)
         state.voice.encoder_options(sample_rate=48000, channels=2)
-        player = state.voice.create_stream_player(io.BytesIO(self.bot.pcm_data))
-        player.start()
-        await self.bot.say('playing')
+        player = state.voice.create_stream_player(io.BytesIO(self.bot.opus_data))
+        player.volume = 0.7
+        entry = VoiceEntry(ctx.message, player, False)
+        await state.songs.put(entry)
+        await self.bot.say('Queued ' + str(entry) + '!')
 
 def setup(bot):
     c = Voice(bot)

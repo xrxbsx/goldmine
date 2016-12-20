@@ -3,7 +3,7 @@ import re, os
 
 requirements = []
 with open('requirements.txt') as f:
-    requirements = [i.replace('\n', '') for i in f.readlines()]
+    requirements = [i.replace('\n', '').replace('\r', '') for i in f.readlines()]
     requirements.remove('https://github.com/Armored-Dragon/discord.py/archive/master.zip#egg=discord.py')
 
 version = ''

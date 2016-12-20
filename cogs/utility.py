@@ -5,6 +5,7 @@ import re
 import sys
 import time
 import textwrap
+from contextlib import suppress
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from fnmatch import filter
@@ -121,7 +122,7 @@ class Utility(Cog):
             _i = 0
             while _i < len(users):
                 names.append(users[_i])
-                try:
+                with suppress(KeyError):
                     if ' '.join(names) in members:
                         targets.append(members[' '.join(names)])
                         names = []
@@ -130,8 +131,6 @@ class Utility(Cog):
                         _i = -1
                         users = users[1:]
                         names = []
-                except KeyError:
-                    pass
                 _i += 1
             if not targets:
                 await self.bot.say('**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
@@ -170,10 +169,8 @@ class Utility(Cog):
                 b_roles.append('Bot Admin')
             if c_srv:
                 b_roles.append('Server Admin')
-            try:
+            with suppress(ValueError, AttributeError):
                 t_roles.remove(target.server.default_role)
-            except (ValueError, AttributeError):
-                pass
             r_embed = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
             r_embed.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
             r_embed.set_thumbnail(url=avatar_link) #top right

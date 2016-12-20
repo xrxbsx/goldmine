@@ -7,7 +7,7 @@ try:
 except ImportError:
     have_uvloop = False
 import discord
-from btoken import bot_token as token
+from token_loader import bot_token as token
 
 logging.basicConfig(level=logging.INFO)
 if have_uvloop:

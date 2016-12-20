@@ -1,4 +1,5 @@
 """General utility functions."""
+import contextlib
 from asyncio import ensure_future
 from functools import partial
 import datetime
@@ -44,3 +45,12 @@ class PrintException(Exception):
         print(str(err))
         self.err = err
         super().__init__()
+
+@contextlib.contextmanager
+def assert_msg(ctx, msg: str):
+    """Assert. If error, send msg."""
+    try:
+        yield
+    except AssertionError:
+        ctx.bot.send_message(ctx.message.channel, msg)
+        raise PassException()

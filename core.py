@@ -5,7 +5,7 @@ import asyncio
 import os
 from fnmatch import filter
 import discord
-from btoken import bot_token
+from token_loader import bot_token
 from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
 from util.datastore import initialize as init_store
@@ -90,7 +90,6 @@ if __name__ == '__main__':
         import uvloop
     except ImportError:
         logger.info('Init: Could not load uvloop')
-        pass
     else:
         logger.info('Init: Will use uvloop.')
         use_uvloop = True

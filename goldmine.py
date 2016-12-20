@@ -30,7 +30,6 @@ try:
     import uvloop
 except ImportError:
     print(' - Could not load uvloop')
-    pass
 else:
     print(' - Will use uvloop.')
     use_uvloop = True

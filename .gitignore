@@ -91,6 +91,7 @@ ENV/
 
 # Discord token
 btoken.py
+bot_token.txt
 
 # Visual Studio Code
 .vscode

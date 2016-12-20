@@ -3,6 +3,7 @@ from __future__ import print_function
 import asyncio
 import random
 import subprocess
+from contextlib import suppress
 from importlib import import_module as imp
 from datetime import datetime, timedelta
 
@@ -33,7 +34,9 @@ class Admin(Cog):
         Syntax: purge"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
         deleted = await self.bot.purge_from(ctx.message.channel, limit=1250, check=lambda m: m == self.bot.user)
-        await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
+        del_msg = await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
+        await asyncio.sleep(3)
+        await self.bot.delete_message(del_msg)
 
     @commands.command(pass_context=True, aliases=['clear'])
     async def nuke(self, ctx, *count: int):
@@ -45,7 +48,9 @@ class Admin(Cog):
         else:
             limit = 1300
         deleted = await self.bot.purge_from(ctx.message.channel, limit=limit)
-        await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
+        del_msg = await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
+        await asyncio.sleep(3)
+        await self.bot.delete_message(del_msg)
 
     @commands.command(pass_context=True)
     async def update(self, ctx):
@@ -122,11 +127,9 @@ class Admin(Cog):
                 try_channels = list(i.channels)
                 channel_count = len(try_channels) - 1
                 while not satisfied:
-                    try:
+                    with suppress(discord.Forbidden, discord.HTTPException):
                         await self.bot.send_message(try_channels[c_count], ctx.raw_args)
                         satisfied = True
-                    except (discord.Forbidden, discord.HTTPException):
-                        pass
                     if c_count > channel_count:
                         await self.bot.say('`[WARN]` Couldn\'t broadcast to server **' + i.name + '**')
                         satisfied = True
