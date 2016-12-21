@@ -35,21 +35,7 @@ class VoiceEntry:
         fmt = '**{0}**'
         p = self.player
         tags = []
-        def _seg2(fmt):
-            if self.name:
-                return fmt.format(self.name)
-            else:
-                try:
-                    return fmt.format(p.title)
-                except AttributeError:
-                    return fmt.format('No title specified')
-        try:
-            if p.title == 'translate_tts':
-                fmt = fmt.format('Speech')
-            else:
-                fmt = _seg2(fmt)
-        except AttributeError:
-            fmt = _seg2(fmt)
+        fmt = fmt.format(self.get_name())
         try:
             if p.uploader:
                 tags.append('uploader *{0}*'.format(p.uploader))
@@ -64,6 +50,45 @@ class VoiceEntry:
             pass
         if tags:
             fmt += ' - ' + ', '.join(tags)
+        return fmt
+
+    def get_name(self) -> str:
+        """Get the name (title) of this player."""
+        def _seg2():
+            if self.name:
+                return self.name
+            else:
+                try:
+                    return self.player.title
+                except AttributeError:
+                    return 'No title specified'
+        try:
+            if self.player.title == 'translate_tts':
+                return 'Speech'
+            else:
+                return _seg2()
+        except AttributeError:
+            return _seg2()
+    def get_desc(self):
+        fmt = ''
+        p = self.player
+        tags = []
+        try:
+            if p.uploader:
+                tags.append('Uploader: *{0}*'.format(p.uploader))
+        except AttributeError:
+            pass
+        if self.requester:
+            tags.append('Requester: *{0}*'.format(self.requester.display_name))
+        try:
+            if p.duration:
+                tags.append('Duration: *{0[0]}m, {0[1]}s*'.format(divmod(p.duration, 60)))
+        except AttributeError:
+            pass
+        if tags:
+            fmt += '\n'.join(tags)
+        if not fmt:
+            fmt = 'No details specified!'
         return fmt
 
 class SpeechEntry:
@@ -270,8 +295,8 @@ class Voice(Cog):
         entry = VoiceEntry(ctx.message, player, False)
         was_empty = state.songs.empty()
         await state.songs.put(entry)
-        if was_empty:
-            await self.bot.say('Queued ' + str(entry))
+#        if was_empty:
+        await self.bot.say('Queued ' + str(entry))
         pg_task.cancel()
         await self.bot.delete_message(status)
 
@@ -541,15 +566,38 @@ class Voice(Cog):
         await state.songs.put(entry)
         await self.bot.say('Queued ' + str(entry))
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['quene'])
     async def queue(self, ctx):
         """Get the current song queue.
         Syntax: queue"""
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
+            await self.bot.say('**Not in a voice channel!**')
             return False
-        if state.songs is None:
+        if not state.songs:
+            await self.bot.say('**Song queue is empty!**')
             return False
+        if (not state.songs._queue) and (not state.current):
+            await self.bot.say('**Song queue is empty!**')
+            return False
+        target = self.bot.user
+        au = target.avatar_url
+        avatar_link = (au if au else target.default_avatar_url)
+        if (not state.songs._queue) and (state.current):
+            key_str = 'are no songs in queue. One is playing right now.'
+        elif state.songs._queue:
+            key_str = 'is 1 song playing, and %s in queue.' % str(len(state.songs._queue))
+        emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16), title='Voice Queue', description='There ' + key_str)
+        emb.set_author(name=target.display_name, url='https://blog.khronodragon.com/', icon_url=avatar_link)
+        emb.set_footer(text='Best bot! :3', icon_url=avatar_link)
+        if state.current:
+            emb.add_field(name='**[NOW PLAYING]** ' + state.current.get_name(), value=state.current.get_desc(), inline=False)
+        else:
+            await self.bot.say('**Not playing anything right now!**')
+            return False
+        for e in state.songs._queue:
+            emb.add_field(name=e.get_name(), value=e.get_desc())
+        await self.bot.say('🎶🎵🎶🎵', embed=emb)
 
 def setup(bot):
     c = Voice(bot)

@@ -274,10 +274,10 @@ class Utility(Cog):
         Syntax: latency"""
         begin_time = datetime.now()
         msg = await self.bot.say('Getting latency... `0`')
-        for i in range(4):
+        for i in range(3):
             await self.bot.edit_message(msg, 'Getting latency... `%s`' % str(i + 1))
         time_diff = datetime.now() - begin_time
-        await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 5) * 1000, 2)))
+        await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 4) * 1000, 2)))
 
     @commands.command(pass_context=True)
     async def test(self, ctx):
