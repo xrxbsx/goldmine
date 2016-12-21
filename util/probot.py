@@ -100,7 +100,7 @@ class ProBot(commands.Bot):
         except Exception:
             pass
         self.start_time = datetime.now()
-        self.dir = os.path.dirname(os.path.abspath(__file__))
+        self.dir = os.path.dirname(os.path.realpath(__file__))
         self.storepath = os.path.join(self.dir, '..', 'storage.')
         if storage_backend not in DataStore.exts:
             self.logger.critical('Invalid storage backend specified, quitting!')
@@ -133,7 +133,7 @@ class ProBot(commands.Bot):
             self.opus_decoder = Decoder(48000, 2)
         else:
             self.opus_decoder = None
-        self.opus_data = {}
+        self.pcm_data = {}
         self.servers_recording = []
         super().__init__(**options)
 
@@ -456,10 +456,11 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
     async def on_speak(self, data, timestamp, voice):
         """Event for when a voice packet is received."""
         if voice.server.id in self.servers_recording:
+            decoded_data = await self.loop.run_in_executor(None, self.opus_decoder.decode, data, voice.encoder.frame_size)
             try:
-                self.opus_data[voice.server.id] += data
+                self.pcm_data[voice.server.id] += decoded_data
             except KeyError:
-                self.opus_data[voice.server.id] = data
+                self.pcm_data[voice.server.id] = decoded_data
 
     async def suspend(self):
         """Suspend the bot."""

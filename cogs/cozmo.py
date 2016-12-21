@@ -25,14 +25,14 @@ class Cozmo(Cog):
             await self.bot.say('Not connected to Cozmo!')
             raise commands.PassException()
 
-    @commands.command(pass_context=True)
-    async def cspeak(self, ctx, filler_string: str):
+    @commands.command()
+    async def cspeak(self, *, text: str):
         """Make Cozmo speak something.
         Syntax: cspeak [stuff to say]"""
         await self.check_conn()
         status = await self.bot.say('Talking...')
-        c_voice = bool('[VOICE:N]' not in ctx.raw_args)
-        self.robot.say_text(ctx.raw_args.replace('[VOICE:N]', '')[:255], use_cozmo_voice=c_voice, duration_scalar=0.9)
+        c_voice = bool('[VOICE:N]' not in text)
+        self.robot.say_text(text.replace('[VOICE:N]', '')[:255], use_cozmo_voice=c_voice, duration_scalar=0.9)
 
     @commands.command()
     async def cdrive(self, drive_time: float):

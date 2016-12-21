@@ -5,6 +5,7 @@ import random
 import subprocess
 import re
 import textwrap
+from urllib.parse import urlencode
 import youtube_dl
 import discord
 import util.commands as commands
@@ -23,26 +24,44 @@ except Exception:
 
 class VoiceEntry:
     """Class to represent an entry in the standard voice queue."""
-    def __init__(self, message, player, jukebox):
+    def __init__(self, message, player, jukebox, override_name=None):
         self.requester = message.author
         self.channel = message.channel
         self.player = player
         self.jukebox = jukebox
+        self.name = override_name
 
     def __str__(self):
         fmt = '**{0}**'
         p = self.player
         tags = []
-        if p.title == 'translate_tts':
-            fmt = fmt.format('Speech')
-        else:
-            fmt = fmt.format(p.title)
-        if p.uploader:
-            tags.append('uploader *{0}*'.format(p.uploader))
+        def _seg2(fmt):
+            if self.name:
+                return fmt.format(self.name)
+            else:
+                try:
+                    return fmt.format(p.title)
+                except AttributeError:
+                    return fmt.format('No title specified')
+        try:
+            if p.title == 'translate_tts':
+                fmt = fmt.format('Speech')
+            else:
+                fmt = _seg2(fmt)
+        except AttributeError:
+            fmt = _seg2(fmt)
+        try:
+            if p.uploader:
+                tags.append('uploader *{0}*'.format(p.uploader))
+        except AttributeError:
+            pass
         if self.requester:
             tags.append('requester *{0}*'.format(self.requester.display_name))
-        if p.duration:
-            tags.append('duration *{0[0]}m, {0[1]}s*'.format(divmod(p.duration, 60)))
+        try:
+            if p.duration:
+                tags.append('duration *{0[0]}m, {0[1]}s*'.format(divmod(p.duration, 60)))
+        except AttributeError:
+            pass
         if tags:
             fmt += ' - ' + ', '.join(tags)
         return fmt
@@ -252,7 +271,7 @@ class Voice(Cog):
         was_empty = state.songs.empty()
         await state.songs.put(entry)
         if was_empty:
-            await self.bot.say('Queued ' + str(entry) + '!')
+            await self.bot.say('Queued ' + str(entry))
         pg_task.cancel()
         await self.bot.delete_message(status)
 
@@ -353,7 +372,7 @@ class Voice(Cog):
             await self.bot.say('Now playing {} [skips: {}/3]'.format(state.current, skip_count))
 
     @commands.command(pass_context=True, no_pm=True)
-    async def speak(self, ctx, *args):
+    async def speak(self, ctx, *, tospeak: str):
         """Uses the SVOX pico TTS engine to speak a message.
         Syntax: speak [message]"""
         state = self.get_voice_state(ctx.message.server)
@@ -363,13 +382,14 @@ class Voice(Cog):
             if not success:
                 return
 
-        stream = io.BytesIO(subprocess.check_output(['pico2wave', '-w', '/tmp/pipe.wav', ' '.join(args)]))
+        stream = io.BytesIO(subprocess.check_output(['pico2wave', '-w', '/tmp/pipe.wav', tospeak]))
         state.voice.encoder_options(sample_rate=16000, channels=1)
         player = state.voice.create_stream_player(stream)
-
         player.volume = 1.0
-        player.start()
-        await self.bot.say('Now speaking.')
+        entry = VoiceEntry(ctx.message, player, False, override_name='Speech')
+        await state.songs.put(entry)
+        await self.bot.say('Queued ' + str(entry))
+        state.voice.encoder_options(sample_rate=48000, channels=2)
 
     @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 'season'])
     async def christmas(self, ctx):
@@ -418,7 +438,7 @@ class Voice(Cog):
         await self.bot.say('**All Christmas songs have been queued!** :tada::santa:')
 
     @commands.command(pass_context=True, no_pm=True)
-    async def gspeak(self, ctx, *args):
+    async def gspeak(self, ctx, *, text: str):
         """Uses a TTS voice to speak a message.
         Syntax: gspeak [message]"""
         state = self.get_voice_state(ctx.message.server)
@@ -434,11 +454,11 @@ class Voice(Cog):
             'referer': 'https://translate.google.com/'
         }
         base_url = 'http://translate.google.com/translate_tts'
-        rounds = textwrap.wrap(' '.join(args), width=100)
+        rounds = textwrap.wrap(text, width=100)
         for intxt in rounds:
             g_args = {
                 'ie': 'UTF-8',
-                'q': intxt.replace(' ', '%20'),
+                'q': intxt,
                 'tl': 'en-us',
                 'client': 'tw-ob',
                 'idx': '0',
@@ -447,7 +467,7 @@ class Voice(Cog):
                 'tk': str(self.tokenizer.calculate_token(intxt))
             }
             await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *15 seconds* to queue.**')
-            player = await state.voice.create_ytdl_player(base_url + '?' + '&'.join([i + '=' + g_args[i] for i in g_args]), ytdl_options=opts, after=state.toggle_next)
+            player = await state.voice.create_ytdl_player(base_url + '?' + urlencode(g_args), ytdl_options=opts, after=state.toggle_next)
             player.volume = 0.75
             entry = VoiceEntry(ctx.message, player, False)
             await state.songs.put(entry)
@@ -458,6 +478,7 @@ class Voice(Cog):
     async def recording(self, ctx):
         """Manage voice recording, recognition, and playback.
         Syntax: recording"""
+        await or_check_perms(ctx, ['bot_owner'])
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
@@ -488,11 +509,10 @@ class Voice(Cog):
         with assert_msg(ctx, '**The bot owner has not set up this feature!**'):
             assert self.bot.opus_decoder != None
         with assert_msg(ctx, '**This server does not have a recording!**'):
-            assert ctx.message.server.id in self.bot.opus_data
+            assert ctx.message.server.id in self.bot.pcm_data
         status = await self.bot.say('Hmm, let me think... 🌚')
         pg_task = asyncio.ensure_future(self.progress(status, 'Hmm, let me think'))
-        pcm_data = await self.loop.run_in_executor(self.bot.opus_decoder.decode, self.bot.opus_data[ctx.message.server.id], 48000, 2)
-        sr_data = sr.AudioData(self, 48000, 2)
+        sr_data = sr.AudioData(self.bot.pcm_data[ctx.message.server.id], 48000, 2)
         try:
             with async_timeout.timeout(16):
                 final = await self.loop.run_in_executor(None, r.recognize_sphinx, sr_data)
@@ -505,26 +525,31 @@ class Voice(Cog):
 
     @recording.command(pass_context=True, name='play', aliases=['echo', 'playback', 'dump'])
     async def record_play(self, ctx):
-        """Play the current PCM recording."""
+        """Play the current the voice recording.
+        Syntax: recording play"""
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
             success = await ctx.invoke(self.summon)
             if not success:
                 return
         with assert_msg(ctx, '**This server does not have a recording!**'):
-            assert ctx.message.server.id in self.bot.opus_data
-        await self.bot.say('assert end')
-        exc = self.loop.run_in_executor(None, self.bot.opus_decoder.decode, self.bot.opus_data[ctx.message.server.id], state.voice.encoder.frame_size)
-        pcm_data = await exc
-        await self.bot.say('decoded')
+            assert ctx.message.server.id in self.bot.pcm_data
         state.voice.encoder_options(sample_rate=48000, channels=2)
-        await self.bot.say('encoder set')
-        player = state.voice.create_stream_player(io.BytesIO(self.bot.opus_data))
-        await self.bot.say('started player')
+        player = state.voice.create_stream_player(io.BytesIO(self.bot.pcm_data[ctx.message.server.id]))
         player.volume = 0.7
-        entry = VoiceEntry(ctx.message, player, False)
+        entry = VoiceEntry(ctx.message, player, False, override_name='Voice Recording from ' + ctx.message.server.name)
         await state.songs.put(entry)
-        await self.bot.say('Queued ' + str(entry) + '!')
+        await self.bot.say('Queued ' + str(entry))
+
+    @commands.command(pass_context=True)
+    async def queue(self, ctx):
+        """Get the current song queue.
+        Syntax: queue"""
+        state = self.get_voice_state(ctx.message.server)
+        if state.voice is None:
+            return False
+        if state.songs is None:
+            return False
 
 def setup(bot):
     c = Voice(bot)

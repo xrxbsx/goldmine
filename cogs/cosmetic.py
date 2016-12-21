@@ -76,10 +76,10 @@ cool right?''',
         await self.bot.say(embed=r_embed)
 
     @commands.command(aliases=['rev', 'mirror'])
-    async def reverse(self, *rmsg):
+    async def reverse(self, *, rmsg: str):
         """Reverse some text you give.
         Syntax: reverse [text here]"""
-        await self.bot.say(':repeat: ' + ' '.join(rmsg)[::-1])
+        await self.bot.say(':repeat: ' + rmsg[::-1])
 
     @commands.command(pass_context=True, aliases=['math_sans_italic', 'circled', 'math_double', 'math_bold_italic', 'math_sans_bold_italic', 'parenthesized', 'math_bold_fraktur', 'math_sans_bold', 'squared', 'math_mono', 'fullwidth', 'squared_negative', 'normal', 'circled_negative', 'regional', 'math_sans', 'math_bold_script', 'math_bold', 'upside_down'])
     async def style(self, ctx, *rmsg):
