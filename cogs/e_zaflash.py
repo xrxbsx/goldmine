@@ -2,6 +2,7 @@
 import asyncio
 import util.commands as commands
 from util.func import bdel
+from util.const import bool_true
 from .cog import Cog
 
 class ZaFlash(Cog):
@@ -62,17 +63,17 @@ def setup(bot):
             em_string = ': ' + ' '.join([str(i) for i in cemotes])
         fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
 Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.'''
-        bc = await self.store.get_prop(member, 'broadcast_join')
-        cmdfix = await self.store.get_prop(member, 'command_prefix')
+        bc = await bot.store.get_prop(member, 'broadcast_join')
+        cmdfix = await bot.store.get_prop(member, 'command_prefix')
         if str(bc).lower() in bool_true:
-            await self.send_message(target, fmt.format(member, member.server, em_string, cmdfix))
+            await bot.send_message(target, fmt.format(member, member.server, em_string, cmdfix))
     @bot.event
     async def on_member_remove(self, member):
         """On_member_remove event for members leaving."""
         target = {c.name: c for c in member.server.channels}['welcomes-and-goodbyes']
         fmt = '''Aw, **{0}** has just left this server. Bye!
 **{1.name}** has now lost a {2}. We'll miss you! :bear:'''
-        bc = await self.store.get_prop(member, 'broadcast_leave')
+        bc = await bot.store.get_prop(member, 'broadcast_leave')
         if str(bc).lower() in bool_true:
             utype = ('bot' if member.bot else 'member')
-            await self.send_message(target, fmt.format(str(member), member.server, utype))
+            await bot.send_message(target, fmt.format(str(member), member.server, utype))
