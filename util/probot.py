@@ -100,7 +100,7 @@ class ProBot(commands.Bot):
         except Exception:
             pass
         self.start_time = datetime.now()
-        self.dir = os.path.dirname(os.path.realpath(__file__))
+        self.dir = os.path.dirname(os.path.abspath(__file__))
         self.storepath = os.path.join(self.dir, '..', 'storage.')
         if storage_backend not in DataStore.exts:
             self.logger.critical('Invalid storage backend specified, quitting!')
@@ -259,7 +259,7 @@ class ProBot(commands.Bot):
             elif (cprocessed in self.commands['calc'].aliases) or (cprocessed == 'calc'):
                 await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
-                await self.csend(ctx, 'An internal error occured while responding to `%s`!```' % (cmdfix + cprocessed) + bc_key + '```')
+                await self.csend(ctx, 'An internal error occured while responding to `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
         elif isinstance(exp, commands.MissingRequiredArgument):
             await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         elif isinstance(exp, commands.TooManyArguments):
@@ -267,7 +267,7 @@ class ProBot(commands.Bot):
         elif isinstance(exp, commands.BadArgument):
             await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
         else:
-            await self.csend(ctx, 'An internal error occured while responding to` %s`!```' % (cmdfix + cprocessed) + bc_key + '```')
+            await self.csend(ctx, 'An internal error occured while responding to` %s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
 
     def casein(self, substr, clist):
         """Return if a substring is found in any of clist."""
