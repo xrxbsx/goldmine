@@ -236,7 +236,7 @@ class Voice(Cog):
             if not success:
                 return
 
-        status = await self.bot.say('Loading... 🌑')
+        status = await self.bot.say('Loading... 🌚')
         pg_task = asyncio.ensure_future(self.progress(status, 'Loading'))
         state.voice.encoder_options(sample_rate=48000, channels=2)
         try:
@@ -489,7 +489,7 @@ class Voice(Cog):
             assert self.bot.opus_decoder != None
         with assert_msg(ctx, '**This server does not have a recording!**'):
             assert ctx.message.server.id in self.bot.opus_data
-        status = await self.bot.say('Hmm, let me think...')
+        status = await self.bot.say('Hmm, let me think... 🌚')
         pg_task = asyncio.ensure_future(self.progress(status, 'Hmm, let me think'))
         pcm_data = await self.loop.run_in_executor(self.bot.opus_decoder.decode, self.bot.opus_data[ctx.message.server.id], 48000, 2)
         sr_data = sr.AudioData(self, 48000, 2)
