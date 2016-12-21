@@ -445,6 +445,14 @@ class Admin(Cog):
             await self.bot.delete_message(status)
             await self.bot.say('**I don\'t have enough permissions to do that!**')
 
+    @commands.group(pass_context=True, aliases=['cogs', 'module', 'modules'])
+    async def cog(self, ctx):
+        """Manage all of my cogs and gears.
+        Syntax: cog"""
+        await or_check_perms(ctx, ['bot_owner'])
+        if ctx.invoked_subcommand is None:
+            await self.bot.send_cmd_help(ctx)
+
 def setup(bot):
     c = Admin(bot)
     bot.add_cog(c)
