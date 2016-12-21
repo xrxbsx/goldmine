@@ -115,13 +115,13 @@ class Admin(Cog):
 
     @commands.cooldown(1, 16, type=commands.BucketType.default)
     @commands.command(pass_context=True)
-    async def broadcast(self, ctx, filler_string: str):
+    async def broadcast(self, ctx, *, text: str):
         """Broadcast a message to all servers.
         Syntax: broadcast [message]"""
         await echeck_perms(ctx, ['bot_owner'])
         for i in self.bot.servers:
             try:
-                await self.bot.send_message(i.default_channel, ctx.raw_args)
+                await self.bot.send_message(i.default_channel, text)
             except discord.Forbidden:
                 satisfied = False
                 c_count = 0
@@ -129,7 +129,7 @@ class Admin(Cog):
                 channel_count = len(try_channels) - 1
                 while not satisfied:
                     with suppress(discord.Forbidden, discord.HTTPException):
-                        await self.bot.send_message(try_channels[c_count], ctx.raw_args)
+                        await self.bot.send_message(try_channels[c_count], text)
                         satisfied = True
                     if c_count > channel_count:
                         await self.bot.say('`[WARN]` Couldn\'t broadcast to server **' + i.name + '**')
@@ -137,7 +137,7 @@ class Admin(Cog):
                     c_count += 1
 
     @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'rxeval', 'reref', 'xeval'])
-    async def eref(self, ctx, filler_string: str):
+    async def eref(self, ctx, *, code: str):
         """Evaluate some code in command scope.
         Syntax: eref [code to execute]"""
         await echeck_perms(ctx, ['bot_owner'])
@@ -146,7 +146,7 @@ class Admin(Cog):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
         try:
-            ev_output = eval(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
+            ev_output = eval(bdel(bdel(code, '```python'), '```py').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
@@ -155,7 +155,7 @@ class Admin(Cog):
         else:
             await self.bot.say('```py\n' + o + '```')
     @commands.command(pass_context=True, hidden=True, aliases=['rseref', 'meref', 'rmeref'])
-    async def seref(self, ctx, filler_string: str):
+    async def seref(self, ctx, *, code: str):
         """Evaluate some code (multi-statement) in command scope.
         Syntax: seref [code to execute]"""
         await echeck_perms(ctx, ['bot_owner'])
@@ -164,7 +164,7 @@ class Admin(Cog):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
         try:
-            ev_output = exec(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
+            ev_output = exec(bdel(bdel(code, '```python'), '```py').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
@@ -332,7 +332,7 @@ class Admin(Cog):
             await self.bot.say(page)
 
     @commands.command(pass_context=True, hidden=True, aliases=['treelist', 'stree', 'treeservers', 'trees', 'tservers'])
-    async def servertree(self, ctx, *ids):
+    async def servertree(self, ctx, *ids: str):
         """List the servers I am in (tree version).
         Syntax: servertree"""
         await echeck_perms(ctx, ['bot_owner'])

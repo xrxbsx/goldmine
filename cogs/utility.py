@@ -51,20 +51,21 @@ class Utility(Cog):
             await self.bot.say('The current server, ' + sname + ', does not have an icon set! :slight_frown:')
 
     @commands.command(pass_context=True)
-    async def say(self, ctx, filler_string: str):
+    async def say(self, ctx, *, stuffs: str):
         """Simply sends the input as a message. For testing.
         Syntax: say [message]"""
-        await self.bot.say(ctx.raw_args)
+        await or_check_perms(ctx, ['bot_admin'])
+        await self.bot.say(stuffs)
 
     async def math_task(self, code: str):
         eval_exc = self.loop.run_in_executor(None, self.bot.asteval.eval, code)
         return await eval_exc
 
     @commands.command(pass_context=True, aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate', 'expr', 'expression', 'rcalculate', 'rcalculator', 'rmath', 'remath', 'reval', 'revaluate', 'rexpr', 'rexpression'])
-    async def calc(self, ctx, filler_string: str):
+    async def calc(self, ctx, *, code: str):
         """Evaluates a mathematical experssion.
         Syntax: calc [expression]"""
-        code = bdel(ctx.raw_args, '```py').strip('`')
+        code = bdel(code, '```py').strip('`')
         try:
             with async_timeout.timeout(7.5):
                 m_result = await self.math_task(code)
@@ -437,7 +438,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
             await self.bot.send_cmd_help(ctx)
 
     @cleverbutt.command(pass_context=True, no_pm=True, name='start', aliases=['kickstart'])
-    async def cleverbutt_kickstart(self, ctx, *msg: str):
+    async def cleverbutt_kickstart(self, ctx, *, msg: str):
         """Kickstart / start cleverbutts conversation
         Syntax: cleverbutt start {optional: message}"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
@@ -445,7 +446,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
         if 'cleverbutts' in c_map:
             ch = c_map['cleverbutts']
             if msg:
-                await self.bot.send_message(ch, ctx.raw_args)
+                await self.bot.send_message(ch, msg)
             else:
                 await self.bot.send_message(ch, 'Hello, what\'re you up to?')
             await self.bot.say('**Message sent in <#%s>!**' % str(ch.id))
@@ -453,7 +454,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
             await self.bot.say('**There\'s no** `#cleverbutts` **channel in this server!**')
 
     @commands.command(pass_context=True, aliases=['memegen'])
-    async def meme(self, ctx, filler_string: str):
+    async def meme(self, ctx, *, pre_text: str):
         """Generate a meme!
         Syntax: meme [top text] [bottom text]"""
         char_table = {
@@ -466,7 +467,6 @@ Server Owner\'s ID: `{0.server.owner.id}`
             '"': "''",
             '\n': ' '
         }
-        pre_text = ctx.raw_args
         for key in char_table:
             pre_text = pre_text.replace(key, char_table[key])
         pre_text = pre_text.replace('    ', '__bottom__')
@@ -505,7 +505,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
         Syntax: rcolor"""
         col_rgb = [random.randint(1, 255) for i in range(0, 3)]
         col_str = '0x%02X%02X%02X' % (col_rgb[0], col_rgb[1], col_rgb[2])
-        await self.bot.say(embed=discord.Embed(color=int(col_str, 16), title='Hex: ' + col_str.replace('0x', '#') + ' | RGB: ' + ', '.join(col_rgb)))
+        await self.bot.say(embed=discord.Embed(color=int(col_str, 16), title='Hex: ' + col_str.replace('0x', '#') + ' | RGB: ' + ', '.join([str(c) for c in col_rgb])))
 
 def setup(bot):
     c = Utility(bot)

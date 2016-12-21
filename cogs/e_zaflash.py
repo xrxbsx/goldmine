@@ -15,7 +15,7 @@ class ZaFlash(Cog):
         await self.bot.say('一ƵƑ⚡')
 
     @commands.command(pass_context=True, hidden=True, aliases=['rderef'])
-    async def deref(self, ctx, filler_string: str):
+    async def deref(self, ctx, *, code: str):
         """Evaluate some code in command scope.
         Syntax: deref [code to execute]"""
         if ctx.message.author.id != '160567046642335746':
@@ -25,7 +25,7 @@ class ZaFlash(Cog):
             asyncio.ensure_future(self.bot.say(' '.join(ina)))
             return True
         try:
-            ev_output = eval(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
+            ev_output = eval(bdel(bdel(code, '```python'), '```py').strip('`'))
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)

@@ -15,4 +15,4 @@ class OpusError(Exception):
         self.code = code
 
     def __str__(self):
-        return opuslib.api.info.strerror(self.code)
+        return opuslib.api.strerror(self.code).decode('utf-8')

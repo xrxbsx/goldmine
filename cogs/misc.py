@@ -9,10 +9,10 @@ class Miscellaneous(Cog):
     """
 
     @commands.command()
-    async def lmgtfy(self, *args):
+    async def lmgtfy(self, *terms: str):
         """Generate a Let Me Google That For You link.
         Syntax: lmgtfy [search terms]"""
-        await self.bot.say('http://lmgtfy.com/?q=' + '+'.join(args))
+        await self.bot.say('http://lmgtfy.com/?q=' + '+'.join(terms))
 
     @commands.command()
     async def buzz(self, *count: int):
