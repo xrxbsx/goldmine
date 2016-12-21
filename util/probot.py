@@ -341,6 +341,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
     async def on_message(self, msg):
         cmdfix = await self.store.get_cmdfix(msg)
         bname = await self.store.get_prop(msg, 'bot_name')
+        prefix_convo = bool((await self.store.get_prop(msg, 'prefix_answer')) in bool_true)
         try:
             myself = msg.server.me
         except AttributeError:
@@ -417,19 +418,8 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                         await self.send_typing(msg.channel)
                         cb_reply = await self.askcb(msg.content)
                         await self.msend(msg, ':speech_balloon: ' + cb_reply)
-                elif msg.content.lower().startswith(bname.lower()):
-#                    nmsg = bdel(msg.content.lower(), bname.lower())
+                elif (msg.content.lower().startswith(bname.lower())) and (prefix_convo):
                     await self.auto_cb_convo(msg, bname.lower())
-                    '''
-                    for i in auto_convo_starters:
-                        if nmsg.startswith(' ' + i):
-                            await self.auto_cb_convo(msg, bname.lower() + ' ')
-                        elif nmsg.endswith('?'):
-                            await self.auto_cb_convo(msg, bname.lower() + ' ')
-                        elif nmsg.startswith(', '):
-                            await self.auto_cb_convo(msg, bname.lower() + ', ')
-                        elif nmsg.startswith('... '):
-                            await self.auto_cb_convo(msg, bname.lower() + '... ')'''
                 elif msg.content == 'prefix':
                     await self.msend(msg, '**Current server command prefix is: **`' + cmdfix + '`')
                 else:
