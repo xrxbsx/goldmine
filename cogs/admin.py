@@ -11,6 +11,7 @@ import discord
 import util.commands as commands
 from util.perms import or_check_perms, echeck_perms, check_perms
 from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime, assert_msg
+from util.const import muted_perms
 from .cog import Cog
 
 
@@ -383,6 +384,66 @@ class Admin(Cog):
                 pager.add_line('- ' + str(member))
         for page in pager.pages:
             await self.bot.say(page)
+
+    async def progress(self, msg: discord.Message, begin_txt: str):
+        """Play loading animation with dots and moon."""
+        fmt = '{0}{1} {2}'
+        anim = '🌑🌒🌓🌔🌕🌝🌖🌗🌘🌚'
+        anim_len = len(anim) - 1
+        anim_i = 0
+        dot_i = 1
+        while True:
+            await self.bot.edit_message(msg, fmt.format(begin_txt, ('.' * dot_i) + ' ' * (3 - dot_i), anim[anim_i]))
+            dot_i += 1
+            if dot_i > 3:
+                dot_i = 1
+            anim_i += 1
+            if anim_i > anim_len:
+                anim_i = 0
+            await asyncio.sleep(1.1)
+
+    @commands.command(pass_context=True)
+    async def mute(self, ctx, *, member: discord.Member):
+        """Mute someone on voice and text chat.
+        Syntax: mute [person's name]"""
+        await or_check_perms(ctx, ['mute_members', 'manage_roles', 'manage_channels', 'manage_messages'])
+        status = await self.bot.say('Muting... 🌚')
+        pg_task = asyncio.ensure_future(self.progress(status, 'Muting'))
+        try:
+            ch_perms = discord.PermissionOverwrite(**{p: False for p in muted_perms})
+            for channel in ctx.message.server.channels:
+                await self.bot.edit_channel_permissions(channel, member, ch_perms)
+            await self.bot.server_voice_state(member, mute=True, deafen=None)
+            pg_task.cancel()
+            await self.bot.delete_message(status)
+            await self.bot.say('Successfully muted **%s**!' % str(member))
+        except (discord.Forbidden, discord.HTTPException):
+            pg_task.cancel()
+            await self.bot.delete_message(status)
+            await self.bot.say('**I don\'t have enough permissions to do that!**')
+
+    @commands.command(pass_context=True)
+    async def unmute(self, ctx, *, member: discord.Member):
+        """Unmute someone on voice and text chat.
+        Syntax: unmute [person's name]"""
+        await or_check_perms(ctx, ['mute_members', 'manage_roles', 'manage_channels', 'manage_messages'])
+        status = await self.bot.say('Unmuting... 🌚')
+        pg_task = asyncio.ensure_future(self.progress(status, 'Unmuting'))
+        role_map = {r.name: r for r in member.roles}
+        try:
+            if 'Muted' in role_map:
+                await self.bot.remove_roles(member, role_map['Muted'])
+            ch_perms = discord.PermissionOverwrite(**{p: True for p in muted_perms})
+            for channel in ctx.message.server.channels:
+                await self.bot.edit_channel_permissions(channel, member, ch_perms)
+            await self.bot.server_voice_state(member, mute=False, deafen=None)
+            pg_task.cancel()
+            await self.bot.delete_message(status)
+            await self.bot.say('Successfully unmuted **%s**!' % str(member))
+        except (discord.Forbidden, discord.HTTPException):
+            pg_task.cancel()
+            await self.bot.delete_message(status)
+            await self.bot.say('**I don\'t have enough permissions to do that!**')
 
 def setup(bot):
     c = Admin(bot)

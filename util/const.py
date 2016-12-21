@@ -447,3 +447,13 @@ If you have some higher permissions, you can change it! Just use `!prefix [new p
 You can also type `!setprop bot_name [name here]` to change my name!
 If you\'re ever stuck without knowing my prefix, just type `prefix`.
 **Anyways, enjoy, and remember that I can play music!**'''
+muted_perms = [
+    'send_messages',
+    'send_tts_messages',
+    'embed_links',
+    'mention_everyone',
+    'manage_messages',
+    'attach_files',
+    'external_emojis',
+    'add_reactions'
+]
