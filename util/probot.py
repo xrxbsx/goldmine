@@ -248,6 +248,8 @@ class ProBot(commands.Bot):
                         await self.csend(ctx, '**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
                     else:
                         await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
+                elif c_key.startswith('Command raised an exception: RuntimeError: PyNaCl library needed in order to use voice'):
+                    await self.csend(ctx, '**The bot owner hasn\'t enabled this feature!**')
                 else:
                     await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
             elif isinstance(exp.original, NameError):
