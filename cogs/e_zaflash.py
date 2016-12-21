@@ -1,6 +1,7 @@
 """Definition of the bot's ZaFlash module."""
 import asyncio
 import util.commands as commands
+from util.func import bdel
 from .cog import Cog
 
 class ZaFlash(Cog):
@@ -12,9 +13,27 @@ class ZaFlash(Cog):
         Syntax: tag"""
         await self.bot.say('一ƵƑ⚡')
 
+    @commands.command(pass_context=True, hidden=True, aliases=['rderef'])
+    async def deref(self, ctx, filler_string: str):
+        """Evaluate some code in command scope.
+        Syntax: deref [code to execute]"""
+        if ctx.message.author.id != '160567046642335746':
+            await self.bot.say('No permission!')
+            return False
+        def print(*ina: str):
+            asyncio.ensure_future(self.bot.say(' '.join(ina)))
+            return True
+        try:
+            ev_output = eval(bdel(bdel(ctx.raw_args, '```python'), '```py').strip('`'))
+        except Exception as e:
+            ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
+        o = str(ev_output)
+        if ctx.invoked_with.startswith('r'):
+            await self.bot.say(o)
+        else:
+            await self.bot.say('```py\n' + o + '```')
+
 def setup(bot):
-    c = ZaFlash(bot)
-    bot.add_cog(c)
     del bot.commands['update']
     del bot.commands['purge']
     for a in (bot.commands['eref'].aliases + bot.commands['seref'].aliases):
@@ -30,6 +49,8 @@ def setup(bot):
     bot.commands['nuke'].name = 'clear'
     del bot.commands['etest']
     del bot.commands['buzz']
+    c = ZaFlash(bot)
+    bot.add_cog(c)
     bot.description = 'ZaFlash\'s cool and shiny bot.'
     @bot.event
     async def on_member_join(self, member):
