@@ -448,7 +448,7 @@ class Admin(Cog):
     @commands.group(pass_context=True, aliases=['cogs', 'module', 'modules'])
     async def cog(self, ctx):
         """Manage all of my cogs and gears.
-        Syntax: cog"""
+        Syntax: cog {stuff}"""
         await or_check_perms(ctx, ['bot_owner'])
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
