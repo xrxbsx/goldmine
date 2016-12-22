@@ -8,6 +8,7 @@ import os
 import sys
 import traceback
 import re
+from collections import deque
 from fnmatch import filter
 from datetime import datetime
 import math
@@ -135,6 +136,7 @@ class ProBot(commands.Bot):
             self.opus_decoder = None
         self.pcm_data = {}
         self.servers_recording = []
+        self.cleverbutt_replied_to = deque([])
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -340,6 +342,29 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             utype = ('bot' if member.bot else 'member')
             await self.send_message(target, fmt.format(str(member), member.server, utype))
 
+    async def clever_reply(self, msg):
+        self.cleverbutt_timers.append(msg.server.id)
+        await asyncio.sleep((random.random()) * 2)
+        await self.send_typing(msg.channel)
+        #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
+        try:
+            query = self.cleverbutt_latest[msg.server.id]
+        except KeyError:
+            query = msg.content
+        reply_bot = await self.askcb(query)
+        s_duration = (((len(reply_bot) / 15) * 1.4) + random.random()) - 0.2
+        await asyncio.sleep(s_duration / 2)
+        await self.send_typing(msg.channel)
+        await asyncio.sleep((s_duration / 2) - 0.4)
+        await self.msend(msg, reply_bot)
+        await asyncio.sleep(1)
+        try:
+            del self.cleverbutt_latest[msg.server.id]
+        except Exception:
+            pass
+        self.cleverbutt_replied_to.append(msg.id)
+        self.cleverbutt_timers.remove(msg.server.id)
+
     async def on_message(self, msg):
         cmdfix = await self.store.get_cmdfix(msg)
         bname = await self.store.get_prop(msg, 'bot_name')
@@ -354,27 +379,11 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                 if str(msg.channel) == 'cleverbutts':
                     if msg.server.id in self.cleverbutt_timers: # still on timer for next response
                         self.cleverbutt_latest[msg.server.id] = msg.content
+                        await asyncio.sleep(4.5)
+                        if msg.id not in self.cleverbutt_replied_to:
+                            await self.clever_reply(msg)
                     else:
-                        self.cleverbutt_timers.append(msg.server.id)
-                        await asyncio.sleep((random.random()) * 2)
-                        await self.send_typing(msg.channel)
-                        #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
-                        try:
-                            query = self.cleverbutt_latest[msg.server.id]
-                        except KeyError:
-                            query = msg.content
-                        reply_bot = await self.askcb(query)
-                        s_duration = (((len(reply_bot) / 15) * 1.4) + random.random()) - 0.2
-                        await asyncio.sleep(s_duration / 2)
-                        await self.send_typing(msg.channel)
-                        await asyncio.sleep((s_duration / 2) - 0.4)
-                        await self.msend(msg, reply_bot)
-                        await asyncio.sleep(1)
-                        try:
-                            del self.cleverbutt_latest[msg.server.id]
-                        except Exception:
-                            pass
-                        self.cleverbutt_timers.remove(msg.server.id)
+                        await self.clever_reply(msg)
             else:
                 if not msg.channel.is_private:
                     int_name = await self.store.get_prop(msg, 'bot_name')
