@@ -9,7 +9,7 @@ from util.token import bot_token
 from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
 from util.datastore import initialize as init_store
-from util.const import description, non_essential_cogs
+from util.const import description, essential_cogs
 from util.proformatter import RichFormatter
 
 logging.basicConfig(level=logging.INFO)
@@ -54,15 +54,8 @@ def main(use_uvloop):
     logger.info('Init: Getting cog folder')
     cogs_dir = os.path.join(cur_dir, 'cogs')
     bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
-    logger.info('Init: Searching for cogs')
-    cogs = [i.replace('.py', '').replace(cogs_dir + os.path.sep, '') for i in filter(rc_files(cogs_dir), '*.py')]
-    logger.info('Init: Cleaning up list')
-    cogs.remove('__init__')
-    cogs.remove('cog')
-    for cog in non_essential_cogs:
-        cogs.remove(cog)
     logger.info('Init: Loading cogs')
-    for cog in cogs:
+    for cog in essential_cogs:
         logger.info('Init: Loading cog: ' + cog)
         bot.load_extension('cogs.' + cog)
     logger.info('Init: Loading extra cogs')

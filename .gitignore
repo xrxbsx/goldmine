@@ -114,3 +114,4 @@ st2.json
 d_props.py
 cogs.txt
 test_data.ogg
+downloaded_cogs/*.py
