@@ -353,6 +353,12 @@ class Roleplay(Cog):
         emb.set_author(name=target.name.replace('-', ' '), icon_url='http://pokeapi.co/media/img/{0}.png'.format(str(target.id)))
         await bot.send_message(ctx.message.channel, embed=emb)
 
+    @commands.command(aliases=['boom', 'bam', 'kaboom', 'explode', 'exploding', 'explosion'])
+    async def bang(self):
+        """Boom!
+        Syntax: boom"""
+        await self.bot.say('💥')
+
 def setup(bot):
     c = Roleplay(bot)
     bot.add_cog(c)
