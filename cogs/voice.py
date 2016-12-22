@@ -560,7 +560,7 @@ class Voice(Cog):
         with assert_msg(ctx, '**This server does not have a recording!**'):
             assert ctx.message.server.id in self.bot.pcm_data
         state.voice.encoder_options(sample_rate=48000, channels=2)
-        player = state.voice.create_stream_player(io.BytesIO(self.bot.pcm_data[ctx.message.server.id]))
+        player = state.voice.create_stream_player(io.BytesIO(self.bot.pcm_data[ctx.message.server.id]), after=state.toggle_next)
         player.volume = 0.7
         entry = VoiceEntry(ctx.message, player, False, override_name='Voice Recording from ' + ctx.message.server.name)
         await state.songs.put(entry)
