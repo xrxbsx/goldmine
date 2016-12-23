@@ -28,7 +28,7 @@ class Cozmo(Cog):
     @commands.command()
     async def cspeak(self, *, text: str):
         """Make Cozmo speak something.
-        Syntax: cspeak [stuff to say]"""
+        Usage: cspeak [stuff to say]"""
         await self.check_conn()
         status = await self.bot.say('Talking...')
         c_voice = bool('[VOICE:N]' not in text)
@@ -37,7 +37,7 @@ class Cozmo(Cog):
     @commands.command()
     async def cdrive(self, drive_time: float):
         """Make Cozmo drive for n seconds.
-        Syntax: cdrive [seconds to drive]"""
+        Usage: cdrive [seconds to drive]"""
         await self.check_conn()
         status = await self.bot.say('Driving...')
         await self.robot.drive_wheels(50, 50, 50, 50, duration=drive_time)
@@ -46,7 +46,7 @@ class Cozmo(Cog):
     @commands.command(aliases=['cinit'])
     async def cinitialize(self):
         """Connect to Cozmo.
-        Syntax: cinit"""
+        Usage: cinit"""
         try:
             self.sdk_conn = await self.cozmo_connect(self.loop)
         except cozmo.ConnectionError as e:

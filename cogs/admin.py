@@ -32,7 +32,7 @@ class Admin(Cog):
     @commands.command(pass_context=True)
     async def purge(self, ctx):
         """Removes all of this bot's messages on a channel.
-        Syntax: purge"""
+        Usage: purge"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
         deleted = await self.bot.purge_from(ctx.message.channel, limit=1250, check=lambda m: m == self.bot.user)
         del_msg = await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
@@ -42,7 +42,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['clear'])
     async def nuke(self, ctx, *count: int):
         """NUKES a channel by deleting all messages!
-        Syntax: nuke"""
+        Usage: nuke"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
         if count:
             limit = count[0] + 1
@@ -56,7 +56,7 @@ class Admin(Cog):
     @commands.command(pass_context=True)
     async def update(self, ctx):
         """Auto-updates this bot and restarts if any code was updated.
-        Syntax: update"""
+        Usage: update"""
         await echeck_perms(ctx, ['bot_owner'])
         msg = await self.bot.say('Trying to update...')
 #        subprocess.check_output(['git', 'reset', 'HEAD', '--hard'])
@@ -79,7 +79,7 @@ class Admin(Cog):
     @commands.command(pass_context=True)
     async def restart(self, ctx):
         """Restarts this bot.
-        Syntax: restart"""
+        Usage: restart"""
         await echeck_perms(ctx, ['bot_owner'])
 #        for i in self.bot.servers:
 #            await self.bot.send_message(i.default_channel, 'This bot (' + self.bname + ') is now restarting!')
@@ -95,7 +95,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['dwrite', 'storecommit', 'commitstore', 'commit_store', 'write_store'], hidden=True)
     async def dcommit(self, ctx):
         """Commit the current datastore.
-        Syntax: dcommit"""
+        Usage: dcommit"""
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.store.commit()
         await self.bot.say('**Commited the current copy of the datastore!**')
@@ -103,7 +103,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['dread', 'storeread', 'readstore', 'load_store', 'read_store'], hidden=True)
     async def dload(self, ctx):
         """Load the datastore from disk. POTENTIALLY DESTRUCTIVE!
-        Syntax: dload"""
+        Usage: dload"""
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.say('**ARE YOU SURE YOU WANT TO LOAD THE DATASTORE?** *yes, no*')
         resp = await self.bot.wait_for_message(author=ctx.message.author)
@@ -117,7 +117,7 @@ class Admin(Cog):
     @commands.command(pass_context=True)
     async def broadcast(self, ctx, *, text: str):
         """Broadcast a message to all servers.
-        Syntax: broadcast [message]"""
+        Usage: broadcast [message]"""
         await echeck_perms(ctx, ['bot_owner'])
         for i in self.bot.servers:
             try:
@@ -139,7 +139,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'rxeval', 'reref', 'xeval'])
     async def eref(self, ctx, *, code: str):
         """Evaluate some code in command scope.
-        Syntax: eref [code to execute]"""
+        Usage: eref [code to execute]"""
         await echeck_perms(ctx, ['bot_owner'])
         dc = self.dc_funcs
         def print(*ina: str):
@@ -157,7 +157,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, hidden=True, aliases=['rseref', 'meref', 'rmeref'])
     async def seref(self, ctx, *, code: str):
         """Evaluate some code (multi-statement) in command scope.
-        Syntax: seref [code to execute]"""
+        Usage: seref [code to execute]"""
         await echeck_perms(ctx, ['bot_owner'])
         dc = self.dc_funcs
         def print(*ina: str):
@@ -176,7 +176,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['amiadmin', 'isadmin', 'admin'])
     async def admintest(self, ctx):
         """Check to see if you're registered as a bot admin.
-        Syntax: admintest'"""
+        Usage: admintest'"""
         tmp = await check_perms(ctx, ['bot_admin'])
         if tmp:
             await self.bot.say(ctx.message.author.mention + ' You are a bot admin! :smiley:')
@@ -186,7 +186,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['adminadd'])
     async def addadmin(self, ctx, *rrtarget: str):
         """Add a user to the bot admin list.
-        Syntax: addadmin [user]"""
+        Usage: addadmin [user]"""
         tmp = await check_perms(ctx, ['bot_admin'])
         if not rrtarget:
             await self.bot.say('**You need to specify a name, nickname, name#discriminator, or ID!**')
@@ -216,7 +216,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['deladmin', 'admindel', 'adminrm'])
     async def rmadmin(self, ctx, *rrtarget: str):
         """Remove a user from the bot admin list.
-        Syntax: rmadmin [user]"""
+        Usage: rmadmin [user]"""
         tmp = await check_perms(ctx, ['bot_admin'])
         if not rrtarget:
             await self.bot.say('**You need to specify a name, nickname, name#discriminator, or ID!**')
@@ -247,7 +247,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['admins'])
     async def adminlist(self, ctx):
         """List all bot admins defined.
-        Syntax: adminlist"""
+        Usage: adminlist"""
         alist = ''
         for i in self.dstore['bot_admins']:
             try:
@@ -262,14 +262,14 @@ class Admin(Cog):
     @commands.command(pass_context=True)
     async def getprop(self, ctx, pname: str):
         """Fetch a property from the datastore.
-        Syntax: getprop [property name]"""
+        Usage: getprop [property name]"""
         pout = await self.store.get_prop(ctx.message, pname)
         await self.bot.say(pout)
 
     @commands.command(pass_context=True, no_pm=True)
     async def setprop(self, ctx, pname: str, *values: str):
         """Set the value of a property on server level.
-        Syntax: setprop [property name] [value]"""
+        Usage: setprop [property name] [value]"""
         await echeck_perms(ctx, ['manage_server'])
         value = ' '.join(values)
         await self.store.set_prop(ctx.message, 'by_server', pname, value)
@@ -280,7 +280,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['getprefix', 'setprefix'])
     async def prefix(self, ctx, *prefix):
         """Get or set the command prefix.
-        Syntax: prefix {optional: new prefix}"""
+        Usage: prefix {optional: new prefix}"""
         if prefix:
             await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
             jprefix = ' '.join(list(prefix))
@@ -293,14 +293,14 @@ class Admin(Cog):
     @commands.command(pass_context=True, aliases=['usersetprop', 'psetprop'])
     async def usetprop(self, ctx, pname: str, value: str):
         """Set the value of a property on user level.
-        Syntax: setprop [property name] [value]"""
+        Usage: setprop [property name] [value]"""
         await self.store.set_prop(ctx.message, 'by_user', pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}` for {2.mention}!'.format(pname, value, ctx.message.author))
 
     @commands.command(pass_context=True, aliases=['rsetprop'])
     async def rawsetprop(self, ctx, scope: str, pname: str, value: str):
         """Set the value of a property on any level.
-        Syntax: rawsetprop [scope] [property name] [value]"""
+        Usage: rawsetprop [scope] [property name] [value]"""
         await echeck_perms(ctx, ['bot_admin'])
         await self.store.set_prop(ctx.message, scope, pname, value)
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
@@ -308,14 +308,14 @@ class Admin(Cog):
     @commands.command(pass_context=True)
     async def suspend(self, ctx):
         """Bring the bot offline (in a resumable state).
-        Syntax: suspend'"""
+        Usage: suspend'"""
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.suspend()
         await self.bot.say('Successfully **suspended** me! (I should now be offline.)\nI will still count experience points.')
     @commands.command(pass_context=True, aliases=['ssuspend'])
     async def ususpend(self, ctx):
         """Temporarily suspend the bot's command and conversation features.
-        Syntax: suspend'"""
+        Usage: suspend'"""
         await echeck_perms(ctx, ['bot_owner'])
         self.bot.status = 'invisible'
         await self.bot.say('Successfully **suspended** my message processing! (I should stay online.)\nI will still count experience points.')
@@ -323,7 +323,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, hidden=True, aliases=['slist'])
     async def serverlist(self, ctx):
         """List the servers I am in.
-        Syntax: serverlist"""
+        Usage: serverlist"""
         await echeck_perms(ctx, ['bot_owner'])
         pager = commands.Paginator()
         for server in self.bot.servers:
@@ -334,7 +334,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, hidden=True, aliases=['treelist', 'stree', 'treeservers', 'trees', 'tservers'])
     async def servertree(self, ctx, *ids: str):
         """List the servers I am in (tree version).
-        Syntax: servertree"""
+        Usage: servertree"""
         await echeck_perms(ctx, ['bot_owner'])
         pager = commands.Paginator(prefix='```diff')
         servers = []
@@ -363,7 +363,7 @@ class Admin(Cog):
     @commands.command(pass_context=True, hidden=True, aliases=['mlist', 'listmembers'])
     async def memberlist(self, ctx, *server_ids: str):
         """List the members of a server.
-        Syntax: memberlist [server ids]"""
+        Usage: memberlist [server ids]"""
         await echeck_perms(ctx, ['bot_owner'])
         if not server_ids:
             await self.bot.say('**You need to specify at least 1 server ID!**')
@@ -405,7 +405,7 @@ class Admin(Cog):
     @commands.command(pass_context=True)
     async def mute(self, ctx, *, member: discord.Member):
         """Mute someone on voice and text chat.
-        Syntax: mute [person's name]"""
+        Usage: mute [person's name]"""
         await or_check_perms(ctx, ['mute_members', 'manage_roles', 'manage_channels', 'manage_messages'])
         status = await self.bot.say('Muting... 🌚')
         pg_task = asyncio.ensure_future(self.progress(status, 'Muting'))
@@ -425,7 +425,7 @@ class Admin(Cog):
     @commands.command(pass_context=True)
     async def unmute(self, ctx, *, member: discord.Member):
         """Unmute someone on voice and text chat.
-        Syntax: unmute [person's name]"""
+        Usage: unmute [person's name]"""
         await or_check_perms(ctx, ['mute_members', 'manage_roles', 'manage_channels', 'manage_messages'])
         status = await self.bot.say('Unmuting... 🌚')
         pg_task = asyncio.ensure_future(self.progress(status, 'Unmuting'))
@@ -448,10 +448,15 @@ class Admin(Cog):
     @commands.group(pass_context=True, aliases=['cogs', 'module', 'modules'])
     async def cog(self, ctx):
         """Manage all of my cogs and gears.
-        Syntax: cog {stuff}"""
+        Usage: cog {stuff}"""
         await or_check_perms(ctx, ['bot_owner'])
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
+    @cog.command(name='list')
+    async def cog_list(self):
+        """List all cogs available.
+        Usage: cog list"""
+        await self.bot.say('```diff' + '\n'.join() + '```')
 
 def setup(bot):
     c = Admin(bot)

@@ -42,7 +42,7 @@ class Utility(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def icon(self, ctx):
         """Retrive the current server's icon.
-        Syntax: icon"""
+        Usage: icon"""
         sname = '**' + ctx.message.server.name + '**'
         iurl = ctx.message.server.icon_url
         if iurl != '':
@@ -53,7 +53,7 @@ class Utility(Cog):
     @commands.command(pass_context=True)
     async def say(self, ctx, *, stuffs: str):
         """Simply sends the input as a message. For testing.
-        Syntax: say [message]"""
+        Usage: say [message]"""
         await or_check_perms(ctx, ['bot_admin'])
         await self.bot.say(stuffs)
 
@@ -64,7 +64,7 @@ class Utility(Cog):
     @commands.command(pass_context=True, aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate', 'expr', 'expression', 'rcalculate', 'rcalculator', 'rmath', 'remath', 'reval', 'revaluate', 'rexpr', 'rexpression'])
     async def calc(self, ctx, *, code: str):
         """Evaluates a mathematical experssion.
-        Syntax: calc [expression]"""
+        Usage: calc [expression]"""
         code = bdel(code, '```py').strip('`')
         try:
             with async_timeout.timeout(7.5):
@@ -92,7 +92,7 @@ class Utility(Cog):
     @commands.command(pass_context=True, aliases=['about', 'whois', 'who'])
     async def user(self, ctx, *users: str):
         """Extract information about an user.
-        Syntax: user"""
+        Usage: user"""
         targets = []
         s = ctx.message.server
         if users:
@@ -189,7 +189,7 @@ class Utility(Cog):
     @commands.command(pass_context=True, aliases=['gm'])
     async def info(self, ctx):
         """Get bot info.
-        Syntax: info"""
+        Usage: info"""
         target = self.bot.user
         au = target.avatar_url
         avatar_link = (au if au else target.default_avatar_url)
@@ -231,7 +231,7 @@ class Utility(Cog):
     @commands.command(pass_context=True, aliases=['embedhelp', 'embedshelp', 'emhelp', 'ebhelp', 'embhelp', 'pembedhelp', 'pembedshelp', 'pemhelp', 'pebhelp', 'pembhelp', 'pehelp'])
     async def ehelp(self, ctx, *commands: str):
         """Shows an experimental embed-based help.
-        Syntax: ehelp|embedhelp"""
+        Usage: ehelp"""
         if ctx.invoked_with.startswith('p'):
             await or_check_perms(ctx, ['bot_admin', 'manage_server', 'manage_messages', 'manage_channels'])
         pages = self.bot.formatter.eformat_help_for(ctx, self.bot)
@@ -252,7 +252,7 @@ class Utility(Cog):
     @commands.command(aliases=['g', 'search', 's', 'query', 'q'])
     async def google(self, *rawin: str):
         """Search something on Google.
-        Syntax: google [search terms]"""
+        Usage: google [search terms]"""
         if rawin:
             m = ''
             intxt = ' '.join(rawin)
@@ -271,7 +271,7 @@ class Utility(Cog):
     @commands.command(pass_context=True, aliases=['ping', 'pong', 'delay', 'net', 'network', 'lag', 'netlag'])
     async def latency(self, ctx):
         """Get the current network latency to Discord.
-        Syntax: latency"""
+        Usage: latency"""
         begin_time = datetime.now()
         msg = await self.bot.say('Getting latency... `0`')
         for i in range(3):
@@ -282,20 +282,20 @@ class Utility(Cog):
     @commands.command(pass_context=True)
     async def test(self, ctx):
         """Do a basic test of the bot.
-        Syntax: test"""
+        Usage: test"""
         await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')
 
     @commands.command(pass_context=True)
     async def uptime(self, ctx):
         """Report the current uptime of the bot.
-        Syntax: uptime"""
+        Usage: uptime"""
         up = await self.bot.format_uptime()
         await self.bot.say(ctx.message.author.mention + ' I\'ve been up for **' + up + '**.')
 
     @commands.command(pass_context=True, aliases=['link', 'invlink', 'addbot', 'botadd'])
     async def invite(self, ctx, *rids: str):
         """Generate an invite link for myself or another bot.
-        Syntax: invite {optional: bot ids}"""
+        Usage: invite {optional: bot ids}"""
         ids = list(rids)
         msg = []
         if not ids:
@@ -318,7 +318,7 @@ class Utility(Cog):
     @commands.command(aliases=['homeland', 'web', 'website', 'webpage'])
     async def home(self):
         """Get the link to my homeland.
-        Syntax: home"""
+        Usage: home"""
         await self.bot.say(home_broadcast)
 
     async def poll_task(self, emojis, msg, poll_table):
@@ -332,7 +332,7 @@ class Utility(Cog):
     @commands.command(pass_context=True)
     async def poll(self, ctx, *rquestion: str):
         """Start a public poll with reactions.
-        Syntax: poll [emojis] [question] [time in seconds]"""
+        Usage: poll [emojis] [question] [time in seconds]"""
         async def cem_help(emojis, raw_c_emojis, cem_map, c_emojis):
             """Custom emoji helper."""
             if raw_c_emojis:
@@ -433,14 +433,14 @@ Server Owner\'s ID: `{0.server.owner.id}`
     @commands.group(pass_context=True, no_pm=True, aliases=['cleverbutts', 'cbs'])
     async def cleverbutt(self, ctx):
         """Manage Cleverbutt stuff.
-        Syntax: cleverbutt {stuff}"""
+        Usage: cleverbutt {stuff}"""
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
     @cleverbutt.command(pass_context=True, no_pm=True, name='start', aliases=['kickstart'])
     async def cleverbutt_kickstart(self, ctx, *, msg: str):
         """Kickstart / start cleverbutts conversation
-        Syntax: cleverbutt start {optional: message}"""
+        Usage: cleverbutt start {optional: message}"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
         c_map = {c.name: c for c in ctx.message.server.channels}
         if 'cleverbutts' in c_map:
@@ -456,7 +456,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
     @commands.command(pass_context=True, aliases=['memegen'])
     async def meme(self, ctx, *, pre_text: str):
         """Generate a meme!
-        Syntax: meme [top text] [bottom text]"""
+        Usage: meme [top text] [bottom text]"""
         char_table = {
             '-': '--',
             '_': '__',
@@ -489,7 +489,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
     @commands.command(pass_context=True, aliases=['statistics', 'servers', 'channels', 'members', 'users', 'seen'])
     async def stats(self, ctx):
         """Dump some of my stats. Full version = info command.
-        Syntax: stats"""
+        Usage: stats"""
         fmt = '''{0.author.mention} Here are my stats: (get even more with `{1}info`!)
 **Servers**: {2}
 **Channels**: {3}
@@ -502,7 +502,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
     @commands.command(aliases=['randcolor', 'randc', 'rc', 'randomcolor', 'colorgen', 'gcolor', 'gencolor'])
     async def rcolor(self):
         """Generate a random color.
-        Syntax: rcolor"""
+        Usage: rcolor"""
         col_rgb = [random.randint(1, 255) for i in range(0, 3)]
         col_str = '0x%02X%02X%02X' % (col_rgb[0], col_rgb[1], col_rgb[2])
         await self.bot.say(embed=discord.Embed(color=int(col_str, 16), title='Hex: ' + col_str.replace('0x', '#') + ' | RGB: ' + ', '.join([str(c) for c in col_rgb])))

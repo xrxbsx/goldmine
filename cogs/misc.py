@@ -11,13 +11,13 @@ class Miscellaneous(Cog):
     @commands.command()
     async def lmgtfy(self, *terms: str):
         """Generate a Let Me Google That For You link.
-        Syntax: lmgtfy [search terms]"""
+        Usage: lmgtfy [search terms]"""
         await self.bot.say('http://lmgtfy.com/?q=' + '+'.join(terms))
 
     @commands.command()
     async def buzz(self, *count: int):
         """Barry Bee Benson Buzz :smirk:
-        Syntax: buzz"""
+        Usage: buzz"""
         fn_i = 8
         if count:
             fn_i = count[0]

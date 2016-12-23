@@ -1,6 +1,7 @@
 """Definition of the bot's Cosmetic module.'"""
 import asyncio
 import random
+from contextlib import suppress
 import util.json as json
 import aiohttp
 import async_timeout
@@ -8,6 +9,7 @@ import discord
 import util.commands as commands
 import util.ranks as rank
 from .cog import Cog
+from util.fake import FakeMessageMember
 from util.const import charsets, spinners, lvl_base
 
 class Cosmetic(Cog):
@@ -25,29 +27,75 @@ class Cosmetic(Cog):
     @commands.command(aliases=['color'])
     async def role(self, role: str):
         """Set a public role on your account.
-        Syntax: role|color [role name]"""
+        Usage: role [role name]"""
         await self.bot.say('Role setting is not implemented yet!')
 
     @commands.command(pass_context=True, aliases=['xp', 'level', 'lvl', 'exp', 'levels'], no_pm=True)
-    async def rank(self, ctx):
+    async def rank(self, ctx, *users: str):
         """Check your experience, level, and rank!
-        Syntax: xp|rank|level|lvl|exp|levels"""
-        stat_fmt = '''{0.author.mention} Here are your **stats**:
+        Usage: xp"""
+        targets = []
+        s = ctx.message.server
+        if users:
+            members = {}
+            for i in getattr(s, 'members', []):
+                members[i.mention] = i
+                members[i.id] = i
+                members[i.display_name] = i
+                members[i.name] = i
+            for i in users:
+                try:
+                    member = s.get_member(i)
+                except AttributeError:
+                    try:
+                        member = await self.bot.get_user_info(i)
+                    except discord.HTTPException:
+                        member = None
+                if member:
+                    targets.append(member)
+                else:
+                    try:
+                        member = await self.bot.get_user_info(i)
+                    except discord.HTTPException:
+                        member = None
+                    if member:
+                        targets.append(member)
+            names = []
+            _i = 0
+            while _i < len(users):
+                names.append(users[_i])
+                with suppress(KeyError):
+                    if ' '.join(names) in members:
+                        targets.append(members[' '.join(names)])
+                        names = []
+                    elif _i + 1 == len(users):
+                        targets.append(members[users[0]])
+                        _i = -1
+                        users = users[1:]
+                        names = []
+                _i += 1
+            if not targets:
+                await self.bot.say('**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
+                return
+        else:
+            targets.append(ctx.message.author)
+        stat_fmt = '''{0.author.mention} Here are {5} **stats**:
 **LEVEL: {1}
 EXPERIENCE: __{2}/{3}__ for next level
 TOTAL EXPERIENCE: {4}**
 *Try getting some more! :smiley:*
 '''
-#        if ctx.message.split(' '):
-        prof = await self.store.get_prop(ctx.message, 'profile_' + ctx.message.server.id)
-        rlevel = rank.xp_level(prof['exp'])
-        await self.bot.say(stat_fmt.format(ctx.message, str(rlevel[0]), str(int(rlevel[1])),
-                                           str(int((rlevel[0] + 1) * lvl_base)), str(prof['exp'])))
+        for r_tgt in targets:
+            target = FakeMessageMember(r_tgt)
+            prof = await self.store.get_prop(target, 'profile_' + target.server.id)
+            rlevel = rank.xp_level(prof['exp'])
+            await self.bot.say(stat_fmt.format(target, str(rlevel[0]), str(int(rlevel[1])),
+                                               str(int((rlevel[0] + 1) * lvl_base)), str(prof['exp']), ('your' if target.author.id == ctx.message.author.id else str(target.author) + "'s")))
 
     @commands.command(pass_context=True)
     async def emotes(self, ctx):
         """Lists all the current custom emoji on this server.
-        Syntax: emotes"""
+        Usage: emotes"""
         cemotes = ctx.message.author.server.emojis
         em_string = (' '.join([str(i) for i in cemotes]) if len(cemotes) >= 1 else 'This server has no custom emojis!')
         await self.bot.say(em_string)
@@ -55,7 +103,7 @@ TOTAL EXPERIENCE: {4}**
     @commands.command(pass_context=True)
     async def etest(self, ctx):
         """Test custom rich embeds.
-        Syntax: etest"""
+        Usage: etest"""
         embed_data = {
             'title': 'This is the title',
             'description': '''This is the description
@@ -78,13 +126,13 @@ cool right?''',
     @commands.command(aliases=['rev', 'mirror'])
     async def reverse(self, *, rmsg: str):
         """Reverse some text you give.
-        Syntax: reverse [text here]"""
+        Usage: reverse [text here]"""
         await self.bot.say(':repeat: ' + rmsg[::-1])
 
     @commands.command(pass_context=True, aliases=['math_sans_italic', 'circled', 'math_double', 'math_bold_italic', 'math_sans_bold_italic', 'parenthesized', 'math_bold_fraktur', 'math_sans_bold', 'squared', 'math_mono', 'fullwidth', 'squared_negative', 'normal', 'circled_negative', 'regional', 'math_sans', 'math_bold_script', 'math_bold', 'upside_down'])
     async def style(self, ctx, *rmsg):
         """Stylize text in cool alphabets! Invoke with alphabet name.
-        Syntax: style [style name] [text here]"""
+        Usage: style [style name] [text here]"""
         if rmsg:
             imsg = ' '.join(rmsg)
             final_result = await self.stylize(ctx.invoked_with.lower(), imsg)
@@ -99,7 +147,7 @@ cool right?''',
     @commands.command(aliases=['fonts', 'list', 'alphabet', 'alphabets', 'alphalist', 'styles', 'stylelist', 'chars', 'charlist', 'charsets', 'charsetlist'])
     async def fontlist(self):
         """List the available fancy character sets / alphabets / fonts.
-        Syntax: fonts|fontlist|alphabets|styles"""
+        Usage: fonts"""
         pager = commands.Paginator(prefix='', suffix='')
         pager.add_line('**Listing all character sets defined with samples.**')
         for i in self.al_aliases:
@@ -114,7 +162,7 @@ cool right?''',
     @commands.command(pass_context=True, aliases=['af', 'sca', 'anim', 'a', 'playanim', 'aplay', 'animplay'])
     async def animation(self, ctx, anim_seq, runs: int):
         """Do a 0.9 fps animation x times from the given sequence.
-        Syntax: af [packed animation] [number of runs]"""
+        Usage: af [packed animation] [number of runs]"""
         try:
             cmid = ctx.message.server.id
         except AttributeError:
@@ -141,7 +189,7 @@ cool right?''',
     @commands.command(pass_context=True, aliases=['sa', 'ssca', 'sanim', 'stopanimation', 'animstop', 'saf'])
     async def stopanim(self, ctx):
         """Stop the animation playing in this server, if any.
-        Syntax: stopanim"""
+        Usage: stopanim"""
         try:
             cmid = ctx.message.server.id
         except AttributeError:
@@ -157,13 +205,13 @@ cool right?''',
     @commands.command(aliases=['lanim', 'listanims', 'listanim', 'animationlist', 'animl', 'anims', 'animations', 'al', 'packs', 'packed', 'pal', 'pa'])
     async def animlist(self):
         """List the packed animations I have saved.
-        Syntax: animlist"""
+        Usage: animlist"""
         await self.bot.say('**Listing stored packed animations.**```\n' + '\n'.join(spinners) + '```')
 
     @commands.command(pass_context=True, aliases=['spider', 'spiders'])
     async def webs(self, ctx):
         """Some web developers that like bugs.
-        Syntax: web"""
+        Usage: web"""
         with open('assets/webs.jpeg', 'rb') as image:
             await self.bot.send_file(ctx.message.channel, image, filename='spiders_webs.jpg')
 
@@ -171,7 +219,7 @@ cool right?''',
     @commands.command(aliases=['random.cat', 'randomcat', 'rcat', 'cats', 'catrandom', 'random_cat'])
     async def cat(self):
         """Get a random cat! Because why not.
-        Syntax: cat"""
+        Usage: cat"""
         async with aiohttp.ClientSession(loop=self.loop) as session:
             with async_timeout.timeout(8):
                 async with session.get('http://random.cat/meow') as response:

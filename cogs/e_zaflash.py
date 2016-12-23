@@ -11,13 +11,13 @@ class ZaFlash(Cog):
     @commands.command()
     async def tag(self):
         """Say the clan tag.
-        Syntax: tag"""
+        Usage: tag"""
         await self.bot.say('一ƵƑ⚡')
 
     @commands.command(pass_context=True, hidden=True, aliases=['rderef'])
     async def deref(self, ctx, *, code: str):
         """Evaluate some code in command scope.
-        Syntax: deref [code to execute]"""
+        Usage: deref [code to execute]"""
         if ctx.message.author.id != '160567046642335746':
             await self.bot.say('No permission!')
             return False

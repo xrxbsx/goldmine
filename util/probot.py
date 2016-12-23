@@ -218,7 +218,10 @@ class ProBot(commands.Bot):
         elif isinstance(exp, commands.CommandPermissionError):
             _perms = ''
             if exp.perms_required:
-                _perms = ', '.join([i.lower().replace('_', ' ').title() for i in exp.perms_required])
+                perm_list = [i.lower().replace('_', ' ').title() for i in exp.perms_required]
+                if len(perm_list) > 1:
+                    perm_list[-1] = 'and ' + perm_list[-1]
+                _perms = ', '.join(perm_list)
             else:
                 _perms = 'Not specified'
             await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
@@ -226,7 +229,8 @@ class ProBot(commands.Bot):
             _perms = ''
             if exp.perms_ok:
                 perm_list = [i.lower().replace('_', ' ').title() for i in exp.perms_ok]
-                perm_list[-1] = 'or ' + perm_list[-1]
+                if len(perm_list) > 1:
+                    perm_list[-1] = 'or ' + perm_list[-1]
                 _perms = ', '.join(perm_list)
             else:
                 _perms = 'Not specified'
@@ -251,7 +255,7 @@ class ProBot(commands.Bot):
                     else:
                         await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
                 elif c_key.startswith('Command raised an exception: RuntimeError: PyNaCl library needed in order to use voice'):
-                    await self.csend(ctx, '**The bot owner hasn\'t enabled this feature!**')
+                    await self.csend(ctx, '**The bot owner hasn\'t enabled voice!**')
                 else:
                     await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
             elif isinstance(exp.original, NameError):
@@ -265,11 +269,11 @@ class ProBot(commands.Bot):
             else:
                 await self.csend(ctx, 'An internal error occured while responding to `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
         elif isinstance(exp, commands.MissingRequiredArgument):
-            await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
+            await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1], 'Usage: ')))
         elif isinstance(exp, commands.TooManyArguments):
-            await self.csend(ctx, too_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
+            await self.csend(ctx, too_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1], 'Usage: ')))
         elif isinstance(exp, commands.BadArgument):
-            await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1:][0], 'Syntax: ')))
+            await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1], 'Usage: ')))
         else:
             await self.csend(ctx, 'An internal error occured while responding to` %s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
 
