@@ -1,7 +1,9 @@
 """Definition of the bot's Cosmetic module.'"""
 import asyncio
 import random
+import io
 from contextlib import suppress
+from urllib.parse import urlencode
 import util.json as json
 import aiohttp
 import async_timeout
@@ -225,6 +227,29 @@ cool right?''',
                 async with session.get('http://random.cat/meow') as response:
                     ret = await response.text()
         await self.bot.say(json.loads(ret)['file'])
+
+    @commands.command(pass_context=True, aliases=['temote', 'bemote', 'demote', 'getemote', 'fetchemote'])
+    async def emote(self, ctx, _emote: str):
+        """Get a Twitch, FrankerFaceZ, BetterTTV, or Discord emote.
+        Usage: emote [name of emote]"""
+        emote = _emote.replace(':', '')
+        async with aiohttp.ClientSession(loop=self.loop) as session:
+            with async_timeout.timeout(13):
+                try:
+                    async with session.get('https://static-cdn.jtvnw.net/emoticons/v1/' + str(self.bot.emotes['twitch'][emote]['image_id']) + '/1.0') as resp:
+                        emote_img = await resp.read()
+                except KeyError: # let's try frankerfacez
+                    try:
+                        async with session.get('https://cdn.frankerfacez.com/emoticon/' + str(self.bot.emotes['ffz'][emote]) + '/1') as resp:
+                            emote_img = await resp.read()
+                    except KeyError: # let's try BetterTTV
+                        try:
+                            async with session.get(self.bot.emotes['bttv'][emote]) as resp:
+                                emote_img = await resp.read()
+                        except KeyError: # let's try Discord
+                            await self.bot.say('**No such emote!** I can fetch from Twitch, FrankerFaceZ, BetterTTV, or Discord.')
+                            return False
+        await self.bot.send_file(ctx.message.channel, io.BytesIO(emote_img), filename='emote.png')
 
 def setup(bot):
     c = Cosmetic(bot)

@@ -13,6 +13,8 @@ from fnmatch import filter
 from datetime import datetime
 import math
 import logging
+import aiohttp
+import async_timeout
 from asteval import Interpreter
 import discord
 import util.commands as commands
@@ -27,6 +29,7 @@ import util.ranks as rank
 from util.const import *
 from util.func import bdel
 from util.fake import FakeObject
+import util.json as json
 
 try:
     from d_props import store_path
@@ -137,6 +140,8 @@ class ProBot(commands.Bot):
         self.pcm_data = {}
         self.servers_recording = []
         self.cleverbutt_replied_to = deque([])
+        self.get_emote_task = asyncio.ensure_future(self.update_emote_data())
+        self.emotes = {}
         super().__init__(**options)
 
     async def cb_task(self, queue):
@@ -259,9 +264,14 @@ class ProBot(commands.Bot):
                 else:
                     await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
             elif isinstance(exp.original, NameError):
-                key = bdel(bc_key, "NameError: name '")
-                key = key.replace("' is not defined", '')
-                await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
+                if isinstance(exp.original, UnboundLocalError):
+                    key = bdel(bc_key, "UnboundLocalError: local variable '")
+                    key = key.replace("' referenced before assignment", '')
+                    await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key))
+                else:
+                    key = bdel(bc_key, "NameError: name '")
+                    key = key.replace("' is not defined", '')
+                    await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
             elif isinstance(exp.original, asyncio.TimeoutError):
                 await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
             elif (cprocessed in self.commands['calc'].aliases) or (cprocessed == 'calc'):
@@ -641,6 +651,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         return message
 
     async def send_cmd_help(self, ctx):
+        """Send command help for a command or subcommand."""
         if ctx.invoked_subcommand:
             pages = self.formatter.format_help_for(ctx, ctx.invoked_subcommand)
             for page in pages:
@@ -651,9 +662,11 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                 await self.csend(ctx, page)
 
     async def get_info(self):
+        """Get bot info in an OrderedDict. To be implemented."""
         return None
 
     async def get_ram(self):
+        """Get the bot's RAM usage info."""
         raw_musage = 0
         got_conversion = False
         musage_dec = 0
@@ -672,3 +685,20 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             return (got_conversion, musage_dec, musage_hex)
         else:
             return (got_conversion, 0) # to force tuple
+
+    async def update_emote_data(self):
+        """Fetch Twitch and FrakerFaceZ emote mappings."""
+        with open(os.path.join(cur_dir, 'assets', 'emotes_twitch_global.json')) as f:
+            twitch_global = json.loads(f.read())['emotes']
+        with open(os.path.join(cur_dir, 'assets', 'emotes_twitch_subscriber.json')) as f:
+            twitch_subscriber = json.loads(f.read())
+        self.emotes['twitch'] = {**twitch_global, **twitch_subscriber}
+        with open(os.path.join(cur_dir, 'assets', 'emotes_ffz.json')) as f:
+            self.emotes['ffz'] = json.loads(f.read())
+        with open(os.path.join(cur_dir, 'assets', 'emotes_bttv.json')) as f:
+            raw_json = json.loads(f.read())
+            bttv_v1 = {n: 'https:' + raw_json[n] for n in raw_json}
+        with open(os.path.join(cur_dir, 'assets', 'emotes_bttv_2.json')) as f:
+            raw_json2 = json.loads(f.read())
+            bttv_v2 = {n: 'https://cdn.betterttv.net/emote/' + str(raw_json2[n]) + '/1x' for n in raw_json2}
+        self.emotes['bttv'] = {**bttv_v1, **bttv_v2}
