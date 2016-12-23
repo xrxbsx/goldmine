@@ -150,10 +150,13 @@ class Roleplay(Cog):
             except IndexError:
                 await self.bot.say('**__Error: page *{0}* doesn\'t exist! There are *{1}* pages.__**'.format(page_n, len(pager.pages)))
 
-    @commands.command(pass_context=True, aliases=['newquote', 'quotenew', 'addquote', 'makequote', 'quotemake', 'createquote', 'quotecreate'])
-    async def quoteadd(self, ctx, *, text: str):
+    @commands.command(pass_context=True, aliases=['rnewquote', 'rquotenew', 'raddquote', 'rmakequote', 'rquotemake', 'rcreatequote', 'rquotecreate', 'raq'])
+    async def rquoteadd(self, ctx, *, text: str):
         """Add a quote to the quote collection.
-        Usage: quoteadd [text here]"""
+        Usage: rquoteadd [user ID] [user name] [text here]"""
+        await echeck_perms(ctx, ['bot_admin'])
+        await self.bot.say('⚠ Not working yet!')
+        return False
         fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
         bname = await self.store.get_prop(ctx.message, 'bot_name')
         q_template = {
@@ -170,14 +173,13 @@ class Roleplay(Cog):
             q_template['author'] += ' (' + mauthor.name + ')'
         q_template['author_ids'] = [mauthor.id]
         q_template['id'] = len(self.dstore['quotes']) # +1 for next id, but len() counts from 1
-        self.dstore['quotes'].extend([q_template])
+        self.dstore['quotes'].append(q_template)
         await self.bot.say('The quote specified has been successfully added as **#%s**!' % str(len(self.dstore['quotes'])))
 
-    @commands.command(pass_context=True, aliases=['rnewquote', 'rquotenew', 'raddquote', 'rmakequote', 'rquotemake', 'rcreatequote', 'rquotecreate', 'raq'])
-    async def rquoteadd(self, ctx, target: discord.Member, *, text: str):
+    @commands.command(pass_context=True, aliases=['newquote', 'quotenew', 'addquote', 'makequote', 'quotemake', 'createquote', 'quotecreate', 'aq'])
+    async def quoteadd(self, ctx, target: discord.Member, *, text: str):
         """Add a quote to the quote collection.
-        Usage: rquoteadd [member] [text here]"""
-        await echeck_perms(ctx, ['bot_admin'])
+        Usage: quoteadd [member] [text here]"""
         fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
         bname = await self.store.get_prop(ctx.message, 'bot_name')
         q_template = {
@@ -194,7 +196,7 @@ class Roleplay(Cog):
             q_template['author'] += ' (' + mauthor.name + ')'
         q_template['author_ids'] = [mauthor.id]
         q_template['id'] = len(self.dstore['quotes']) # +1 for next id, but len() counts from 1
-        self.dstore['quotes'].extend([q_template])
+        self.dstore['quotes'].append(q_template)
         await self.bot.say('The quote specified has been successfully added as **#%s**!' % str(len(self.dstore['quotes'])))
 
     @commands.command(pass_context=True, aliases=['quoteedit', 'modquote', 'editquote'])
