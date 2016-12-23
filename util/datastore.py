@@ -53,6 +53,7 @@ class DataStore():
             storefile.write(json.dumps(self.store))
 
     async def commit_task(self):
+        """Continous background task for comitting datastore."""
         while True:
             await asyncio.sleep(self.commit_interval * 60)
             await self.commit()
@@ -72,17 +73,10 @@ class DataStore():
     async def get_props_u(self, msg):
         """Get the user properties of a message."""
         try:
-            try:
-                return self.store['properties']['by_user'][msg.author.id]
-            except KeyError:
-                self.store['properties']['by_user'][msg.author.id] = {}
-                return {}
-        except AttributeError: # for Member
-            try:
-                return self.store['properties']['by_user'][msg.id]
-            except KeyError:
-                self.store['properties']['by_user'][msg.id] = {}
-                return {}
+            return self.store['properties']['by_user'][msg.author.id]
+        except KeyError:
+            self.store['properties']['by_user'][msg.author.id] = {}
+            return {}
 
     async def get_props_c(self, msg):
         """Get the channel properties of a message."""

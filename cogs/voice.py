@@ -215,7 +215,7 @@ class Voice(Cog):
     @commands.command(no_pm=True)
     async def join(self, *, channel: discord.Channel):
         """Joins a voice channel.
-        Syntax: join [channel]"""
+        Usage: join [channel]"""
         try:
             await self.create_voice_client(channel)
         except discord.InvalidArgument:
@@ -228,7 +228,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def summon(self, ctx):
         """Summons the bot to join your voice channel.
-        Syntax: summon"""
+        Usage: summon"""
         summoned_channel = ctx.message.author.voice_channel
         if not summoned_channel:
             await self.bot.say('You aren\'t in a voice channel.')
@@ -268,7 +268,7 @@ class Voice(Cog):
         This command automatically searches from sites like YouTube.
         The list of supported sites can be found here:
         https://rg3.github.io/youtube-dl/supportedsites.html
-        Syntax: play [song/video name]"""
+        Usage: play [song/video name]"""
         state = self.get_voice_state(ctx.message.server)
         opts = {
             'default_search': 'auto',
@@ -303,7 +303,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def volume(self, ctx, value: int):
         """Sets the volume of the currently playing song.
-        Syntax: volume [percentage, 1-100]"""
+        Usage: volume [percentage, 1-100]"""
 
         state = self.get_voice_state(ctx.message.server)
         if state.is_playing():
@@ -317,7 +317,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def pause(self, ctx):
         """Pauses the currently played song.
-        Syntax: pause"""
+        Usage: pause"""
         state = self.get_voice_state(ctx.message.server)
         if state.is_playing():
             player = state.player
@@ -327,7 +327,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def resume(self, ctx):
         """Resumes the current song OR resume suspended bot features.
-        Syntax: resume"""
+        Usage: resume"""
         state = self.get_voice_state(ctx.message.server)
         if state.is_playing():
             player = state.player
@@ -338,7 +338,7 @@ class Voice(Cog):
     async def stop(self, ctx):
         """Stops playing audio and leaves the voice channel.
         This also clears the queue.
-        Syntax: stop
+        Usage: stop
         """
         server = ctx.message.server
         state = self.get_voice_state(server)
@@ -361,7 +361,7 @@ class Voice(Cog):
     async def skip(self, ctx):
         """Vote to skip a song. The song requester can automatically skip.
         3 skip votes are needed for the song to be skipped.
-        Syntax: skip
+        Usage: skip
         """
 
         state = self.get_voice_state(ctx.message.server)
@@ -387,7 +387,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def playing(self, ctx):
         """Shows info about the currently played song.
-        Syntax: playing"""
+        Usage: playing"""
 
         state = self.get_voice_state(ctx.message.server)
         if state.current is None:
@@ -399,7 +399,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def speak(self, ctx, *, tospeak: str):
         """Uses the SVOX pico TTS engine to speak a message.
-        Syntax: speak [message]"""
+        Usage: speak [message]"""
         state = self.get_voice_state(ctx.message.server)
 
         if state.voice is None:
@@ -419,7 +419,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 'season'])
     async def christmas(self, ctx):
         """Start the Christmas music playlist!
-        Syntax: christmas|xmas|santa|c|season"""
+        Usage: christmas"""
         state = self.get_voice_state(ctx.message.server)
 
         if state.voice is None:
@@ -465,7 +465,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, no_pm=True)
     async def gspeak(self, ctx, *, text: str):
         """Uses a TTS voice to speak a message.
-        Syntax: gspeak [message]"""
+        Usage: gspeak [message]"""
         state = self.get_voice_state(ctx.message.server)
 
         if state.voice is None:
@@ -502,7 +502,7 @@ class Voice(Cog):
     @commands.group(pass_context=True, aliases=['record', 'rec'])
     async def recording(self, ctx):
         """Manage voice recording, recognition, and playback.
-        Syntax: recording"""
+        Usage: recording"""
         await or_check_perms(ctx, ['bot_owner'])
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
@@ -510,7 +510,7 @@ class Voice(Cog):
     @recording.command(pass_context=True, name='toggle', aliases=['start', 'stop'])
     async def record_toggle(self, ctx):
         """Toggle (start/stop) voice recording.
-        Syntax: recording toggle"""
+        Usage: recording toggle"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'move_members'])
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
@@ -529,7 +529,7 @@ class Voice(Cog):
     @recording.command(pass_context=True, name='recognize', aliases=['recog', 'rec'])
     async def record_recog(self, ctx):
         """Speech recognize the current voice recording.
-        Syntax: recording recog"""
+        Usage: recording recog"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'move_members'])
         with assert_msg(ctx, '**The bot owner has not set up this feature!**'):
             assert self.bot.opus_decoder != None
@@ -551,7 +551,7 @@ class Voice(Cog):
     @recording.command(pass_context=True, name='play', aliases=['echo', 'playback', 'dump'])
     async def record_play(self, ctx):
         """Play the current the voice recording.
-        Syntax: recording play"""
+        Usage: recording play"""
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
             success = await ctx.invoke(self.summon)
@@ -569,7 +569,7 @@ class Voice(Cog):
     @commands.command(pass_context=True, aliases=['quene'])
     async def queue(self, ctx):
         """Get the current song queue.
-        Syntax: queue"""
+        Usage: queue"""
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
             await self.bot.say('**Not in a voice channel!**')

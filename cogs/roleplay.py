@@ -40,7 +40,7 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, aliases=['boop', 'poke', 'hit'])
     async def slap(self, ctx, target: str):
         """Slaps someone like a boss, for the win.
-        Syntax: slap [person]"""
+        Usage: slap [person]"""
         cmdfix = await self.store.get_cmdfix(ctx.message.content)
         keystr = '* ' + ctx.message.content.split(' ')[0].strip(cmdfix) + 's *'
         await self.bot.say('*' + ctx.message.author.display_name + keystr +
@@ -49,7 +49,7 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, aliases=['stab', 'kill', 'punch', 'shoot', 'hurt', 'fight'])
     async def attack(self, ctx, target: str):
         """Hurts someone with determination in the shot.
-        Syntax: attack [person]"""
+        Usage: attack [person]"""
         await self.bot.say('*' + ctx.message.author.display_name + '* ' +
                            random.choice(fights).format('*' + target + '*') + '. '
                            + random.choice(death).format('*' + target + '*'))
@@ -57,7 +57,7 @@ class Roleplay(Cog):
     @commands.command()
     async def charlie(self, *, question: str):
         """Ask a question... Charlie Charlie are you there?
-        Syntax: charlie [question to ask, without punctuation]"""
+        Usage: charlie [question to ask, without punctuation]"""
         aq = '' if question.endswith('?') else '?'
         await self.bot.say('*Charlie Charlie* ' + question + aq + "\n**" +
                            random.choice(['Yes', 'No']) + '**')
@@ -65,19 +65,19 @@ class Roleplay(Cog):
     @commands.command(pass_context=True)
     async def mentionme(self, ctx):
         """Have the bot mention yourself. Useful for testing.
-        Syntax: mentionme"""
+        Usage: mentionme"""
         await self.bot.say('Hey there, ' + ctx.message.author.mention + '!')
 
     @commands.command(pass_context=True)
     async def mention(self, ctx, target: discord.Member):
         """Make the bot mention someone. Useful for testing.
-        Syntax: mention [mention, nickname, DiscordTag, or username]"""
+        Usage: mention [mention, nickname, DiscordTag, or username]"""
         await self.bot.say('Hey there, ' + target.mention + '!')
 
     @commands.command(aliases=['emote', 'csay', 'esay', 'coolsay'])
     async def emotisay(self, *, text: str):
         """Make the bot mention someone. Useful for testing.
-        Syntax: emotisay [your text here]"""
+        Usage: emotisay [your text here]"""
         chars = list(text.lower())
         cmap = {
             ' ': '    ',
@@ -110,7 +110,7 @@ class Roleplay(Cog):
     @commands.command(aliases=['cb', 'ask', 'ai', 'bot'])
     async def cleverbot(self, *, query: str):
         """Queries the Cleverbot service. Because why not.
-        Syntax: cleverbot [message here]"""
+        Usage: cleverbot [message here]"""
         try:
             reply_bot = await self.bot.askcb(query)
         except IndexError:
@@ -120,7 +120,7 @@ class Roleplay(Cog):
     @commands.command(aliases=['randquote', 'getquote'])
     async def quote(self, *args):
         """References a quote from the quote collection.
-        Syntax: quote {optional: quote number}"""
+        Usage: quote {optional: quote number}"""
         try:
             qindx = args[0]
         except IndexError:
@@ -135,7 +135,7 @@ class Roleplay(Cog):
     @commands.command(aliases=['quotes', 'listquote', 'quoteslist', 'listquotes', 'dumpquotes', 'quotedump', 'quotesdump'])
     async def quotelist(self, *rshow_pages: int):
         """Lists all the quotes found in the quote collection.
-        Syntax: quotelist"""
+        Usage: quotelist"""
         # maybe PM this
         show_pages = [i for i in rshow_pages]
         pager = commands.Paginator(prefix='', suffix='', max_size=1595)
@@ -153,7 +153,7 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, aliases=['newquote', 'quotenew', 'addquote', 'makequote', 'quotemake', 'createquote', 'quotecreate'])
     async def quoteadd(self, ctx, *, text: str):
         """Add a quote to the quote collection.
-        Syntax: quoteadd [text here]"""
+        Usage: quoteadd [text here]"""
         fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
         bname = await self.store.get_prop(ctx.message, 'bot_name')
         q_template = {
@@ -176,7 +176,7 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, aliases=['rnewquote', 'rquotenew', 'raddquote', 'rmakequote', 'rquotemake', 'rcreatequote', 'rquotecreate', 'raq'])
     async def rquoteadd(self, ctx, target: discord.Member, *, text: str):
         """Add a quote to the quote collection.
-        Syntax: rquoteadd [member] [text here]"""
+        Usage: rquoteadd [member] [text here]"""
         await echeck_perms(ctx, ['bot_admin'])
         fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
         bname = await self.store.get_prop(ctx.message, 'bot_name')
@@ -200,7 +200,7 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, aliases=['quoteedit', 'modquote', 'editquote'])
     async def quotemod(self, ctx, qindex1: int, *, text: str):
         """Modifies an existing quote.
-        Syntax: quotemod [quote number] [new text here]"""
+        Usage: quotemod [quote number] [new text here]"""
         try:
             q_template = self.dstore['quotes'][qindex1 - 1]
         except IndexError:
@@ -220,7 +220,7 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, aliases=['rmquote', 'quoterm', 'delquote'])
     async def quotedel(self, ctx, qindex: int):
         """Deletes an existing quote. You may only delete your own quotes unless you are the bot owner.
-        Syntax: quotedel [quote number]"""
+        Usage: quotedel [quote number]"""
         try:
             q_target = self.dstore['quotes'][qindex - 1]
         except IndexError:
@@ -237,14 +237,14 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, aliases=['gif', 'soontm', 'tm'])
     async def soon(self, ctx):
         """Feel the loading of 10000 years, aka Soon™.
-        Syntax: soon"""
+        Usage: soon"""
         with open('assets/soon.gif', 'rb') as image:
             await self.bot.send_file(ctx.message.channel, image, filename='coming_soon.gif')
 
     @commands.command(pass_context=True, aliases=['wface', 'weirdface', 'weird', 'weird_face', 'mystery', 'neato', 'neat', 'random'])
     async def face(self, ctx, *numbers: int):
         """Give you a random face. Because really, why not?
-        Syntax: face"""
+        Usage: face"""
         fn_face = ''
         if numbers:
             for i in numbers:
@@ -260,7 +260,7 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, hidden=True)
     async def emotispam(self, ctx):
         """Spam some emotes! WARNING: INSTANT CRASH!!!!!!! YOU MUST DELETE THE EMOJIS FROM BROWSER OR MOBILE TO FIX.
-        Syntax: emotispam"""
+        Usage: emotispam"""
         await echeck_perms(ctx, ['bot_owner'])
         _em = emojis
         r = list(range(0, math.ceil(len(emojis) / 2000)))
@@ -273,7 +273,7 @@ class Roleplay(Cog):
     @commands.command(pass_context=True, aliases=['pokeball', 'pokedex'])
     async def pokemon(self, ctx, *pokemon_name: str):
         """Get the info about a Pokémon!
-        Syntax: pokemon|pokedex [name or id]"""
+        Usage: pokemon [name or id]"""
         bot = self.bot
         d_lines = []
         try:
@@ -356,7 +356,7 @@ class Roleplay(Cog):
     @commands.command(aliases=['boom', 'bam', 'kaboom', 'explode', 'exploding', 'explosion'])
     async def bang(self):
         """Boom!
-        Syntax: boom"""
+        Usage: boom"""
         await self.bot.say('💥')
 
 def setup(bot):
