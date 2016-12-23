@@ -74,7 +74,7 @@ class Roleplay(Cog):
         Usage: mention [mention, nickname, DiscordTag, or username]"""
         await self.bot.say('Hey there, ' + target.mention + '!')
 
-    @commands.command(aliases=['emote', 'csay', 'esay', 'coolsay'])
+    @commands.command(aliases=['csay', 'esay', 'coolsay'])
     async def emotisay(self, *, text: str):
         """Make the bot mention someone. Useful for testing.
         Usage: emotisay [your text here]"""
