@@ -307,7 +307,7 @@ class Utility(Cog):
                     if iid == self.bot.user.id:
                         msg.append('https://discordapp.com/api/oauth2/authorize?client_id={0}&scope=bot&permissions={1} (<https://tiny.cc/goldbot> for short)'.format(iid, self.bot.perm_mask))
                     else:
-                        msg.append('https://discordapp.com/api/oauth2/authorize?client_id=%s&scope=bot&permissions=66321471' % iid)
+                        msg.append('https://discordapp.com/api/oauth2/authorize?client_id=%s&scope=bot&permissions=502463606' % iid)
                 else:
                     msg.append('**Invalid ID **`%s`** (must be 18 numbers)!**' % iid)
             except ValueError:

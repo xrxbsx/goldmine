@@ -29,28 +29,29 @@ class Admin(Cog):
         self.dc_funcs = DiscordFuncs(bot)
         super().__init__(bot)
 
-    @commands.command(pass_context=True)
-    async def purge(self, ctx):
-        """Removes all of this bot's messages on a channel.
-        Usage: purge"""
-        await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
-        deleted = await self.bot.purge_from(ctx.message.channel, limit=1250, check=lambda m: m == self.bot.user)
-        del_msg = await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
-        await asyncio.sleep(3)
-        await self.bot.delete_message(del_msg)
-
-    @commands.command(pass_context=True, aliases=['clear'])
-    async def nuke(self, ctx, *count: int):
+    @commands.command(pass_context=True, aliases=['clear', 'purge', 'prune'])
+    async def nuke(self, ctx, *count):
         """NUKES a channel by deleting all messages!
         Usage: nuke"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
-        if count:
-            limit = count[0] + 1
+        mode = 'count'
+        if not count:
+            limit = 1500
+        elif len(count) == 1:
+            try:
+                limit = int(count[0]) + 1
+            except ValueError:
+                continue
         else:
-            limit = 1300
-        deleted = await self.bot.purge_from(ctx.message.channel, limit=limit)
+            #stuff
+            if targets:
+                mode = 'target'
+        if mode == 'count':
+            deleted = await self.bot.purge_from(ctx.message.channel, limit=limit)
+        else:
+            deleted = await self.bot.purge_from(ctx.message.channel, limit=1500, check=lambda m: m.author.id in purge_ids)
         del_msg = await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
-        await asyncio.sleep(3)
+        await asyncio.sleep(2.8)
         await self.bot.delete_message(del_msg)
 
     @commands.command(pass_context=True)
