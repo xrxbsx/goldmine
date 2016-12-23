@@ -35,17 +35,61 @@ class Admin(Cog):
         Usage: nuke"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
         mode = 'count'
+        detected = False
         if not count:
             limit = 1500
+            detected = True
         elif len(count) == 1:
             try:
                 limit = int(count[0]) + 1
+                detected = True
             except ValueError:
-                continue
-        else:
-            #stuff
-            if targets:
-                mode = 'target'
+                pass
+        if not detected:
+            mode = 'target'
+            targets = []
+            members = {}
+            s = ctx.message.server
+            for i in getattr(s, 'members', []):
+                members[i.mention] = i
+                members[i.id] = i
+                members[i.display_name] = i
+                members[i.name] = i
+            for i in count:
+                try:
+                    member = s.get_member(i)
+                except AttributeError:
+                    try:
+                        member = await self.bot.get_user_info(i)
+                    except discord.HTTPException:
+                        member = None
+                if member:
+                    targets.append(member)
+                else:
+                    try:
+                        member = await self.bot.get_user_info(i)
+                    except discord.HTTPException:
+                        member = None
+                    if member:
+                        targets.append(member)
+            names = []
+            _i = 0
+            while _i < len(count):
+                names.append(count[_i])
+                with suppress(KeyError):
+                    if ' '.join(names) in members:
+                        targets.append(members[' '.join(names)])
+                        names = []
+                    elif _i + 1 == len(count):
+                        targets.append(members[count[0]])
+                        _i = -1
+                        users = count[1:]
+                        names = []
+                _i += 1
+            if not targets:
+                await self.bot.say('**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
+                return
+            purge_ids = [m.id for m in targets]
         if mode == 'count':
             deleted = await self.bot.purge_from(ctx.message.channel, limit=limit)
         else:
