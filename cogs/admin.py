@@ -3,17 +3,19 @@ from __future__ import print_function
 import asyncio
 import random
 import subprocess
+import os
+from fnmatch import filter
 from contextlib import suppress
 from importlib import import_module as imp
 from datetime import datetime, timedelta
 
 import discord
+from convert_to_old_syntax import cur_dir
 import util.commands as commands
 from util.perms import or_check_perms, echeck_perms, check_perms
 from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime, assert_msg
 from util.const import muted_perms
 from .cog import Cog
-
 
 def gimport(mod_name, name=None, attr=None):
     return exec(_import(mod_name, var_name=name, attr_name=attr))
@@ -501,7 +503,24 @@ class Admin(Cog):
     async def cog_list(self):
         """List all cogs available.
         Usage: cog list"""
-        await self.bot.say('```diff' + '\n'.join() + '```')
+        clist = '''```diff
+- Available (Default)
++ {0}
+----------------------------------------------
+- Available (Downloaded)
++ {1}
+----------------------------------------------
+- Loaded
++ {2}
+----------------------------------------------```'''
+        available_def_cogs = [c.replace('.py', '').replace('_', ' ').title() for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
+        try:
+            available_dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'downloaded_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
+        except OSError:
+            available_dl_cogs = ['None! 😦']
+        if not available_dl_cogs:
+            available_dl_cogs = ['None! 😦']
+        await self.bot.say(clist.format('\n+ '.join(available_def_cogs), '\n+ '.join(available_dl_cogs), '\n+ '.join(list(self.bot.cogs.keys()))))
 
 def setup(bot):
     c = Admin(bot)
