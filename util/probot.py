@@ -136,11 +136,12 @@ class ProBot(commands.Bot):
         self.cleverbutt_replied_to = set()
         self.get_emote_task = asyncio.ensure_future(self.update_emote_data())
         self.emotes = {}
-        self.dl_cogs_path = os.path.join(self.dir, 'downloaded_cogs')
+        self.dl_cogs_path = os.path.join(self.dir, 'cogs')
         self.ex_cogs_path = os.path.join(self.dir, 'cogs.txt')
         self.dis_cogs_path = os.path.join(self.dir, 'disabled_cogs.txt')
-        self.init_dl_cogs_path = os.path.join(self.dir, 'downloaded_cogs', '__init__.py')
-        for name in ['dl']: # Dirs
+        self.init_dl_cogs_path = os.path.join(self.dir, 'cogs', '__init__.py')
+        self.data_cogs_path = os.path.join(self.dir, 'data')
+        for name in ['dl', 'data']: # Dirs
             p = getattr(self, name + '_cogs_path')
             with suppress(OSError):
                 if not os.path.exists(p):
