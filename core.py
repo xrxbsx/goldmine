@@ -63,6 +63,8 @@ def main(use_uvloop):
     if not os.path.exists(os.path.join(cur_dir, 'cogs', 'utils')):
         shutil.copytree(os.path.join(cur_dir, 'default_cogs', 'utils'), os.path.join(cur_dir, 'cogs', 'utils') + os.path.sep)
     bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
+    import __main__
+    __main__.send_cmd_help = bot.send_cmd_help
     logger.info('Init: Loading cogs')
     try:
         with open('disabled_cogs.txt', 'r') as f:

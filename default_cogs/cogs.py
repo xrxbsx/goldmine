@@ -86,7 +86,6 @@ class Cogs(Cog):
         if not dis_cogs:
             dis_cogs = ['None! 😃']
         enb_cogs = [c.replace('_', ' ').title() for c in self.bot.enabled_cogs if c != ''] + essential_enb
-        enb_cogs += essential_enb
         loaded_cogs = self.bot.cogs.keys()
         await self.bot.say(clist.format(*[key.join(l) for l in [def_cogs, dl_cogs, loaded_cogs, dis_cogs, enb_cogs]], key=key))
 

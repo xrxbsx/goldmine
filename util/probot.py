@@ -141,6 +141,7 @@ class ProBot(commands.Bot):
         self.dis_cogs_path = os.path.join(self.dir, 'disabled_cogs.txt')
         self.init_dl_cogs_path = os.path.join(self.dir, 'cogs', '__init__.py')
         self.data_cogs_path = os.path.join(self.dir, 'data')
+        self.cog_json_cogs_path = os.path.join(self.dir, 'data', 'cogs.json')
         for name in ['dl', 'data']: # Dirs
             p = getattr(self, name + '_cogs_path')
             with suppress(OSError):
@@ -162,6 +163,9 @@ class ProBot(commands.Bot):
         self.enabled_cogs = []
         with open(self.ex_cogs_path, 'r') as f:
             self.enabled_cogs = [c.replace('\n', '').replace('\r', '') for c in f.readlines()]
+        if not os.path.exists(self.cog_json_cogs_path):
+            with open(self.cog_json_cogs_path, 'a') as f:
+                f.write('{}')
         super().__init__(**options)
 
     async def update_presence(self):
