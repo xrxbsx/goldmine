@@ -40,7 +40,8 @@ class REPL(Cog):
             'last': None,
             'kek': 'lol',
             'self': self,
-            'msg': msg
+            'msg': msg,
+            'test': 'Test right back at ya!'
         }
 
         if msg.channel.id in self.sessions:
