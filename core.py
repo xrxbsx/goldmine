@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import logging
 import asyncio
 import os
+import shutil
 from fnmatch import filter
 import discord
 from cogs.utils.dataIO import dataIO
@@ -59,6 +60,8 @@ def main(use_uvloop):
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     logger.info('Init: Getting cog folder')
     cogs_dir = os.path.join(cur_dir, 'cogs')
+    if not os.path.exists(os.path.join(cur_dir, 'cogs', 'utils')):
+        shutil.copytree(os.path.join(cur_dir, 'default_cogs', 'utils'), os.path.join(cur_dir, 'cogs'))
     bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
     logger.info('Init: Loading cogs')
     try:
