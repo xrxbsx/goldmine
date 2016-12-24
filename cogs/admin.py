@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import discord
 import util.commands as commands
 from util.perms import or_check_perms, echeck_perms, check_perms
-from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime, assert_msg
+from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime, assert_msg, check
 from util.const import muted_perms
 from .cog import Cog
 
@@ -390,7 +390,7 @@ class Admin(Cog):
             s_map = {i.id: i for i in self.bot.servers}
             for sid in ids:
                 with assert_msg(ctx, '**ID** `%s` **is invalid. (must be 18 numbers)**' % sid):
-                    assert len(sid) == 18
+                    check(len(sid) == 18)
                 try:
                     servers.append(s_map[sid])
                 except KeyError:
@@ -421,7 +421,7 @@ class Admin(Cog):
         server_table = {i.id: i for i in self.bot.servers}
         for sid in server_ids:
             with assert_msg(ctx, f'**ID** `{sid}` **is invalid. (must be 18 numbers)**'):
-                assert len(sid) == 18
+                check(len(sid) == 18)
             try:
                 server = server_table[sid]
             except KeyError:
