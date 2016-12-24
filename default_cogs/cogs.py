@@ -567,7 +567,7 @@ class Cogs(Cog):
                                    " `{}load {}`".format(ctx.prefix, cog))
             elif answer.content.lower().strip() == "yes":
                 set_cog("cogs." + cog, True)
-                await self.
+                await self.bot.say('please load manually right now')
             else:
                 await self.bot.say("Ok then, you can load it with"
                                    " `{}load {}`".format(ctx.prefix, cog))
