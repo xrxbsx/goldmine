@@ -1,9 +1,9 @@
-"""Definition of the bot's Miscellaneous module."""
+"""Definition of the bot's Misc module."""
 import asyncio
 import util.commands as commands
 from .cog import Cog
 
-class Miscellaneous(Cog):
+class Misc(Cog):
     """Random commands that can be useful here and there.
     This can be... truly random. Don't be scared! :smile:
     """
@@ -24,6 +24,5 @@ class Miscellaneous(Cog):
         await self.bot.say('\n'.join(reversed(['buzz ' * i for i in range(fn_i)])))
 
 def setup(bot):
-    c = Miscellaneous(bot)
+    c = Misc(bot)
     bot.add_cog(c)
-

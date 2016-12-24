@@ -21,9 +21,8 @@ class Cosmetic(Cog):
 
     def __init__(self, bot):
         self.al_aliases = [key for key in charsets]
-        self.playing_anim = []
-        self.stop_anim = []
-#        print(self.al_aliases)
+        self.playing_anim = set()
+        self.stop_anim = set()
         super().__init__(bot)
 
     @commands.command(aliases=['color'])
@@ -170,7 +169,7 @@ cool right?''',
         except AttributeError:
             cmid = 'dm' + ctx.message.author.id
         if cmid not in self.playing_anim:
-            self.playing_anim.append(cmid)
+            self.playing_anim.add(cmid)
             msg = await self.bot.say('Starting animation...')
             for _xi in range(runs):
                 for frame in anim_seq:
@@ -198,7 +197,7 @@ cool right?''',
             cmid = 'dm' + ctx.message.author.id
         if cmid in self.playing_anim:
             await self.bot.say('**Stopping animation...**')
-            self.stop_anim.append(cmid)
+            self.stop_anim.add(cmid)
             await asyncio.sleep(1.9)
             self.stop_anim.remove(ctmid)
         else:
@@ -228,11 +227,12 @@ cool right?''',
                     ret = await response.text()
         await self.bot.say(json.loads(ret)['file'])
 
-    @commands.command(pass_context=True, aliases=['temote', 'bemote', 'demote', 'getemote', 'fetchemote'])
+    @commands.command(pass_context=True, aliases=['temote', 'bemote', 'dcemote', 'getemote', 'fetchemote'])
     async def emote(self, ctx, _emote: str):
         """Get a Twitch, FrankerFaceZ, BetterTTV, or Discord emote.
         Usage: emote [name of emote]"""
         emote = _emote.replace(':', '')
+        ext = 'png'
         async with aiohttp.ClientSession(loop=self.loop) as session:
             with async_timeout.timeout(13):
                 try:
@@ -249,7 +249,7 @@ cool right?''',
                         except KeyError: # let's try Discord
                             await self.bot.say('**No such emote!** I can fetch from Twitch, FrankerFaceZ, BetterTTV, or Discord.')
                             return False
-        await self.bot.send_file(ctx.message.channel, io.BytesIO(emote_img), filename='emote.png')
+        await self.bot.send_file(ctx.message.channel, io.BytesIO(emote_img), filename=f'emote.{ext}')
 
 def setup(bot):
     c = Cosmetic(bot)
