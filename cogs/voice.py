@@ -13,7 +13,7 @@ import aiohttp
 import async_timeout
 from gtts_token import gtts_token
 from util.perms import echeck_perms, or_check_perms
-from util.func import assert_msg
+from util.func import assert_msg, check
 from util.const import sem_cells
 from .cog import Cog
 try:
@@ -532,9 +532,9 @@ class Voice(Cog):
         Usage: recording recog"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'move_members'])
         with assert_msg(ctx, '**The bot owner has not set up this feature!**'):
-            assert self.bot.opus_decoder != None
+            check(self.bot.opus_decoder != None)
         with assert_msg(ctx, '**This server does not have a recording!**'):
-            assert ctx.message.server.id in self.bot.pcm_data
+            check(ctx.message.server.id in self.bot.pcm_data)
         status = await self.bot.say('Hmm, let me think... 🌚')
         pg_task = asyncio.ensure_future(self.progress(status, 'Hmm, let me think'))
         sr_data = sr.AudioData(self.bot.pcm_data[ctx.message.server.id], 48000, 2)
@@ -558,7 +558,7 @@ class Voice(Cog):
             if not success:
                 return
         with assert_msg(ctx, '**This server does not have a recording!**'):
-            assert ctx.message.server.id in self.bot.pcm_data
+            check(ctx.message.server.id in self.bot.pcm_data)
         state.voice.encoder_options(sample_rate=48000, channels=2)
         player = state.voice.create_stream_player(io.BytesIO(self.bot.pcm_data[ctx.message.server.id]), after=state.toggle_next)
         player.volume = 0.7

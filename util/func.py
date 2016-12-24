@@ -55,3 +55,7 @@ def assert_msg(ctx, msg: str):
     except AssertionError:
         ensure_future(ctx.bot.send_message(ctx.message.channel, msg))
         raise PassException()
+
+def check(in_bool):
+    if not in_bool:
+        raise AssertionError('Assertion failed from check()!')
