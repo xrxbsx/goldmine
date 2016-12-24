@@ -60,7 +60,7 @@ class Cogs(Cog):
         """Reload a cog and turn some gears.
         Usage: cog reload [cog name]"""
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
-        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
+        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'downloaded_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs + ['all']
         req_cog = cog_name.lower().replace(' ', '_')
         if req_cog in cogs:
@@ -101,7 +101,7 @@ class Cogs(Cog):
         """Load a cog and polish some gears.
         Usage: cog load [cog name]"""
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
-        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
+        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'downloaded_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs + ['all']
         req_cog = cog_name.lower().replace(' ', '_')
         if req_cog in cogs:
@@ -136,7 +136,7 @@ class Cogs(Cog):
         """Unload a cog... I don't want to lose gears 😢
         Usage: cog unload [cog name]"""
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
-        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
+        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'downloaded_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs + ['all']
         req_cog = cog_name.lower().replace(' ', '_')
         if req_cog == 'cogs':
@@ -176,7 +176,7 @@ class Cogs(Cog):
         """Enable a cog so I load it every future start!
         Usage: cog enable [cog name]"""
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
-        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
+        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'downloaded_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs
         req_cog = cog_name.lower().replace(' ', '_')
         if req_cog in cogs:
@@ -204,7 +204,7 @@ class Cogs(Cog):
         """Disable a cog so it doesn't load every start.
         Usage: cog disable [cog name]"""
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
-        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
+        dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'downloaded_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs
         req_cog = cog_name.lower().replace(' ', '_')
         if req_cog == 'cogs':
