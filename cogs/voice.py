@@ -295,7 +295,7 @@ class Voice(Cog):
         entry = VoiceEntry(ctx.message, player, False)
         was_empty = state.songs.empty()
         await state.songs.put(entry)
-        if (state.current):
+        if state.current:
             await self.bot.say('Queued ' + str(entry))
         pg_task.cancel()
         await self.bot.delete_message(status)
