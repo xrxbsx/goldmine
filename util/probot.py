@@ -224,7 +224,7 @@ class ProBot(commands.Bot):
             if exp.perms_required:
                 perm_list = [i.lower().replace('_', ' ').title() for i in exp.perms_required]
                 if len(perm_list) > 1:
-                    perm_list[-1] = 'and ' + perm_list[-1]
+                    perm_list[-1] = '**and **' + perm_list[-1] # to cancel bold
                 _perms = ', '.join(perm_list)
             else:
                 _perms = 'Not specified'
@@ -234,7 +234,7 @@ class ProBot(commands.Bot):
             if exp.perms_ok:
                 perm_list = [i.lower().replace('_', ' ').title() for i in exp.perms_ok]
                 if len(perm_list) > 1:
-                    perm_list[-1] = 'or ' + perm_list[-1]
+                    perm_list[-1] = '**or **' + perm_list[-1] # to cancel bold
                 _perms = ', '.join(perm_list)
             else:
                 _perms = 'Not specified'
