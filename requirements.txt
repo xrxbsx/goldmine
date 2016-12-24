@@ -2,7 +2,6 @@ aiohttp
 https://github.com/Armored-Dragon/discord.py/archive/master.zip#egg=discord.py
 youtube_dl
 async_timeout
-google
 pickledb
 gTTS-token
 bs4

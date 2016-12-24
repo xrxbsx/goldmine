@@ -255,12 +255,9 @@ ece_fmt = '{0.mention} Hey, we don\'t have empty commands here! Try `{2}help` in
 emp_msg = '{0.mention} The bot tried to send an empty message for `{2}{1}`. Maybe try again?'
 msg_err = '{0.mention} Something went wrong in the bot while responding to `{2}{1}`. Maybe try again? Error: `{3}`'
 nam_err = '{0.mention} Something went wrong in the bot while responding to `{2}{1}`. Maybe try again? Error: internal variable `{3}` not defined.'
-#big_msg = '{0.mention} The bot tried to respond to `{2}{1}` with a message too long. Maybe try again?'
 big_msg = '{0.mention} Something went wrong in the bot while sending the message to respond to `{2}{1}`. This usually means the message was too long. Maybe try again?'
 tim_err = '{0.mention} The bot tried to respond to `{2}{1}`, but the web request timeouted! This usually means they\'re down. Maybe try again?'
-not_arg = '{0.mention} You tried to execute `{2}{1}` without enough arguments. Type `{2}help {1}` for extra help. Here\'s the valid usage:\n`{3}`'
-too_arg = '{0.mention} You tried to execute `{2}{1}` with too many arguments. Type `{2}help {1}` for extra help. Here\'s the valid usage:\n`{3}`'
-bad_arg = '{0.mention} You tried to execute `{2}{1}` with an invalid argument. Type `{2}help {1}` for extra help. Here\'s the valid usage:\n`{3}`'
+arg_err = '{0.mention} You tried to execute `{2}{1}` with{4}. Type `{2}help {1}` for extra help. Here\'s the correct usage:\n`{3}`'
 ast_err = '{0.mention} You tried to execute `{2}{1}` with an invalid math expression. Maybe numbers too big? Or wrong symbols?'
 ast_pow = '{0.mention} You tried to execute `{2}{1}` with a power too high. Max is `900**900`.'
 coc_fmt = '{0.mention} You\'re currently on cooldown for `{2}{1}`. Try again in **{3}**.'
@@ -436,13 +433,15 @@ Characters: {chars}'''
 
 quote_format = '**#{0}**: {4}"{1}"{4} \u2014 `{2}` [{3}]'
 essential_cogs = [
+    'cogs',
     'admin',
     'cosmetic',
     'luck',
     'misc',
     'roleplay',
     'utility',
-    'voice'
+    'voice',
+    'repl'
 ]
 
 join_msg = '''👀🤔👀🤔👀🤔👀🤔 **Hmm...** 👀🤔👀🤔👀🤔👀🤔

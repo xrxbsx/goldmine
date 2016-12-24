@@ -40,9 +40,9 @@ async def echeck_perms(ctx, perms_required):
 
 async def or_check_perms(ctx, perms_ok):
     """Easy wrapper for permission checking."""
-    results = []
+    results = set()
     for perm in perms_ok:
         res = await check_perms(ctx, perms_ok)
-        results.append(res)
+        results.add(res)
     if True not in results:
         raise OrCommandPermissionError(perms_ok, message=ctx.message.content)
