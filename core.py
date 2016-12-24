@@ -5,6 +5,7 @@ import asyncio
 import os
 from fnmatch import filter
 import discord
+from cogs.utils.dataIO import dataIO
 from util.token import bot_token
 from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
@@ -46,6 +47,11 @@ def runbot(loop, bot):
         loop.run_until_complete(bot.logout())
         # cancel all tasks lingering
 
+def set_cog(cog, value):  # TODO: move this out of core.py
+    data = dataIO.load_json("data/cogs.json")
+    data[cog] = value
+    dataIO.save_json("data/cogs.json", data)
+
 def main(use_uvloop):
     """Executes the main bot."""
     if use_uvloop:
@@ -55,17 +61,26 @@ def main(use_uvloop):
     cogs_dir = os.path.join(cur_dir, 'cogs')
     bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
     logger.info('Init: Loading cogs')
+    try:
+        with open('disabled_cogs.txt', 'r') as f:
+            disabled_cogs = [i.replace('\r', '').replace('\n', '') for i in f.readlines()]
+    except FileNotFoundError:
+        disabled_cogs = []
     for cog in essential_cogs:
-        logger.info('Init: Loading cog: ' + cog)
-        bot.load_extension('cogs.' + cog)
+        if cog not in disabled_cogs:
+            logger.info('Init: Loading cog: ' + cog)
+            bot.load_extension('default_cogs.' + cog)
     logger.info('Init: Loading extra cogs')
     try:
-        with open('cogs.txt', 'r+') as f:
+        with open('cogs.txt', 'r') as f:
             for cog in [i.replace('\r', '').replace('\n', '') for i in f.readlines()]:
                 try:
                     if cog: # for empty newlines
                         logger.info('Init: Loading extra cog: ' + cog)
-                        bot.load_extension('cogs.' + cog)
+                        try:
+                            bot.load_extension('default_cogs.' + cog)
+                        except ImportError:
+                            bot.load_extension('cogs.' + cog)
                 except ImportError:
                     logger.error('Could not load extra cog %s!' % cog)
                     exit(1)
