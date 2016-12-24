@@ -114,7 +114,7 @@ st2.json
 d_props.py
 cogs.txt
 test_data.ogg
-cogs/*.py
+cogs
 default_cogs/e_zaflash.py
 disabled_cogs.txt
 data
