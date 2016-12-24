@@ -3,14 +3,11 @@ from __future__ import print_function
 import asyncio
 import random
 import subprocess
-import os
-from fnmatch import filter
 from contextlib import suppress
 from importlib import import_module as imp
 from datetime import datetime, timedelta
 
 import discord
-from convert_to_old_syntax import cur_dir
 import util.commands as commands
 from util.perms import or_check_perms, echeck_perms, check_perms
 from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime, assert_msg
@@ -49,7 +46,7 @@ class Admin(Cog):
                 pass
         if not detected:
             mode = 'target'
-            targets = []
+            targets = set()
             members = {}
             s = ctx.message.server
             for i in getattr(s, 'members', []):
@@ -66,24 +63,24 @@ class Admin(Cog):
                     except discord.HTTPException:
                         member = None
                 if member:
-                    targets.append(member)
+                    targets.add(member)
                 else:
                     try:
                         member = await self.bot.get_user_info(i)
                     except discord.HTTPException:
                         member = None
                     if member:
-                        targets.append(member)
-            names = []
+                        targets.add(member)
+            names: List[str]
             _i = 0
             while _i < len(count):
                 names.append(count[_i])
                 with suppress(KeyError):
                     if ' '.join(names) in members:
-                        targets.append(members[' '.join(names)])
+                        targets.add(members[' '.join(names)])
                         names = []
                     elif _i + 1 == len(count):
-                        targets.append(members[count[0]])
+                        targets.add(members[count[0]])
                         _i = -1
                         users = count[1:]
                         names = []
@@ -100,12 +97,15 @@ class Admin(Cog):
         await asyncio.sleep(2.8)
         await self.bot.delete_message(del_msg)
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['rawupdate', 'rupdate'])
     async def update(self, ctx):
         """Auto-updates this bot and restarts if any code was updated.
         Usage: update"""
         await echeck_perms(ctx, ['bot_owner'])
+        restart = ctx.invoked_with.startswith('r')
         msg = await self.bot.say('Trying to update...')
+        r_key = ', now restarting' if restart else ''
+        r_not_key = ', not restarting' if restart else ''
 #        subprocess.check_output(['git', 'reset', 'HEAD', '--hard'])
         try:
             gitout = subprocess.check_output(['git', 'pull', '-v'], stderr=subprocess.STDOUT).decode('utf-8')
@@ -116,11 +116,12 @@ class Admin(Cog):
         if gitout != False:
             await self.bot.send_message(ctx.message.author, 'Update Output:\n```' + gitout + '```')
         if not gitout:
-            await self.bot.edit_message(msg, msg.content + '\nUpdate failed, not restarting.')
+            await self.bot.edit_message(msg, msg.content + f'\nUpdate failed{r_not_key}.')
         elif gitout.split('\n')[-2:][0] == 'Already up-to-date.':
-            await self.bot.edit_message(msg, 'Bot was already up-to-date, not restarting.')
+            await self.bot.edit_message(msg, f'Bot was already up-to-date, not restarting{r_not_key}.')
         else:
-            await self.bot.edit_message(msg, 'Bot was able to update, now restarting.')
+            await self.bot.edit_message(msg, f'Bot was able to update{r_key}.')
+        if restart:
             await self.restart.invoke(ctx)
 
     @commands.command(pass_context=True)
@@ -384,7 +385,7 @@ class Admin(Cog):
         Usage: servertree"""
         await echeck_perms(ctx, ['bot_owner'])
         pager = commands.Paginator(prefix='```diff')
-        servers = []
+        servers: List[discord.Server]
         if ids:
             s_map = {i.id: i for i in self.bot.servers}
             for sid in ids:
@@ -419,12 +420,12 @@ class Admin(Cog):
         pager.add_line('< -- SERVERS <-> MEMBERS -- >')
         server_table = {i.id: i for i in self.bot.servers}
         for sid in server_ids:
-            with assert_msg(ctx, '**ID** `%s` **is invalid. (must be 18 numbers)**' % sid):
+            with assert_msg(ctx, f'**ID** `{sid}` **is invalid. (must be 18 numbers)**'):
                 assert len(sid) == 18
             try:
                 server = server_table[sid]
             except KeyError:
-                await self.bot.say('**ID** `%s` **was not found.**' % sid)
+                await self.bot.say(f'**ID** `{sid}` **was not found.**')
                 return False
             pager.add_line('+ ' + server.name + ' [{0} members] [ID {1}]'.format(str(len(server.members)), server.id))
             for member in server.members:
@@ -491,36 +492,6 @@ class Admin(Cog):
             pg_task.cancel()
             await self.bot.delete_message(status)
             await self.bot.say('**I don\'t have enough permissions to do that!**')
-
-    @commands.group(pass_context=True, aliases=['cogs', 'module', 'modules'])
-    async def cog(self, ctx):
-        """Manage all of my cogs and gears.
-        Usage: cog {stuff}"""
-        await or_check_perms(ctx, ['bot_owner'])
-        if ctx.invoked_subcommand is None:
-            await self.bot.send_cmd_help(ctx)
-    @cog.command(name='list')
-    async def cog_list(self):
-        """List all cogs available.
-        Usage: cog list"""
-        clist = '''```diff
-- Available (Default)
-+ {0}
-----------------------------------------------
-- Available (Downloaded)
-+ {1}
-----------------------------------------------
-- Loaded
-+ {2}
-----------------------------------------------```'''
-        available_def_cogs = [c.replace('.py', '').replace('_', ' ').title() for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
-        try:
-            available_dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'downloaded_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
-        except OSError:
-            available_dl_cogs = ['None! 😦']
-        if not available_dl_cogs:
-            available_dl_cogs = ['None! 😦']
-        await self.bot.say(clist.format('\n+ '.join(available_def_cogs), '\n+ '.join(available_dl_cogs), '\n+ '.join(list(self.bot.cogs.keys()))))
 
 def setup(bot):
     c = Admin(bot)
