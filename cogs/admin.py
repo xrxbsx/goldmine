@@ -481,7 +481,7 @@ class Admin(Cog):
         try:
             if 'Muted' in role_map:
                 await self.bot.remove_roles(member, role_map['Muted'])
-            ch_perms = discord.PermissionOverwrite(**{p: True for p in muted_perms})
+            ch_perms = discord.PermissionOverwrite(**{p: None for p in muted_perms})
             for channel in ctx.message.server.channels:
                 await self.bot.edit_channel_permissions(channel, member, ch_perms)
             await self.bot.server_voice_state(member, mute=False, deafen=None)
