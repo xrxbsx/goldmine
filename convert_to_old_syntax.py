@@ -5,13 +5,13 @@ from fnmatch import filter
 import os
 import re
 
-cur_dir = os.path.dirname(os.path.abspath(__file__))
+cur_dir = os.path.dirname(os.path.realpath(__file__))
 
 def rc_files(folder):
-    rl = []
+    rl = set()
     for root, fds, files in os.walk(folder):
         for fn in files:
-            rl.append(os.path.join(root, fn))
+            rl.add(os.path.join(root, fn))
     return rl
 
 def main():

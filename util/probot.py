@@ -49,12 +49,11 @@ except Exception:
 if sys.platform in ['linux', 'linux2', 'darwin']:
     import resource
 
-class CleverQuery():
-    def __init__(self, channel_to, query, prefix, suffix):
-        self.destination = channel_to
-        self.prefix = prefix
-        self.suffix = suffix
-        self.query = query
+arg_err_map = {
+    commands.MissingRequiredArgument: 'out enough arguments',
+    commands.BadArgument: ' an invalid argument',
+    commands.TooManyArguments: ' too many arguments'
+}
 
 class ProBot(commands.Bot):
     """The brain of the bot, ProBot."""
@@ -64,7 +63,6 @@ class ProBot(commands.Bot):
         self.cb = Cleverbot()
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
-        self.auto_convos = []
         self.perm_mask = '1609825363' # 66321741 = full
         self.game = {
             'name': 'Dragon Essence',
@@ -73,16 +71,12 @@ class ProBot(commands.Bot):
         }
         self.status = 'online'
         self.presence = {}
-        self.main_cb_queue = asyncio.Queue() # For cleverbot
-        self.alt_cb_queue = asyncio.Queue() # For cleverbutts
-        self.main_cb_executor = self.loop.create_task(self.cb_task(self.main_cb_queue))
-        self.alt_cb_executor = self.loop.create_task(self.cb_task(self.alt_cb_queue))
         self.chars = 0
         self.words = 0
         self.lines = 0
         self.files = 0
         self.size_bytes = 0
-        self.raw_sizes_bytes = []
+        self.raw_sizes_bytes = set()
         self.size_kb = 0
         self.avg_size_bytes = 0
         self.avg_size_kb = 0
@@ -93,7 +87,7 @@ class ProBot(commands.Bot):
                 self.words += len(fr.split(' '))
                 self.lines += len(fr.split('\n'))
                 self.files += 1
-            self.raw_sizes_bytes.append(os.path.getsize(fn))
+            self.raw_sizes_bytes.add(os.path.getsize(fn))
         self.size_bytes = sum(self.raw_sizes_bytes)
         self.avg_size_bytes = self.size_bytes / self.files
         self.size_kb = self.size_bytes / 1000
@@ -104,8 +98,8 @@ class ProBot(commands.Bot):
         except Exception:
             pass
         self.start_time = datetime.now()
-        self.dir = os.path.dirname(os.path.abspath(__file__))
-        self.storepath = os.path.join(self.dir, '..', 'storage.')
+        self.dir = os.path.dirname(os.path.realpath(sys.modules['__main__'].__file__))
+        self.storepath = os.path.join(self.dir, 'storage.')
         if storage_backend not in DataStore.exts:
             self.logger.critical('Invalid storage backend specified, quitting!')
         self.version = '0.0.1'
@@ -127,7 +121,7 @@ class ProBot(commands.Bot):
         self.dc_ver = discord.version_info
         self.lib_version = '.'.join([str(i) for i in self.dc_ver])
         self.store_writer = self.loop.create_task(self.store.commit_task())
-        self.cleverbutt_timers = []
+        self.cleverbutt_timers = set()
         self.cleverbutt_latest = {}
         self.asteval = Interpreter(use_numpy=False, writer=FakeObject(value=True))
         self.have_resource = False
@@ -138,26 +132,36 @@ class ProBot(commands.Bot):
         else:
             self.opus_decoder = None
         self.pcm_data = {}
-        self.servers_recording = []
-        self.cleverbutt_replied_to = deque([])
+        self.servers_recording = set()
+        self.cleverbutt_replied_to = set()
         self.get_emote_task = asyncio.ensure_future(self.update_emote_data())
         self.emotes = {}
+        self.dl_cogs_path = os.path.join(self.dir, 'downloaded_cogs')
+        self.ex_cogs_path = os.path.join(self.dir, 'cogs.txt')
+        self.dis_cogs_path = os.path.join(self.dir, 'disabled_cogs.txt')
+        self.init_dl_cogs_path = os.path.join(self.dir, 'downloaded_cogs', '__init__.py')
+        for name in ['dl']: # Dirs
+            p = getattr(self, name + '_cogs_path')
+            with suppress(OSError):
+                if not os.path.exists(p):
+                    os.makedirs(p)
+        for name in ['ex', 'dis']: # Files
+            p = getattr(self, name + '_cogs_path')
+            with suppress(OSError):
+                if not os.path.exists(p):
+                    with open(p, 'a') as f:
+                        pass
+        with suppress(OSError):
+            if not os.path.exists(self.init_dl_cogs_path):
+                with open(self.init_dl_cogs_path, 'w+') as f:
+                    f.write('"""Placeholder to make Python recognize this as a module."""\n')
+        self.disabled_cogs = []
+        with open(self.dis_cogs_path, 'r') as f:
+            self.disabled_cogs = [c.replace('\n', '').replace('\r', '') for c in f.readlines()]
+        self.enabled_cogs = []
+        with open(self.ex_cogs_path, 'r') as f:
+            self.enabled_cogs = [c.replace('\n', '').replace('\r', '') for c in f.readlines()]
         super().__init__(**options)
-
-    async def cb_task(self, queue):
-        """Handle the answering of all Cleverbot queries."""
-        while True:
-            queue.clear()
-            current = await queue.get()
-            cb_args = [
-                current.destination,
-                current.query,
-                current.prefix,
-                current.suffix,
-                queue
-            ]
-            await self.cb_ask(*cb_args)
-            await queue.wait()
 
     async def update_presence(self):
         """Generate an updated presence and change it."""
@@ -171,11 +175,6 @@ class ProBot(commands.Bot):
         """Send a message to the context's message origin.'"""
         self.send_message(ctx.message.channel, msg)
 
-    async def cb_ask(self, dest, query, prefix, suffix, queue):
-        reply_bot = await self.askcb(query)
-        await self.send_message(dest, prefix + reply_bot + suffix)
-        await asyncio.sleep(2)
-        queue.set()
     async def askcb(self, query):
         """A method of querying Cleverbot safe for async."""
         return await self.cb.ask(query) # now just an alias
@@ -278,12 +277,14 @@ class ProBot(commands.Bot):
                 await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.csend(ctx, 'An internal error occured while responding to `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
-        elif isinstance(exp, commands.MissingRequiredArgument):
-            await self.csend(ctx, not_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1], 'Usage: ')))
-        elif isinstance(exp, commands.TooManyArguments):
-            await self.csend(ctx, too_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1], 'Usage: ')))
-        elif isinstance(exp, commands.BadArgument):
-            await self.csend(ctx, bad_arg.format(ctx.message.author, cprocessed, cmdfix, cmdfix + bdel(self.commands[cprocessed].help.split('\n')[-1], 'Usage: ')))
+        elif type(exp) in [commands.MissingRequiredArgument, commands.TooManyArguments, commands.BadArgument]:
+            if ctx.invoked_subcommand is None:
+                tgt_cmd = self.commands[cprocessed]
+            else:
+                tgt_cmd = ctx.invoked_subcommand
+            await self.csend(ctx, arg_err.format(ctx.message.author, cprocessed, cmdfix, cmdfix +
+                             cprocessed + bdel(bdel(bdel(tgt_cmd.help.split('\n')[-1], 'Usage: '),
+                             tgt_cmd.name), cprocessed), arg_err_map[type(exp)]))
         else:
             await self.csend(ctx, 'An internal error occured while responding to` %s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
 
@@ -300,7 +301,7 @@ class ProBot(commands.Bot):
         absid = msg.server.id + ':' + msg.channel.id + ':' + msg.author.id
         if absid not in self.auto_convos:
             await self.send_typing(msg.channel)
-            self.auto_convos.append(absid)
+            self.auto_convos.add(absid)
             lmsg = msg.content.lower()
             reply = lmsg
             reply_bot = await self.askcb(bdel(lmsg, kickstart + ' ')) #ORIG
@@ -360,7 +361,6 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         self.cleverbutt_timers.append(msg.server.id)
         await asyncio.sleep((random.random()) * 2)
         await self.send_typing(msg.channel)
-        #await self.main_cb_queue.put(CleverQuery(msg.channel, msg.content, '', ''))
         try:
             query = self.cleverbutt_latest[msg.server.id]
         except KeyError:
@@ -376,7 +376,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             del self.cleverbutt_latest[msg.server.id]
         except Exception:
             pass
-        self.cleverbutt_replied_to.append(msg.id)
+        self.cleverbutt_replied_to.add(msg.id)
         self.cleverbutt_timers.remove(msg.server.id)
 
     async def on_message(self, msg):
