@@ -102,7 +102,7 @@ class Admin(Cog):
         """Auto-updates this bot and restarts if any code was updated.
         Usage: update"""
         await echeck_perms(ctx, ['bot_owner'])
-        restart = ctx.invoked_with.startswith('r')
+        restart = not ctx.invoked_with.startswith('r')
         msg = await self.bot.say('Trying to update...')
         r_key = ', now restarting' if restart else ''
         r_not_key = ', not restarting' if restart else ''
