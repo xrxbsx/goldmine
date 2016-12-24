@@ -358,7 +358,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             await self.send_message(target, fmt.format(str(member), member.server, utype))
 
     async def clever_reply(self, msg):
-        self.cleverbutt_timers.append(msg.server.id)
+        self.cleverbutt_timers.add(msg.server.id)
         await asyncio.sleep((random.random()) * 2)
         await self.send_typing(msg.channel)
         try:
