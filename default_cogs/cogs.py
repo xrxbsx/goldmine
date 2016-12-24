@@ -327,7 +327,7 @@ class Cogs(Cog):
         self.save_repos()
         await self.bot.say("Repo '{}' removed.".format(repo_name))
 
-    @cog.command(name="list")
+    @cog.command(name="rlist")
     async def _send_list(self, repo_name=None):
         """Lists installable cogs"""
         retlist = []
