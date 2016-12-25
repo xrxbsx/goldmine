@@ -292,7 +292,7 @@ class Utility(Cog):
         up = await self.bot.format_uptime()
         ram = await self.bot.get_ram()
         got_conversion = ram[0]
-        ram = (' RAM usage is **' + str(round(ram[1], 1)) + ' MB (%s MiB)**.' % str(round(ram[2], 1))) if got_conversion else ''
+        ram_final = (' RAM usage is **' + str(round(ram[1], 1)) + ' MB (%s MiB)**.' % str(round(ram[2], 1))) if got_conversion else ''
         await self.bot.say(ctx.message.author.mention + ' I\'ve been up for **' + up + '**.' + ram_final)
 
     @commands.command(pass_context=True, aliases=['link', 'invlink', 'addbot', 'botadd'])
