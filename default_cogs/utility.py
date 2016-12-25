@@ -285,12 +285,15 @@ class Utility(Cog):
         Usage: test"""
         await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, aliases=['ram', 'memory', 'usage'])
     async def uptime(self, ctx):
         """Report the current uptime of the bot.
         Usage: uptime"""
         up = await self.bot.format_uptime()
-        await self.bot.say(ctx.message.author.mention + ' I\'ve been up for **' + up + '**.')
+        ram = await self.bot.get_ram()
+        got_conversion = ram[0]
+        ram = (' RAM usage is **' + str(round(ram[1], 1)) + ' MB (%s MiB)**.' % str(round(ram[2], 1))) if got_conversion else ''
+        await self.bot.say(ctx.message.author.mention + ' I\'ve been up for **' + up + '**.' + ram_final)
 
     @commands.command(pass_context=True, aliases=['link', 'invlink', 'addbot', 'botadd'])
     async def invite(self, ctx, *rids: str):
