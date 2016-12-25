@@ -71,7 +71,7 @@ class Admin(Cog):
                         member = None
                     if member:
                         targets.add(member)
-            names: List[str]
+            names = []
             _i = 0
             while _i < len(count):
                 names.append(count[_i])
