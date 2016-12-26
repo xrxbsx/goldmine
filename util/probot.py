@@ -98,7 +98,7 @@ class ProBot(commands.Bot):
         except Exception:
             pass
         self.start_time = datetime.now()
-        self.dir = os.path.dirname(os.path.realpath(sys.modules['__main__'].__file__))
+        self.dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
         self.storepath = os.path.join(self.dir, 'storage.')
         if storage_backend not in DataStore.exts:
             self.logger.critical('Invalid storage backend specified, quitting!')

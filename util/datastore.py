@@ -9,7 +9,7 @@ from properties import storage_backend
 
 def initialize():
     """Initialize the data store, if needed."""
-#    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'storage.json'), 'w+') as storefile:
+#    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'storage.json'), 'w+') as storefile:
 #        try:
 #            json.loads('' + storefile.read())
 #        except json.decoder.JSONDecodeError:
@@ -24,7 +24,7 @@ class DataStore():
         'pickle': 'db'
     }
     def __init__(self, backend, path=None, join_path=True, commit_interval=3):
-        self.dir = os.path.dirname(os.path.realpath(sys.modules['__main__'].__file__))
+        self.dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
         self.backend = backend
         self.session = None
         self.commit_interval = commit_interval
