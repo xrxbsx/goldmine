@@ -494,7 +494,7 @@ class Admin(Cog):
             await self.bot.say('**I don\'t have enough permissions to do that!**')
 
     @commands.command(pass_context=True, aliases=['sf', 'sendf', 'filesend', 'fs'])
-    async def sendfile(self, ctx, path: str = 'assets/soon.gif', msg: str = 'Here:'):
+    async def sendfile(self, ctx, path: str = 'assets/soon.gif', msg: str = '📧 File incoming! 📧'):
     """Usage: sendfile [file path] {message}"""
     await echeck_perms(ctx, ['bot_owner'])
     with open(path, 'rb') as f:
