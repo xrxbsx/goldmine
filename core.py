@@ -78,17 +78,18 @@ def main(use_uvloop):
     logger.info('Init: Loading extra cogs')
     try:
         with open('cogs.txt', 'r') as f:
-            for cog in [i.replace('\r', '').replace('\n', '') for i in f.readlines()]:
-                try:
-                    if cog: # for empty newlines
-                        logger.info('Init: Loading extra cog: ' + cog)
+            for cog in [i.replace('\r', '').replace('\n', '').replace(' ', '_') for i in f.readlines()]:
+                if cog: # for empty newlines
+                    print([i.replace('\r', '').replace('\n', '').replace(' ', '_') for i in f.readlines()])
+                    logger.info('Init: Loading extra cog: ' + cog)
+                    try:
+                        bot.load_extension('default_cogs.' + cog)
+                    except ImportError:
                         try:
-                            bot.load_extension('default_cogs.' + cog)
-                        except ImportError:
                             bot.load_extension('cogs.' + cog)
-                except ImportError:
-                    logger.error('Could not load extra cog %s!' % cog)
-                    exit(1)
+                        except ImportError:
+                            logger.error('Could not load extra cog %s!', cog)
+                            exit(1)
     except FileNotFoundError:
         pass
     logger.info('Init: Initializing event loop')
