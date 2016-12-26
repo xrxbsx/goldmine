@@ -8,6 +8,7 @@ import os
 import sys
 import traceback
 import re
+import shutil
 from collections import deque
 from fnmatch import filter
 from datetime import datetime
@@ -158,10 +159,9 @@ class ProBot(commands.Bot):
             if not os.path.exists(self.init_dl_cogs_path):
                 with open(self.init_dl_cogs_path, 'w+') as f:
                     f.write('"""Placeholder to make Python recognize this as a module."""\n')
-        with suppress(OSError):
+        with suppress(IOError):
             if not os.path.exists(self.cogs_cog_py_path):
-                with open(self.cogs_cog_py_path, 'w+') as f, open(os.path.join(self.dir, 'default_cogs', 'cog.py'), 'r') as src:
-                    f.write(src.read())
+                shutil.copy2(os.path.join(self.dir, 'default_cogs', 'cog.py'), self.cogs_cog_py_path)
         self.disabled_cogs = []
         with open(self.dis_cogs_path, 'r') as f:
             self.disabled_cogs = [c.replace('\n', '').replace('\r', '') for c in f.readlines()]
