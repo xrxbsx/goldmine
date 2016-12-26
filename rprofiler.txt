@@ -3197,7 +3197,7 @@ Failed to send close message
        41    0.000    0.000    0.000    0.000 ntpath.py:35(_get_bothseps)
      3923    0.002    0.000    0.004    0.000 ntpath.py:45(normcase)
      3510    0.016    0.000    0.031    0.000 ntpath.py:465(normpath)
-     3510    0.003    0.000    0.036    0.000 ntpath.py:530(realpath)
+     3510    0.003    0.000    0.036    0.000 ntpath.py:530(abspath)
      1962    0.002    0.000    0.007    0.000 ntpath.py:74(join)
         1    0.000    0.000    0.000    0.000 nturl2path.py:1(<module>)
         1    0.000    0.000    0.000    0.000 ntvde.py:15(NTVDeIE)

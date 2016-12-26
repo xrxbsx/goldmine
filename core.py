@@ -78,10 +78,8 @@ def main(use_uvloop):
     logger.info('Init: Loading extra cogs')
     try:
         with open('cogs.txt', 'r') as f:
-            to_load = [i.replace('\r', '').replace('\n', '').replace(' ', '_') for i in f.readlines()]
-            for cog in to_load:
+            for cog in [i.replace('\r', '').replace('\n', '').replace(' ', '_') for i in f.readlines()]:
                 if cog: # for empty newlines
-                    print(to_load)
                     logger.info('Init: Loading extra cog: ' + cog)
                     try:
                         bot.load_extension('default_cogs.' + cog)
