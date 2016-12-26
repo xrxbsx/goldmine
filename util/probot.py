@@ -142,6 +142,7 @@ class ProBot(commands.Bot):
         self.init_dl_cogs_path = os.path.join(self.dir, 'cogs', '__init__.py')
         self.data_cogs_path = os.path.join(self.dir, 'data')
         self.cog_json_cogs_path = os.path.join(self.dir, 'data', 'cogs.json')
+        self.cogs_cog_py_path = os.path.join(self.dir, 'cogs', 'cog.py')
         for name in ['dl', 'data']: # Dirs
             p = getattr(self, name + '_cogs_path')
             with suppress(OSError):
@@ -157,6 +158,10 @@ class ProBot(commands.Bot):
             if not os.path.exists(self.init_dl_cogs_path):
                 with open(self.init_dl_cogs_path, 'w+') as f:
                     f.write('"""Placeholder to make Python recognize this as a module."""\n')
+        with suppress(OSError):
+            if not os.path.exists(self.cogs_cog_py_path):
+                with open(self.cogs_cog_py_path, 'w+') as f, open(os.path.join(self.dir, 'default_cogs', 'cog.py'), 'r') as src:
+                    f.write(src.read())
         self.disabled_cogs = []
         with open(self.dis_cogs_path, 'r') as f:
             self.disabled_cogs = [c.replace('\n', '').replace('\r', '') for c in f.readlines()]
