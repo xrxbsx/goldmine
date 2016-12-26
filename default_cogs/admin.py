@@ -495,10 +495,10 @@ class Admin(Cog):
 
     @commands.command(pass_context=True, aliases=['sf', 'sendf', 'filesend', 'fs'])
     async def sendfile(self, ctx, path: str = 'assets/soon.gif', msg: str = '📧 File incoming! 📧'):
-    """Usage: sendfile [file path] {message}"""
-    await echeck_perms(ctx, ['bot_owner'])
-    with open(path, 'rb') as f:
-        await self.bot.send_file(ctx.message.channel, fp=f, content=msg)
+        """Usage: sendfile [file path] {message}"""
+        await echeck_perms(ctx, ['bot_owner'])
+        with open(path, 'rb') as f:
+            await self.bot.send_file(ctx.message.channel, fp=f, content=msg)
 
 def setup(bot):
     c = Admin(bot)
