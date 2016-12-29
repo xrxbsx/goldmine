@@ -40,7 +40,7 @@ async def _request(uri):
 
     async with aiohttp.ClientSession(loop=asyncio.get_event_loop()) as session:
         with async_timeout.timeout(10):
-            async with session.get('http://127.0.0.1:9000/') as r:
+            async with session.get(uri) as r:
                 if r.status == 200:
                     txt = await r.text()
                     return await _to_json(txt)
