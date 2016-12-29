@@ -28,7 +28,7 @@ class Admin(Cog):
         self.dc_funcs = DiscordFuncs(bot)
         super().__init__(bot)
 
-    @commands.command(pass_context=True, aliases=['clear', 'purge', 'prune'])
+    @commands.command(pass_context=True, aliases=['clear', 'purge', 'prune', 'clean'])
     async def nuke(self, ctx, *count):
         """NUKES a channel by deleting all messages!
         Usage: nuke"""
@@ -167,6 +167,7 @@ class Admin(Cog):
         """Broadcast a message to all servers.
         Usage: broadcast [message]"""
         await echeck_perms(ctx, ['bot_owner'])
+        err = ''
         for i in self.bot.servers:
             try:
                 await self.bot.send_message(i.default_channel, text)
@@ -180,9 +181,11 @@ class Admin(Cog):
                         await self.bot.send_message(try_channels[c_count], text)
                         satisfied = True
                     if c_count > channel_count:
-                        await self.bot.say('`[WARN]` Couldn\'t broadcast to server **' + i.name + '**')
+                        err += '`[WARN]` Couldn\'t broadcast to server **' + i.name + '**\n'
                         satisfied = True
                     c_count += 1
+        if err:
+            await self.bot.say(err)
 
     @commands.command(pass_context=True, hidden=True, aliases=['pyeval', 'rxeval', 'reref', 'xeval'])
     async def eref(self, ctx, *, code: str):
