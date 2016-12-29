@@ -65,9 +65,10 @@ class Utility(Cog):
     async def calc(self, ctx, *, code: str):
         """Evaluates a mathematical experssion.
         Usage: calc [expression]"""
+        await or_check_perms(ctx, ['bot_admin'])
         code = bdel(code, '```py').strip('`')
         try:
-            with async_timeout.timeout(7.5):
+            with async_timeout.timeout(4.5):
                 m_result = await self.math_task(code)
         except (asyncio.TimeoutError, RuntimeError) as exp:
             resp = '{0.author.mention} **It took too long to evaluate your expression!**'.format(ctx.message)
