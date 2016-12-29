@@ -67,6 +67,16 @@ class Utility(Cog):
         Usage: calc [expression]"""
         await or_check_perms(ctx, ['bot_admin'])
         code = bdel(code, '```py').strip('`')
+        blocked_keys = [
+            'while ',
+            '__sizeof__',
+            'dir(',
+            '__len__'
+        ]
+        for key in blocked_keys:
+            if key in code:
+                await self.bot.say('**Blocked keyword found!**')
+                return
         try:
             with async_timeout.timeout(4.5):
                 m_result = await self.math_task(code)
