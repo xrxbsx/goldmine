@@ -2,6 +2,7 @@
 import asyncio
 import random
 import io
+from imghdr import what as imgdet
 from contextlib import suppress
 from urllib.parse import urlencode
 import util.json as json
@@ -217,15 +218,30 @@ cool right?''',
             await self.bot.send_file(ctx.message.channel, image, filename='spiders_webs.jpg')
 
 #    @commands.cooldown(1, 4, type=commands.BucketType.user)
-    @commands.command(aliases=['random.cat', 'randomcat', 'rcat', 'cats', 'catrandom', 'random_cat'])
-    async def cat(self):
+    @commands.command(pass_context=True, aliases=['random.cat', 'randomcat', 'rcat', 'cats', 'catrandom', 'random_cat'])
+    async def cat(self, ctx):
         """Get a random cat! Because why not.
         Usage: cat"""
         async with aiohttp.ClientSession(loop=self.loop) as session:
-            with async_timeout.timeout(8):
+            with async_timeout.timeout(9):
                 async with session.get('http://random.cat/meow') as response:
                     ret = await response.text()
-        await self.bot.say(json.loads(ret)['file'])
+                async with session.get(json.loads(ret)['file']) as resp:
+                    img = await resp.read()
+        img_bytes = io.BytesIO(img)
+        await self.bot.send_file(ctx.message.channel, img_bytes, 'random-cat.' + imgdet(img_bytes))
+    @commands.command(pass_context=True, aliases=['random.dog', 'randomdog', 'rdog', 'dogs', 'dograndom', 'random_dog'])
+    async def dog(self, ctx):
+        """Get a random dog! Because why not.
+        Usage: dog"""
+        async with aiohttp.ClientSession(loop=self.loop) as session:
+            with async_timeout.timeout(9):
+                async with session.get('http://random.dog/woof') as response:
+                    ret = await response.text()
+                async with session.get(ret) as resp:
+                    img = await resp.read()
+        img_bytes = io.BytesIO(img)
+        await self.bot.send_file(ctx.message.channel, img_bytes, 'random-dog.' + imgdet(img_bytes))
 
     @commands.command(pass_context=True, aliases=['temote', 'bemote', 'dcemote', 'getemote', 'fetchemote'])
     async def emote(self, ctx, _emote: str):
@@ -247,9 +263,11 @@ cool right?''',
                             async with session.get(self.bot.emotes['bttv'][emote]) as resp:
                                 emote_img = await resp.read()
                         except KeyError: # let's try Discord
-                            await self.bot.say('**No such emote!** I can fetch from Twitch, FrankerFaceZ, BetterTTV, or Discord.')
+                            await self.bot.say('**No such emote!** I can fetch from Twitch, FrankerFaceZ, BetterTTV, or Discord (soon).')
                             return False
-        await self.bot.send_file(ctx.message.channel, io.BytesIO(emote_img), filename=f'emote.{ext}')
+        img_bytes = io.BytesIO(emote_img)
+        ext = imgdet(img_bytes)
+        await self.bot.send_file(ctx.message.channel, img_bytes, filename=f'emote.{ext}')
 
 def setup(bot):
     c = Cosmetic(bot)
