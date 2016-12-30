@@ -5,6 +5,7 @@ import re
 import sys
 import time
 import textwrap
+import unicodedata
 from contextlib import suppress
 from collections import OrderedDict
 from datetime import datetime, timedelta
@@ -514,6 +515,15 @@ Server Owner\'s ID: `{0.server.owner.id}`
         col_rgb = [random.randint(1, 255) for i in range(0, 3)]
         col_str = '0x%02X%02X%02X' % (col_rgb[0], col_rgb[1], col_rgb[2])
         await self.bot.say(embed=discord.Embed(color=int(col_str, 16), title='Hex: ' + col_str.replace('0x', '#') + ' | RGB: ' + ', '.join([str(c) for c in col_rgb])))
+
+    @commands.command(aliases=['character', 'char', 'cinfo', 'unicode', 'uinfo'])
+    async def charinfo(self, *, uchars: str):
+        """Get the Unicode info for a character or characters.
+        Syntax: charinfo [character(s)]"""
+        cinfo = []
+        for char in uchars.replace('\n', ' ').split(' '):
+            cinfo.append(str(hex(ord(char))).replace('0x', 'U+') + ' ' + unicodedata.name(char) + ' ' + char + ' `' + char + '`')
+        await self.bot.say('\n'.join(cinfo))
 
 def setup(bot):
     c = Utility(bot)
