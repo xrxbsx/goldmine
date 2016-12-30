@@ -16,7 +16,7 @@ import async_timeout
 import discord
 import util.commands as commands
 from properties import bot_owner
-from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats
+from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats, eval_blocked
 from util.fake import FakeContextMember, FakeMessageMember
 from util.func import bdel
 from util.perms import check_perms, or_check_perms
@@ -67,18 +67,12 @@ class Utility(Cog):
         Usage: calc [expression]"""
         await or_check_perms(ctx, ['bot_admin'])
         code = bdel(code, '```py').strip('`')
-        blocked_keys = [
-            'while ',
-            '__sizeof__',
-            'dir(',
-            '__len__'
-        ]
-        for key in blocked_keys:
-            if key in code:
-                await self.bot.say('**Blocked keyword found!**')
-                return
+        for key in eval_blocked:
+            if re.search(key, code):
+                await self.bot.say(ctx.message.author.mention + ' **Blocked keyword found!**')
+                return False
         try:
-            with async_timeout.timeout(4.5):
+            with async_timeout.timeout(3):
                 m_result = await self.math_task(code)
         except (asyncio.TimeoutError, RuntimeError) as exp:
             resp = '{0.author.mention} **It took too long to evaluate your expression!**'.format(ctx.message)
