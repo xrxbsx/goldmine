@@ -39,11 +39,15 @@ class Admin(Cog):
             limit = 1500
             detected = True
         elif len(count) == 1:
-            try:
-                limit = int(count[0]) + 1
+            if count[0] == 'infinite':
+                limit = 1750
                 detected = True
-            except ValueError:
-                pass
+            else:
+                try:
+                    limit = int(count[0]) + 1
+                    detected = True
+                except ValueError:
+                    pass
         if not detected:
             mode = 'target'
             targets = set()
