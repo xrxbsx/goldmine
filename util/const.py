@@ -461,3 +461,21 @@ muted_perms = [
     'external_emojis',
     'add_reactions'
 ]
+
+ev_regexps = [
+    r'while\s+.+:',
+    r'dir\s*\(.*\)',
+    r'\s*\.\s*__[a-z]{2,}__\s*\(.*\)',
+    r'^\s*__[a-z]+__\s*$',
+    r'\([0-9]+\)\s*.\s*\.',
+    r'lambda\s+.*:',
+    r'def\s+.+\(.*\)\s*:',
+    r'range\(.+\*\*.+\)',
+    r'for\s+.+in\s+.+:',
+    r'\[.+\s+for\s+.+in\s+.+\]',
+    r'if\s+.+:',
+    r'else\s*:',
+    r'{.+\s*:\s*.+\s+for\s+.+in\s+.+}',
+    r'.+\s*\*='
+]
+eval_blocked = [re.compile(r) for r in ev_regexps]
