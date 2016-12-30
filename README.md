@@ -1,5 +1,6 @@
 # Goldmine
 <a href="https://discord.gg/RkFgnUt"><img src="https://discordapp.com/api/guilds/239772188649979904/widget.png?" alt="Goldmine Support"></a>
+
 This is Goldmine, a new bot for Discord that keeps things nice and snug.
 Featuring VOICE (MUSIC), NATURAL LANGUAGE, IMAGES, CUSTOM WIDGETS, RANKS, and more!
 This bot is written in Python 3, and uses discord.py and asyncio for enhanced performance.
