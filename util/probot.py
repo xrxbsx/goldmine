@@ -356,7 +356,10 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         bc = await self.store.get_prop(member, 'broadcast_join')
         cmdfix = await self.store.get_prop(member, 'command_prefix')
         if str(bc).lower() in bool_true:
-            await self.send_message(target, fmt.format(member, member.server, em_string, cmdfix))
+            try:
+                await self.send_message(target, fmt.format(member, member.server, em_string, cmdfix))
+            except discord.Forbidden:
+                self.logger.warning(f'Couldn\'t broadcast join of {member} to {member.server}')
     async def on_member_remove(self, member: discord.Member):
         """On_member_remove event for members leaving."""
         target = member.server
