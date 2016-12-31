@@ -286,7 +286,7 @@ class Voice(Cog):
             if type(e).__name__.endswith('DownloadError') or type(e).__name__.endswith('IndexError'):
                 pg_task.cancel()
                 await self.bot.delete_message(status)
-                await self.bot.say('**That video couldn\t be found!**')
+                await self.bot.say('**That video couldn\'t be found!**')
                 return False
             else:
                 raise e
