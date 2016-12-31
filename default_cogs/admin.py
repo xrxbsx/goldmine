@@ -205,6 +205,9 @@ class Admin(Cog):
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
+        if ev_output is None:
+            await self.bot.say('✅')
+            return
         if ctx.invoked_with.startswith('r'):
             await self.bot.say(o)
         else:
@@ -223,6 +226,9 @@ class Admin(Cog):
         except Exception as e:
             ev_output = 'An exception of type %s has occured!\n' % type(e).__name__ + str(e)
         o = str(ev_output)
+        if ev_output is None:
+            await self.bot.say('✅')
+            return
         if ctx.invoked_with.startswith('r'):
             await self.bot.say(o)
         else:
