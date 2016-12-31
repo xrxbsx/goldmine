@@ -671,10 +671,24 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         if embed:
             embed = embed.to_dict()
 
-        data = await self.http.send_message(channel_id, content, guild_id=guild_id, tts=tts, embed=embed)
-        channel = self.get_channel(data.get('channel_id'))
-        message = self.connection._create_message(channel=channel, **data)
-        return message
+        try:
+            data = await self.http.send_message(channel_id, content, guild_id=guild_id, tts=tts, embed=embed)
+            channel = self.get_channel(data.get('channel_id'))
+            message = self.connection._create_message(channel=channel, **data)
+            return message
+        except discord.Forbidden as e:
+            if embed: # let's try non embed
+                e_text = '```md\n'
+                for key in embed.to_dict():
+                    pass
+                e_text += 'I need Attach Files permission (to send embeds)!'
+                e_text += '```'
+                data = await self.http.send_message(channel_id, content + '\n' + e_text, guild_id=guild_id, tts=tts, embed=None)
+                channel = self.get_channel(data.get('channel_id'))
+                message = self.connection._create_message(channel=channel, **data)
+                return message
+            else:
+                raise e # didn't mean to catch that
 
     async def send_cmd_help(self, ctx):
         """Send command help for a command or subcommand."""
