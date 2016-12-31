@@ -200,7 +200,6 @@ class ProBot(commands.Bot):
         await self.send_message(ctx.message.channel, *apass, **kwpass)
 
     async def on_command_error(self, exp, ctx):
-        traceback.print_exception(type(exp), exp, exp.__traceback__, file=sys.stdout)
         cmdfix = await self.store.get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = cproc[len(cmdfix):]
@@ -220,6 +219,7 @@ class ProBot(commands.Bot):
             raise exp
         else:
             self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': ' + str(exp) + ' (%s)' % type(exp).__name__)
+            traceback.print_exception(type(exp), exp, exp.__traceback__, file=sys.stdout)
         if isinstance(exp, commands.NoPrivateMessage):
             await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandNotFound):
@@ -478,7 +478,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
 
     async def on_error(self, ev_name, *ev_args, **ev_kwargs):
         kw_args = ', ' + (', '.join([k + '=' + str(ev_kwargs[k]) for k in ev_kwargs])) if ev_kwargs else ''
-        self.logger.error(f'Event handler {ev_name} errored! Called with ' + ', '.join(ev_args) + kw_args)
+        self.logger.error(f'Event handler {ev_name} errored! Called with ' + ', '.join([str(i) for i in ev_args]) + kw_args)
 
     async def on_server_join(self, server):
         """Send the bot introduction message when invited."""

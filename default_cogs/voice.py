@@ -283,7 +283,7 @@ class Voice(Cog):
         try:
             player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
         except Exception as e:
-            if type(e).__name__.endswith('DownloadError'):
+            if type(e).__name__.endswith('DownloadError') or type(e).__name__.endswith('IndexError'):
                 pg_task.cancel()
                 await self.bot.delete_message(status)
                 await self.bot.say('**That video couldn\t be found!**')
