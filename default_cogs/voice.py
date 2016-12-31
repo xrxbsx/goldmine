@@ -3,13 +3,10 @@ import asyncio
 import io
 import random
 import subprocess
-import re
 import textwrap
 from urllib.parse import urlencode
-import youtube_dl
 import discord
 import util.commands as commands
-import aiohttp
 import async_timeout
 from gtts_token import gtts_token
 from util.perms import echeck_perms, or_check_perms
@@ -285,11 +282,14 @@ class Voice(Cog):
         state.voice.encoder_options(sample_rate=48000, channels=2)
         try:
             player = await state.voice.create_ytdl_player(song, ytdl_options=opts, after=state.toggle_next)
-        except youtube_dl.DownloadError:
-            pg_task.cancel()
-            await self.bot.delete_message(status)
-            await self.bot.say('**That video couldn\t be found!**')
-            return False
+        except Exception as e:
+            if type(e).__name__.endswith('DownloadError'):
+                pg_task.cancel()
+                await self.bot.delete_message(status)
+                await self.bot.say('**That video couldn\t be found!**')
+                return False
+            else:
+                raise e
 
         player.volume = 0.7
         entry = VoiceEntry(ctx.message, player, False)
