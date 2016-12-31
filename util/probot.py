@@ -472,6 +472,10 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         else:
             pass
 
+    async def on_error(self, ev_name, *ev_args, **ev_kwargs):
+        kw_args = ', ' + (', '.join([k + '=' + str(ev_kwargs[k]) for k in ev_kwargs])) if ev_kwargs else ''
+        self.logger.error(f'Event handler {ev_name} errored! Called with ' + ', '.join(ev_args) + kw_args)
+
     async def on_server_join(self, server):
         """Send the bot introduction message when invited."""
         try:
