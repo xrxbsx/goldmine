@@ -484,6 +484,6 @@ v_level_map = {
     'none': 'None 👀',
     'low': 'Low',
     'medium': 'Medium',
-    'high': 'High',
+    'high': '(╯°□°）╯︵ ┻━┻ 😮'
     'table_flip': '(╯°□°）╯︵ ┻━┻ 😮'
 }

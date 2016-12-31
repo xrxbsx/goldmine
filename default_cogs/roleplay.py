@@ -360,6 +360,16 @@ class Roleplay(Cog):
         """Boom!
         Usage: boom"""
         await self.bot.say('💥')
+    @commands.command(aliases=['cookies', 'cookie!'])
+    async def cookie(self):
+        """Cookie time!
+        Usage: cookie"""
+        await self.bot.say('🍪')
+    @commands.command()
+    async def pleb(self):
+        """(╯°□°）╯︵ ┻━┻
+        Usage: pleb"""
+        await self.bot.say('You\'re the pleb!')
 
 def setup(bot):
     c = Roleplay(bot)
