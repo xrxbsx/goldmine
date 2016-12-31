@@ -91,8 +91,11 @@ class Utility(Cog):
             raise ValueError('ASTEval Error of type ' + self.bot.asteval.error[0].get_error()[0])
         else:
             _result = str(m_result)
-        if not ctx.invoked_with.startswith('r'):
-            _result = '```py\n' + _result + '```'
+        if m_result is None:
+            _result = '✅'
+        else:
+            if not ctx.invoked_with.startswith('r'):
+                _result = '```py\n' + _result + '```'
         await self.bot.say(_result)
 
     @commands.command(pass_context=True, aliases=['whois', 'who'])
@@ -450,7 +453,7 @@ class Utility(Cog):
         winner = max(vote_table, key=vote_table.get)
         await self.bot.say('**Poll time is over, stopped! Winner is...** ' + str(winner) + '\nResults were:\n' + _totals)
         await self.bot.edit_message(msg, msg_key + '**POLL HAS ALREADY FINISHED.**')
-        await self.bot.say('VT `' + str(vote_table) + '`')
+        #await self.bot.say('VT `' + str(vote_table) + '`')
 
     @commands.command(aliases=['sw'], pass_context=True)
     async def stopwatch(self, ctx):
@@ -556,14 +559,15 @@ Server Owner\'s ID: `{0.server.owner.id}`
     @commands.command(aliases=['character', 'char', 'cinfo', 'unicode', 'uinfo'])
     async def charinfo(self, *, uchars: str):
         """Get the Unicode info for a character or characters.
-        Syntax: charinfo [character(s)]"""
-        cinfo = []
+        Usage: charinfo [character(s)]"""
+        cinfo = commands.Paginator(prefix='', suffix='')
         for char in list(uchars.replace('\n', '')):
             hexp = str(hex(ord(char))).replace('0x', '').upper()
             while len(hexp) < 4:
                 hexp = '0' + hexp
-            cinfo.append(f'U+{hexp} {unicodedata.name(char)} {char} (`{char}`)')
-        await self.bot.say('\n'.join(cinfo))
+            cinfo.add_line(f'U+{hexp} {unicodedata.name(char)} {char} (`{char}`)')
+        for page in cinfo.pages:
+            await self.bot.say(page)
 
 def setup(bot):
     c = Utility(bot)
