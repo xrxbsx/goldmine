@@ -184,8 +184,8 @@ class Admin(Cog):
                     with suppress(discord.Forbidden, discord.HTTPException):
                         await self.bot.send_message(try_channels[c_count], text)
                         satisfied = True
-                    if c_count > channel_count:
-                        err += '`[WARN]` Couldn\'t broadcast to server **' + i.name + '**\n'
+                    if c_count >= channel_count:
+                        err += f'`[WARN]` Couldn\'t broadcast to server **{i.name}**\n'
                         satisfied = True
                     c_count += 1
         if err:

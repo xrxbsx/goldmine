@@ -153,8 +153,8 @@ class ProBot(commands.Bot):
             p = getattr(self, name + '_cogs_path')
             with suppress(OSError):
                 if not os.path.exists(p):
-                    with open(p, 'a') as f:
-                        pass
+                    f = open(p, 'a')
+                    f.close()
         with suppress(OSError):
             if not os.path.exists(self.init_dl_cogs_path):
                 with open(self.init_dl_cogs_path, 'w+') as f:
