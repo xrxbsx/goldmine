@@ -214,6 +214,10 @@ class ProBot(commands.Bot):
             eprefix = 'dm'
         if isinstance(exp, commands.CommandNotFound):
             self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': command \'' + cprocessed + '\' not found')
+        elif isinstance(exp, commands.CommandInvokeError):
+            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + f': [cmd {cprocessed}] ' + bc_key)
+            traceback.print_exception(type(exp.original), exp.original, exp.original.__traceback__, file=sys.stdout)
+            raise exp
         else:
             self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': ' + str(exp) + ' (%s)' % type(exp).__name__)
         if isinstance(exp, commands.NoPrivateMessage):
