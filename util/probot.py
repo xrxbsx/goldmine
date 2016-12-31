@@ -679,9 +679,9 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         except discord.Forbidden as e:
             if embed: # let's try non embed
                 e_text = '```md\n'
-                for key in embed.to_dict():
-                    pass
-                e_text += 'I need Attach Files permission (to send embeds)!'
+                for kv in embed.to_dict()['fields']:
+                    e_text += kv['name'] + '\n-----------------------------------\n' + kv['value'] + '\n\n'
+                e_text += '⚠ I need Attach Files permission (to send embeds)! ⚠'
                 e_text += '```'
                 data = await self.http.send_message(channel_id, content + '\n' + e_text, guild_id=guild_id, tts=tts, embed=None)
                 channel = self.get_channel(data.get('channel_id'))

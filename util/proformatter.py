@@ -88,7 +88,7 @@ class ProFormatter(HelpFormatter):
         em_data = {
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
-        return [Embed(**em_data, title='Not yet working!', description='Check back later for embed help.')]
+        return [Embed(**em_data, title='⚠ Not yet working!', description='Check back later for embed help.')]
         t_i = 0
         cmds = []
         pages = []
