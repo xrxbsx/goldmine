@@ -368,7 +368,10 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         bc = await self.store.get_prop(member, 'broadcast_leave')
         if str(bc).lower() in bool_true:
             utype = ('bot' if member.bot else 'member')
-            await self.send_message(target, fmt.format(str(member), member.server, utype))
+            try:
+                await self.send_message(target, fmt.format(str(member), member.server, utype))
+            except discord.Forbidden:
+                self.logger.warning(f'Couldn\'t broadcast leave of {member} from {member.server}')
 
     async def clever_reply(self, msg):
         self.cleverbutt_timers.add(msg.server.id)
