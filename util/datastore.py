@@ -38,8 +38,15 @@ class DataStore():
             self.path = os.path.join(self.dir, 'storage.' + self.exts[storage_backend])
         self.store = {}
         if self.backend == 'json':
-            with open(self.path, 'r') as storefile:
-                self.store = json.loads('' + storefile.read())
+            try:
+                with open(self.path, 'r') as storefile:
+                    self.store = json.loads('' + storefile.read())
+            except FileNotFoundError:
+                print('Creating storage file...')
+                with open(self.path, 'a') as f, open(os.path.join(self.dir, 'emp_storage.json')) as df:
+                    orig = df.read()
+                    f.write(orig)
+                self.store = json.loads(orig)
 
     async def read(self):
         """Re-read the datastore from disk, discarding changes."""

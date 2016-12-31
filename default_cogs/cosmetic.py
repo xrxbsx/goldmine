@@ -223,25 +223,33 @@ cool right?''',
         """Get a random cat! Because why not.
         Usage: cat"""
         async with aiohttp.ClientSession(loop=self.loop) as session:
-            with async_timeout.timeout(9):
+            with async_timeout.timeout(8):
                 async with session.get('http://random.cat/meow') as response:
                     ret = await response.text()
-                async with session.get(json.loads(ret)['file']) as resp:
-                    img = await resp.read()
+                try:
+                    async with session.get(json.loads(ret)['file']) as resp:
+                        img = await resp.read()
+                except (KeyError, ValueError, TypeError):
+                    await self.bot.say(f'**Failed to get a cat, maybe random.cat is down?**')
+                    return
         img_bytes = io.BytesIO(img)
-        await self.bot.send_file(ctx.message.channel, img_bytes, 'random-cat.' + imgdet(img_bytes))
+        await self.bot.send_file(ctx.message.channel, img_bytes, filename='random-cat.' + imgdet(img_bytes))
     @commands.command(pass_context=True, aliases=['random.dog', 'randomdog', 'rdog', 'dogs', 'dograndom', 'random_dog'])
     async def dog(self, ctx):
         """Get a random dog! Because why not.
         Usage: dog"""
         async with aiohttp.ClientSession(loop=self.loop) as session:
-            with async_timeout.timeout(9):
+            with async_timeout.timeout(8):
                 async with session.get('http://random.dog/woof') as response:
                     ret = await response.text()
-                async with session.get(ret) as resp:
-                    img = await resp.read()
+                try:
+                    async with session.get('http://random.dog/' + ret) as resp:
+                        img = await resp.read()
+                except (KeyError, ValueError, TypeError):
+                    await self.bot.say(f'**Failed to get a cat, maybe random.dog is down?**')
+                    return
         img_bytes = io.BytesIO(img)
-        await self.bot.send_file(ctx.message.channel, img_bytes, 'random-dog.' + imgdet(img_bytes))
+        await self.bot.send_file(ctx.message.channel, img_bytes, filename='random-dog.' + imgdet(img_bytes))
 
     @commands.command(pass_context=True, aliases=['temote', 'bemote', 'dcemote', 'getemote', 'fetchemote'])
     async def emote(self, ctx, _emote: str):

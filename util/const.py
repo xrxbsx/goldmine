@@ -479,3 +479,11 @@ ev_regexps = [
     r'.+\s*\*='
 ]
 eval_blocked = [re.compile(r) for r in ev_regexps]
+
+v_level_map = {
+    'none': 'None 👀',
+    'low': 'Low',
+    'medium': 'Medium',
+    'high': 'High',
+    'table_flip': '(╯°□°）╯︵ ┻━┻ 😮'
+}

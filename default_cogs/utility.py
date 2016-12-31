@@ -17,7 +17,7 @@ import async_timeout
 import discord
 import util.commands as commands
 from properties import bot_owner
-from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats, eval_blocked
+from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats, eval_blocked, v_level_map
 from util.fake import FakeContextMember, FakeMessageMember
 from util.func import bdel
 from util.perms import check_perms, or_check_perms
@@ -46,7 +46,7 @@ class Utility(Cog):
         Usage: icon"""
         sname = '**' + ctx.message.server.name + '**'
         iurl = ctx.message.server.icon_url
-        if iurl != '':
+        if iurl:
             await self.bot.say('Here is the link to the icon for ' + sname + ': <' + iurl + '>')
         else:
             await self.bot.say('The current server, ' + sname + ', does not have an icon set! :slight_frown:')
@@ -95,19 +95,22 @@ class Utility(Cog):
             _result = '```py\n' + _result + '```'
         await self.bot.say(_result)
 
-    @commands.command(pass_context=True, aliases=['about', 'whois', 'who'])
+    @commands.command(pass_context=True, aliases=['whois', 'who'])
     async def user(self, ctx, *users: str):
-        """Extract information about an user.
-        Usage: user"""
+        """Get tons of info on an user or some users. Spaces, multiuser, and cross-server IDs work.
+        Usage: user {user(s)}"""
         targets = []
         s = ctx.message.server
-        if users:
+        if users: # huge complicated mess for spaces,
+                  # multiuser, nicknames, mentions, IDs,
+                  # names, and more in one go.
             members = {}
             for i in getattr(s, 'members', []):
                 members[i.mention] = i
                 members[i.id] = i
                 members[i.display_name] = i
                 members[i.name] = i
+                members[str(i)] = i
             for i in users:
                 try:
                     member = s.get_member(i)
@@ -192,7 +195,41 @@ class Utility(Cog):
             r_embed.add_field(name='Currently Playing', value=(str(t_game) if t_game else 'Nothing 😦'))
             await self.bot.say(embed=r_embed)
 
-    @commands.command(pass_context=True, aliases=['gm'])
+    @commands.command(pass_context=True, aliases=['server', 's', 'sinfo', 'infos', 'guildinfo', 'guild', 'ginfo', 'infog'], no_pm=True)
+    async def serverinfo(self, ctx):
+        """Get loads of info about this server.
+        Usage: serverinfo"""
+        target = self.bot.user
+        s = ctx.message.server
+        au = target.avatar_url
+        avatar_link = (au if au else target.default_avatar_url)
+        ach = s.channels
+        chlist = [len(ach), 0, 0, '👀']
+        for i in ach:
+            at = str(i.type)
+            if at == 'text':
+                chlist[1] += 1
+            elif at == 'voice':
+                chlist[2] += 1
+        iurl = s.icon_url
+        s_reg = str(s.region)
+        r_embed = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
+        r_embed.set_author(name=s.name, url='https://blog.khronodragon.com/', icon_url=(iurl if iurl else avatar_link))
+        r_embed.set_footer(text=str(target), icon_url=avatar_link)
+        r_embed.add_field(name='ID', value=s.id)
+        r_embed.add_field(name='Members', value=len(s.members))
+        r_embed.add_field(name='Channels', value=ch_fmt.format(*[str(i) for i in chlist]))
+        r_embed.add_field(name='Roles', value=len(s.roles))
+        r_embed.add_field(name='Custom Emojis', value=len(s.emojis))
+        r_embed.add_field(name='Region (Location)', value=str(s.region).replace('-', ' ').title().replace('Eu ', 'EU ').replace('Us ', 'US ').replace('Vip', 'VIP '))
+        r_embed.add_field(name='Owner', value=str(s.owner))
+        r_embed.add_field(name='Default Channel', value=f'<#{s.default_channel.id}>\n(#{s.default_channel.name})')
+        r_embed.add_field(name='Icon URL', value=(iurl if iurl else 'None 😦'))
+        r_embed.add_field(name='Admins Need 2FA', value=('Yes' if s.mfa_level else 'No'))
+        r_embed.add_field(name='Verification Level', value=v_level_map[str(s.verification_level)])
+        await self.bot.say(embed=r_embed)
+
+    @commands.command(pass_context=True, aliases=['gm', 'goldmine', 'aboutme', 'me', 'about'])
     async def info(self, ctx):
         """Get bot info.
         Usage: info"""
@@ -255,7 +292,7 @@ class Utility(Cog):
         if destination == ctx.message.author:
             await self.bot.say(ctx.message.author.mention + ' **__I\'ve private messaged you my help, please check your DMs!__**')
 
-    @commands.command(aliases=['g', 'search', 's', 'query', 'q'])
+    @commands.command(aliases=['g', 'search', 'query', 'q'])
     async def google(self, *rawin: str):
         """Search something on Google.
         Usage: google [search terms]"""
@@ -521,8 +558,11 @@ Server Owner\'s ID: `{0.server.owner.id}`
         """Get the Unicode info for a character or characters.
         Syntax: charinfo [character(s)]"""
         cinfo = []
-        for char in uchars.replace('\n', ' ').split(' '):
-            cinfo.append(str(hex(ord(char))).replace('0x', 'U+') + ' ' + unicodedata.name(char) + ' ' + char + ' `' + char + '`')
+        for char in list(uchars.replace('\n', '')):
+            hexp = str(hex(ord(char))).replace('0x', '').upper()
+            while len(hexp) < 4:
+                hexp = '0' + hexp
+            cinfo.append(f'U+{hexp} {unicodedata.name(char)} {char} (`{char}`)')
         await self.bot.say('\n'.join(cinfo))
 
 def setup(bot):
