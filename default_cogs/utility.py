@@ -415,7 +415,7 @@ class Utility(Cog):
         del _question[-1:]
         question = ' '.join(_question)
         try: # UCS-4
-            highpoints = re.compile(u'[\U00010000-\U0010ffff]')
+            highpoints = re.compile(u'[\U00010000-\U0010ffff\u2615]')
         except re.error: # UCS-2
             highpoints = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
         u_emojis = re.findall(highpoints, question)
@@ -560,12 +560,17 @@ Server Owner\'s ID: `{0.server.owner.id}`
     async def charinfo(self, *, uchars: str):
         """Get the Unicode info for a character or characters.
         Usage: charinfo [character(s)]"""
+        no_preview = [
+            '\u0020',
+            '\uFEFF'
+        ]
         cinfo = commands.Paginator(prefix='', suffix='')
         for char in list(uchars.replace('\n', '')):
             hexp = str(hex(ord(char))).replace('0x', '').upper()
             while len(hexp) < 4:
                 hexp = '0' + hexp
-            cinfo.add_line(f'U+{hexp} {unicodedata.name(char)} {char} (`{char}`)')
+            preview = f' (`{char}`)'
+            cinfo.add_line(f'U+{hexp} {unicodedata.name(char)} {char}' + (preview if char not in no_preview else ''))
         for page in cinfo.pages:
             await self.bot.say(page)
 
