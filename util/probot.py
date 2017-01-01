@@ -664,8 +664,6 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                 if rmatch % 2 != 0: # odd number
                     truncate_msg = '```' + truncate_msg
                 content = content[:2000 - len(truncate_msg)] + truncate_msg
-        else:
-            content = None
 
         if embed:
             embed = embed.to_dict()
@@ -675,13 +673,12 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             channel = self.get_channel(data.get('channel_id'))
             message = self.connection._create_message(channel=channel, **data)
             return message
-        except discord.Forbidden as e:
+        except discord.HTTPException as e:
             if embed: # let's try non embed
                 e_text = '```md\n'
                 for kv in embed.to_dict()['fields']:
                     e_text += kv['name'] + '\n-----------------------------------\n' + kv['value'] + '\n\n'
-                e_text += '⚠ I need Attach Files permission (to send embeds)! ⚠'
-                e_text += '```'
+                e_text += '\n⚠ I need the Embed Links permission (to send embeds)! ⚠```'
                 data = await self.http.send_message(channel_id, content + '\n' + e_text, guild_id=guild_id, tts=tts, embed=None)
                 channel = self.get_channel(data.get('channel_id'))
                 message = self.connection._create_message(channel=channel, **data)
