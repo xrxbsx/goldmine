@@ -75,7 +75,7 @@ class Utility(Cog):
                 if hasattr(item, '__iter__'): # iterable but not string or like
                     b_logic_loop(byte_sizes, item)
         code = bdel(code, '```py').strip('`')
-        if self._check_tick == 3:
+        if self.s_check_tick == 3:
             byte_sizes = []
             b_logic_loop(byte_sizes, self.bot.asteval.symtable)
             s_check_tick = 0
