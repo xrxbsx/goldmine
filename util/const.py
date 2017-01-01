@@ -476,7 +476,7 @@ ev_regexps = [
     r'if\s+.+:',
     r'else\s*:',
     r'{.+\s*:\s*.+\s+for\s+.+in\s+.+}',
-    r'.+\s*\*='
+#    r'.+\s*\*='
 ]
 eval_blocked = [re.compile(r) for r in ev_regexps]
 
