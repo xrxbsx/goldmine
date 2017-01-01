@@ -73,7 +73,7 @@ class Utility(Cog):
         code = bdel(code, '```py').strip('`')
         if self.s_check_tick == 3:
             byte_size = asizeof(self.bot.asteval.symtable)
-            if byte_size > 12_000_000: # 110 MiB 115_343_360
+            if byte_size > 107_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
                 del self.bot.asteval
                 self.bot.asteval = asteval.Interpreter(use_numpy=False)
                 self.bot.logger.warning(f'Reset ASTEval interpreter due to memory usage! (was using {byte_size / 1048576} MiB)')
