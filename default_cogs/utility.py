@@ -19,7 +19,7 @@ import util.commands as commands
 from properties import bot_owner
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats, eval_blocked, v_level_map
 from util.fake import FakeContextMember, FakeMessageMember
-from util.func import bdel
+from util.func import bdel, async_encode as b_encode, async_decode as b_decode
 from util.perms import check_perms, or_check_perms
 
 from .cog import Cog
@@ -573,6 +573,17 @@ Server Owner\'s ID: `{0.server.owner.id}`
             cinfo.add_line(f'U+{hexp} {unicodedata.name(char)} {char}' + (preview if char not in no_preview else ''))
         for page in cinfo.pages:
             await self.bot.say(page)
+
+    @commands.command()
+    async def encode(self, *, content: str):
+        """Encode your text into Goldmine's encoding!
+        Syntax: encode [text]"""
+        await self.bot.say('```' + (await b_encode(content)) + '```')
+    @commands.command()
+    async def decode(self, *, content: str):
+        """Decode your text from Goldmine's encoding!
+        Syntax: decode [encoded text]"""
+        await self.bot.say('```' + (await b_decode(content)) + '```')
 
 def setup(bot):
     c = Utility(bot)

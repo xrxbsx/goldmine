@@ -660,8 +660,9 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             content = str(content)
             if len(content) > 2000:
                 truncate_msg = '**... (truncated)**'
-                rmatch = len(re.findall('```', content))
-                if rmatch % 2 != 0: # odd number
+                #rmatch = len(re.findall('```', content))
+                #if rmatch % 2 != 0: # odd number
+                if '```' in content:
                     truncate_msg = '```' + truncate_msg
                 content = content[:2000 - len(truncate_msg)] + truncate_msg
 
