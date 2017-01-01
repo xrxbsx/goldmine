@@ -676,7 +676,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         except discord.HTTPException as e:
             if embed: # let's try non embed
                 e_text = '```md\n'
-                for kv in embed.to_dict()['fields']:
+                for kv in embed['fields']:
                     e_text += kv['name'] + '\n-----------------------------------\n' + kv['value'] + '\n\n'
                 e_text += '\n⚠ I need the Embed Links permission (to send embeds)! ⚠```'
                 data = await self.http.send_message(channel_id, content + '\n' + e_text, guild_id=guild_id, tts=tts, embed=None)
