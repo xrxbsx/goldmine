@@ -1,5 +1,6 @@
 """General utility functions."""
 import contextlib
+import random
 from asyncio import ensure_future
 from functools import partial
 import datetime
@@ -59,3 +60,93 @@ def assert_msg(ctx, msg: str):
 def check(in_bool):
     if not in_bool:
         raise AssertionError('Assertion failed from check()!')
+
+def encode(content: str) -> str:
+    orig_ords = [ord(c) for c in list(content)]
+    shift = round(random.uniform(1, 145), random.randint(3, 6))
+    shift_shift = random.randint(1, 14)
+    shifted_ords = [float(o) + shift for o in orig_ords]
+    join_chars = list('@!($)_*#%"}?\'=-`plk\\][º¢§≤æ•')
+    join_char = random.choice(join_chars)
+    ords_str = join_char.join([str(s) for s in shifted_ords]) + '~' + join_char.join([str(float(ord(c)) + shift) for c in list('3MainShiftCorrect')])
+    fn_head_join = random.choice(list('|^&'))
+    _g = random.uniform(1, 51)
+    head_keys = {
+        'd': shift + shift_shift, # encoded (shift_shifted) shift
+        'g': _g, # shift for join char index
+        'l': (float(join_chars.index(join_char)) - 4.4689257) + _g
+    }
+    head_str = ';'.join([k + str(head_keys[k]) for k in head_keys])
+    final = head_str + fn_head_join + ords_str
+    return final
+
+def decode(content: str) -> str:
+    expected_key = '3MainShiftCorrect'
+    join_chars = list('@!($)_*#%"}?\'=-`plk\\][º¢§≤æ•')
+    shift_key = content.split('~')[1]
+    content = content.replace('~' + shift_key, '') # discard shift key
+    head_keys = {}
+    for try_decode_head in list('|^&'):
+        if try_decode_head in content:
+            dec_head_1 = content.split(try_decode_head)[0]
+            head_r_keys = dec_head_1.split(';')
+            for rkey in head_r_keys:
+                head_keys[rkey[0]] = rkey[1:]
+            no_head_content = content.replace(dec_head_1 + try_decode_head, '')
+    head_keys['d'] = float(head_keys['d'])
+    head_keys['g'] = float(head_keys['g'])
+    head_keys['l'] = float(head_keys['l'])
+    j = join_chars[int((head_keys['l'] + 4.4689257) - head_keys['g'])]
+    for try_shift_shift in range(1, 14):
+        shift_to_try = head_keys['d'] - float(try_shift_shift)
+        if ''.join([chr(int(cn - shift_to_try)) for cn in [float(sf) for sf in shift_key.split(j)]]) == expected_key:
+            shift = shift_to_try
+            break
+    content = no_head_content
+    dec = ''.join([chr(int(cn - shift)) for cn in [float(sf) for sf in content.split(j)]])
+    return dec
+
+async def async_encode(content: str) -> str:
+    orig_ords = [ord(c) for c in list(content)]
+    shift = round(random.uniform(1, 145), random.randint(3, 6))
+    shift_shift = random.randint(1, 14)
+    shifted_ords = [float(o) + shift for o in orig_ords]
+    join_chars = list('@!($)_*#%"}?\'=-`plk\\][º¢§≤æ•')
+    join_char = random.choice(join_chars)
+    ords_str = join_char.join([str(s) for s in shifted_ords]) + '~' + join_char.join([str(float(ord(c)) + shift) for c in list('3MainShiftCorrect')])
+    fn_head_join = random.choice(list('|^&'))
+    _g = random.uniform(1, 51)
+    head_keys = {
+        'd': shift + shift_shift, # encoded (shift_shifted) shift
+        'g': _g, # shift for join char index
+        'l': (float(join_chars.index(join_char)) - 4.4689257) + _g
+    }
+    head_str = ';'.join([k + str(head_keys[k]) for k in head_keys])
+    final = head_str + fn_head_join + ords_str
+    return final
+
+async def async_decode(content: str) -> str:
+    expected_key = '3MainShiftCorrect'
+    join_chars = list('@!($)_*#%"}?\'=-`plk\\][º¢§≤æ•')
+    shift_key = content.split('~')[1]
+    content = content.replace('~' + shift_key, '') # discard shift key
+    head_keys = {}
+    for try_decode_head in list('|^&'):
+        if try_decode_head in content:
+            dec_head_1 = content.split(try_decode_head)[0]
+            head_r_keys = dec_head_1.split(';')
+            for rkey in head_r_keys:
+                head_keys[rkey[0]] = rkey[1:]
+            no_head_content = content.replace(dec_head_1 + try_decode_head, '')
+    head_keys['d'] = float(head_keys['d'])
+    head_keys['g'] = float(head_keys['g'])
+    head_keys['l'] = float(head_keys['l'])
+    j = join_chars[int((head_keys['l'] + 4.4689257) - head_keys['g'])]
+    for try_shift_shift in range(1, 14):
+        shift_to_try = head_keys['d'] - float(try_shift_shift)
+        if ''.join([chr(int(cn - shift_to_try)) for cn in [float(sf) for sf in shift_key.split(j)]]) == expected_key:
+            shift = shift_to_try
+            break
+    content = no_head_content
+    dec = ''.join([chr(int(cn - shift)) for cn in [float(sf) for sf in content.split(j)]])
+    return dec
