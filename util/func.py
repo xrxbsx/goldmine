@@ -66,7 +66,7 @@ def encode(content: str) -> str:
     shift = round(random.uniform(1, 145), random.randint(3, 6))
     shift_shift = random.randint(1, 14)
     shifted_ords = [float(o) + shift for o in orig_ords]
-    join_chars = list('@!($)_*#%"}?\'=-`plk\\][')
+    join_chars = list('@!($)_*#%"}?\'=-`\\][')
     join_char = random.choice(join_chars)
     ords_str = join_char.join([str(s) for s in shifted_ords]) + '~' + join_char.join([str(float(ord(c)) + shift) for c in list('3MainShiftCorrect')])
     fn_head_join = random.choice(list('|^&'))
@@ -83,7 +83,7 @@ def encode(content: str) -> str:
 def decode(content: str) -> str:
     try:
         expected_key = '3MainShiftCorrect'
-        join_chars = list('@!($)_*#%"}?\'=-`plk\\][')
+        join_chars = list('@!($)_*#%"}?\'=-`\\][')
         shift_key = content.split('~')[1]
         content = content.replace('~' + shift_key, '') # discard shift key
         head_keys = {}
@@ -114,7 +114,7 @@ async def async_encode(content: str) -> str:
     shift = round(random.uniform(1, 145), random.randint(3, 6))
     shift_shift = random.randint(1, 14)
     shifted_ords = [float(o) + shift for o in orig_ords]
-    join_chars = list('@!($)_*#%"}?\'=-`plk\\][')
+    join_chars = list('@!($)_*#%"}?\'=-`\\][')
     join_char = random.choice(join_chars)
     ords_str = join_char.join([str(s) for s in shifted_ords]) + '~' + join_char.join([str(float(ord(c)) + shift) for c in list('3MainShiftCorrect')])
     fn_head_join = random.choice(list('|^&'))
@@ -131,7 +131,7 @@ async def async_encode(content: str) -> str:
 async def async_decode(content: str) -> str:
     try:
         expected_key = '3MainShiftCorrect'
-        join_chars = list('@!($)_*#%"}?\'=-`plk\\][')
+        join_chars = list('@!($)_*#%"}?\'=-`\\][')
         shift_key = content.split('~')[1]
         content = content.replace('~' + shift_key, '') # discard shift key
         head_keys = {}
