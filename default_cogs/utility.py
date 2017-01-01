@@ -70,7 +70,11 @@ class Utility(Cog):
         Usage: calc [expression]"""
         await or_check_perms(ctx, ['bot_admin'])
         def b_logic_loop(byte_sizes, to_recurse):
-            for item in to_recurse:
+            for r_item in to_recurse:
+                if isinstance(to_recurse, dict):
+                    item = to_recurse[r_item]
+                else:
+                    item = r_item
                 byte_sizes.append(sys.getsizeof(item))
                 if hasattr(item, '__iter__'): # iterable but not string or like
                     b_logic_loop(byte_sizes, item)
