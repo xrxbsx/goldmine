@@ -21,6 +21,7 @@ from properties import bot_owner
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats, eval_blocked, v_level_map
 from util.fake import FakeContextMember, FakeMessageMember
 from util.func import bdel, async_encode as b_encode, async_decode as b_decode
+from util.asizeof import asizeof
 from util.perms import check_perms, or_check_perms
 
 from .cog import Cog
@@ -69,25 +70,14 @@ class Utility(Cog):
         """Evaluates a mathematical experssion.
         Usage: calc [expression]"""
         await or_check_perms(ctx, ['bot_admin'])
-        def b_logic_loop(byte_sizes, to_recurse):
-            for r_item in to_recurse:
-                if isinstance(to_recurse, dict):
-                    item = to_recurse[r_item]
-                else:
-                    item = r_item
-                byte_sizes.append(sys.getsizeof(item))
-                if hasattr(item, '__iter__'): # iterable but not string or like
-                    b_logic_loop(byte_sizes, item)
         code = bdel(code, '```py').strip('`')
         if self.s_check_tick == 3:
-            byte_sizes = []
-            b_logic_loop(byte_sizes, self.bot.asteval.symtable)
-            s_check_tick = 0
-            byte_size = sum(byte_sizes)
+            byte_size = asizeof(self.bot.asteval.symtable)
             if byte_size > 12_000_000: # 110 MiB 115_343_360
                 del self.bot.asteval
                 self.bot.asteval = asteval.Interpreter(use_numpy=False)
                 self.bot.logger.warning(f'Reset ASTEval interpreter due to memory usage! (was using {byte_size / 1048576} MiB)')
+            s_check_tick = 0
         for key in eval_blocked:
             if re.search(key, code):
                 await self.bot.say(ctx.message.author.mention + ' **Blocked keyword found!**')
