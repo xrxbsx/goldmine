@@ -471,11 +471,11 @@ ev_regexps = [
     r'lambda\s+.*:',
     r'def\s+.+\(.*\)\s*:',
     r'range\(.+\*\*.+\)',
-    r'for\s+.+in\s+.+:',
-    r'\[.+\s+for\s+.+in\s+.+\]',
+#    r'for\s+.+in\s+.+:',
+#    r'\[.+\s+for\s+.+in\s+.+\]',
     r'if\s+.+:',
     r'else\s*:',
-    r'{.+\s*:\s*.+\s+for\s+.+in\s+.+}',
+#    r'{.+\s*:\s*.+\s+for\s+.+in\s+.+}',
 #    r'.+\s*\*='
 ]
 eval_blocked = [re.compile(r) for r in ev_regexps]
