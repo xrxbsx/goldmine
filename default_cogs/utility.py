@@ -15,6 +15,7 @@ import aiohttp
 import util.json as json
 import async_timeout
 import discord
+import asteval
 import util.commands as commands
 from properties import bot_owner
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats, eval_blocked, v_level_map
@@ -38,6 +39,7 @@ class Utility(Cog):
     """
     def __init__(self, bot):
         self.stopwatches = {}
+        self.s_check_tick = 0
         super().__init__(bot)
 
     @commands.command(pass_context=True, no_pm=True)
@@ -67,7 +69,21 @@ class Utility(Cog):
         """Evaluates a mathematical experssion.
         Usage: calc [expression]"""
         await or_check_perms(ctx, ['bot_admin'])
+        def b_logic_loop(byte_sizes, to_recurse):
+            for item in to_recurse:
+                byte_sizes.append(sys.getsizeof(item))
+                if hasattr(item, '__iter__'): # iterable but not string or like
+                    b_logic_loop(byte_sizes, item)
         code = bdel(code, '```py').strip('`')
+        if s_check_tick == 4:
+            byte_sizes = []
+            b_logic_loop(byte_sizes, self.bot.asteval.symtable)
+            s_check_tick = 0
+            byte_size = sum(byte_sizes)
+            if byte_size > 12_000_000: # 110 MiB 115_343_360
+                del self.bot.asteval
+                self.bot.asteval = asteval.Interpreter(use_numpy=False)
+                self.bot.logger.warning(f'Reset ASTEval interpreter due to memory usage! (was using {byte_size / 1048576} MiB)')
         for key in eval_blocked:
             if re.search(key, code):
                 await self.bot.say(ctx.message.author.mention + ' **Blocked keyword found!**')
@@ -97,6 +113,7 @@ class Utility(Cog):
             if not ctx.invoked_with.startswith('r'):
                 _result = '```py\n' + _result + '```'
         await self.bot.say(_result)
+        self.s_check_tick += 1
 
     @commands.command(pass_context=True, aliases=['whois', 'who'])
     async def user(self, ctx, *users: str):
@@ -586,7 +603,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
         await self.bot.say('```' + (await b_decode(content)) + '```')
     @commands.command()
     async def fakecode(self, *, content: str):
-        """Fake encoding for Goldmine's encoding.
+        """Fake encoding for Goldmine's encoding. Not secure at all.
         Syntax: fakecode [text]"""
         await self.bot.say('```' + ('d1;g4.4689257;l0&' + ('@'.join([str(ord(c)) for c in content])) + '~51@77@97@105@110@83@104@105@102@116@67@111@114@114@101@99@116') + '```')
 
