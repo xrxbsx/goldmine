@@ -584,6 +584,11 @@ Server Owner\'s ID: `{0.server.owner.id}`
         """Decode your text from Goldmine's encoding!
         Syntax: decode [encoded text]"""
         await self.bot.say('```' + (await b_decode(content)) + '```')
+    @commands.command()
+    async def fakecode(self, *, content: str):
+        """Fake encoding for Goldmine's encoding.
+        Syntax: fakecode [text]"""
+        await self.bot.say('```' + ('d1;g4.4689257;l0&' + ('@'.join([str(ord(c)) for c in content])) + '~51@77@97@105@110@83@104@105@102@116@67@111@114@114@101@99@116') + '```')
 
 def setup(bot):
     c = Utility(bot)
