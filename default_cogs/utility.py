@@ -34,8 +34,6 @@ except ImportError:
     print(' - Could not load PIL!')
     have_pil = False
 
-rt_level = 0
-
 class Utility(Cog):
     """Random commands that can be useful here and there.
     Settings, properties, and other stuff can be found here.
@@ -101,7 +99,7 @@ class Utility(Cog):
             err_type = self.bot.asteval.error[0].get_error()[0]
             if err_type == 'MemoryError':
                 await self.bot.reset_asteval(reason='due to MemoryError')
-                await self.calc.invoke(ctx)
+                await self.bot.say(ctx.message.author.mention + ' **Please re-run your `eval` command!**')
                 return
             elif err_type in ['NameError', 'UnboundLocalError']:
                 await self.bot.say(ctx.message.author.mention + ' **You tried to use a variable that didn\'t exist!**')
@@ -113,7 +111,7 @@ class Utility(Cog):
                 _result = str(m_result)
             except MemoryError:
                 await self.bot.reset_asteval(reason='due to MemoryError')
-                await self.calc.invoke(ctx)
+                await self.bot.say(ctx.message.author.mention + ' **Please re-run your `eval` command!**')
                 return
         try:
             if m_result is None:
@@ -123,7 +121,7 @@ class Utility(Cog):
                     _result = '```py\n' + _result + '```'
         except MemoryError:
             await self.bot.reset_asteval(reason='due to MemoryError')
-            await self.calc.invoke(ctx)
+            await self.bot.say(ctx.message.author.mention + ' **Please re-run your `eval` command!**')
             return
         await self.bot.say(_result)
         self.s_check_tick += 1
@@ -619,16 +617,6 @@ Server Owner\'s ID: `{0.server.owner.id}`
         """Fake encoding for Goldmine's encoding. Not secure at all.
         Usage: fakecode [text]"""
         await self.bot.say('```' + ('d1;g4.4689257;l0&' + ('@'.join([str(ord(c)) for c in content])) + '~51@77@97@105@110@83@104@105@102@116@67@111@114@114@101@99@116') + '```')
-
-    @commands.command(pass_context=True)
-    async def xrtest(self, ctx, *, content: str):
-        """Command invoke recursion test.
-        Usage: xrtest [text]"""
-        global rt_level
-        await asyncio.sleep(0.1)
-        await self.bot.say('Recursion level ' + str(rt_level))
-        rt_level += 1
-        await self.xrtest.invoke(ctx, content)
 
 def setup(bot):
     c = Utility(bot)
