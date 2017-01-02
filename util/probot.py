@@ -48,8 +48,13 @@ try:
 except Exception:
     Decoder = None
 
-if sys.platform in ['linux', 'linux2', 'darwin']:
-    import resource
+try:
+    import psutil
+    have_psutil = True
+except ImportError:
+    have_psutil = False
+    if sys.platform in ['linux', 'linux2', 'darwin']:
+        import resource
 
 arg_err_map = {
     commands.MissingRequiredArgument: 'out enough arguments',
@@ -707,24 +712,28 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
 
     async def get_ram(self):
         """Get the bot's RAM usage info."""
-        raw_musage = 0
-        got_conversion = False
-        musage_dec = 0
-        musage_hex = 0
-        if sys.platform.startswith('linux'): # Linux & Windows report in kilobytes
-            raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-            got_conversion = True
-            musage_dec = raw_musage / 1000
-            musage_hex = raw_musage / 1024
-        elif sys.platform == 'darwin': # Mac reports in bytes
-            raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-            got_conversion = True
-            musage_dec = raw_musage / 1000000 # 1 million. 1000 * 1000
-            musage_hex = raw_musage / 1048576 # 1024 * 1024
-        if got_conversion:
-            return (got_conversion, musage_dec, musage_hex)
-        else:
-            return (got_conversion, 0) # to force tuple
+        if have_psutil: # yay!
+            mu = psutil.Process(os.getpid()).memory_info().rss
+            return (True, mu / 1_000_000, mu / 1048576)
+        else: # aww
+            raw_musage = 0
+            got_conversion = False
+            musage_dec = 0
+            musage_hex = 0
+            if sys.platform.startswith('linux'): # Linux & Windows report in kilobytes
+                raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                got_conversion = True
+                musage_dec = raw_musage / 1000
+                musage_hex = raw_musage / 1024
+            elif sys.platform == 'darwin': # Mac reports in bytes
+                raw_musage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                got_conversion = True
+                musage_dec = raw_musage / 1000000 # 1 million. 1000 * 1000
+                musage_hex = raw_musage / 1048576 # 1024 * 1024
+            if got_conversion:
+                return (got_conversion, musage_dec, musage_hex)
+            else:
+                return (got_conversion, 0) # to force tuple
 
     async def update_emote_data(self):
         """Fetch Twitch and FrakerFaceZ emote mappings."""

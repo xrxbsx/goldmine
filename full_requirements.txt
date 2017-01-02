@@ -11,3 +11,4 @@ plyvel
 uvloop
 cchardet
 ujson
+psutil
