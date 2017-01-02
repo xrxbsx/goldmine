@@ -748,16 +748,11 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             del self.asteval
         except AttributeError:
             pass
-        print('ast> delete old')
         gc.collect()
-        print('ast> gc')
         self.asteval = Interpreter(use_numpy=False, writer=FakeObject(value=True))
-        print('ast> create new')
         self.asteval.symtable['print'] = decoy_print
-        print('ast> assign print')
         del self.asteval.symtable['dir']
-        print('ast> remove dir')
         if log_reset:
             if note:
-                note = ' ' + note
+                note = ' (' + note + ')'
             self.logger.warning(f'Reset ASTEval interpreter {reason}!{note}')
