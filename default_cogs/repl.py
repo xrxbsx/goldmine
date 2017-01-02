@@ -26,7 +26,7 @@ class REPL(Cog):
         return '```py\n{0.text}{1:>{0.offset}}\n{2}: {0}```'.format(e, '^', type(e).__name__)
 
     @commands.command(pass_context=True, hidden=True)
-    async def repl(self, ctx, *alt_prefix: str):
+    async def repl(self, ctx):
         await echeck_perms(ctx, ['bot_owner'])
         msg = ctx.message
 
@@ -49,6 +49,7 @@ class REPL(Cog):
             return
         self.sessions.add(msg.channel.id)
 
+        alt_prefix = []
         if alt_prefix:
             prefix = ' '.join(alt_prefix)
         else:
