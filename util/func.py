@@ -22,7 +22,7 @@ class DiscordFuncs():
         new_func.__qualname__ = coro.__qualname__
         return new_func
 
-def _import(mod_name, var_name=None, attr_name=''):
+def _import(mod_name: str, var_name=None, attr_name=''):
     ret = "globals()['{}'] = imp('{}')"
     if var_name:
         if attr_name:
@@ -33,10 +33,10 @@ def _import(mod_name, var_name=None, attr_name=''):
     return ret
 
 
-def _set_var(var_name, expr):
+def _set_var(var_name: str, expr: str):
     return "globals()['{}'] = {}".format(var_name, expr)
 
-def _del_var(var_name):
+def _del_var(var_name: str):
     return "del globals()['{}']".format(var_name)
 
 snowtime = lambda i: datetime.datetime.fromtimestamp(((float(int(i)) / 4194304.0) + 1420070400000.0 + 18000000.0) / 1000.0).strftime('%a %b %d, %Y %I:%M:%S %p')
@@ -57,11 +57,13 @@ def assert_msg(ctx, msg: str):
         ensure_future(ctx.bot.send_message(ctx.message.channel, msg))
         raise PassException()
 
-def check(in_bool):
+def check(in_bool: bool):
+    """Replacement for assert statement."""
     if not in_bool:
         raise AssertionError('Assertion failed from check()!')
 
 def encode(content: str) -> str:
+    """Goldcode encoder."""
     orig_ords = [ord(c) for c in list(content)]
     shift = round(random.uniform(1, 145), random.randint(3, 6))
     shift_shift = random.randint(1, 14)
@@ -81,6 +83,7 @@ def encode(content: str) -> str:
     return final
 
 def decode(content: str) -> str:
+    """Goldcode decoder."""
     try:
         expected_key = '3MainShiftCorrect'
         join_chars = list('@!($)_*#%"}?\'=-`\\][')
@@ -110,6 +113,7 @@ def decode(content: str) -> str:
         return '⚠ Couldn\'t decode. Maybe your content is corrupted?'
 
 async def async_encode(content: str) -> str:
+    """Coroutine version of encode()."""
     orig_ords = [ord(c) for c in list(content)]
     shift = round(random.uniform(1, 145), random.randint(3, 6))
     shift_shift = random.randint(1, 14)
@@ -129,6 +133,7 @@ async def async_encode(content: str) -> str:
     return final
 
 async def async_decode(content: str) -> str:
+    """Coroutine version of decode()."""
     try:
         expected_key = '3MainShiftCorrect'
         join_chars = list('@!($)_*#%"}?\'=-`\\][')
@@ -156,3 +161,7 @@ async def async_decode(content: str) -> str:
         return dec
     except Exception:
         return '⚠ Couldn\'t decode. Maybe your content is corrupted?'
+
+def decoy_print(*ina: str) -> str:
+    """Print function!"""
+    return ' '.join(ina)

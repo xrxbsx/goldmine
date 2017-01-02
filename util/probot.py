@@ -28,7 +28,7 @@ from properties import storage_backend
 from util.datastore import DataStore
 import util.ranks as rank
 from util.const import *
-from util.func import bdel
+from util.func import bdel, decoy_print
 from util.fake import FakeObject
 import util.json as json
 
@@ -124,7 +124,8 @@ class ProBot(commands.Bot):
         self.store_writer = self.loop.create_task(self.store.commit_task())
         self.cleverbutt_timers = set()
         self.cleverbutt_latest = {}
-        self.asteval = Interpreter(use_numpy=False, writer=FakeObject(value=True))
+        self.asteval = None
+        asyncio.ensure_future(self.reset_asteval())
         self.have_resource = False
         if sys.platform in ['linux', 'linux2', 'darwin']:
             self.have_resource = True
@@ -740,3 +741,14 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
             raw_json2 = json.loads(f.read())
             bttv_v2 = {n: 'https://cdn.betterttv.net/emote/' + str(raw_json2[n]) + '/1x' for n in raw_json2}
         self.emotes['bttv'] = {**bttv_v1, **bttv_v2}
+
+    async def reset_asteval(self, log_reset=True, reason='upon request', note=''):
+        del self.asteval
+        self.asteval = asteval.Interpreter(use_numpy=False, writer=FakeObject(value=True))
+        self.asteval.symtable['print'] = decoy_print
+        del self.asteval.symtable['dir']
+        gc.collect()
+        if log_reset:
+            if note:
+                note = ' ' + note
+            self.logger.warning(f'Reset ASTEval interpreter {reason}!{note}')
