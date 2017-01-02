@@ -622,12 +622,13 @@ Server Owner\'s ID: `{0.server.owner.id}`
 
     @commands.command(pass_context=True)
     async def xrtest(self, ctx, *, content: str):
-        """Command invoke recursion test."""
+        """Command invoke recursion test.
+        Usage: xrtest [text]"""
         global rt_level
         await asyncio.sleep(0.1)
         await self.bot.say('Recursion level ' + str(rt_level))
         rt_level += 1
-        await self.xrtest.invoke(ctx)
+        await self.xrtest.invoke(ctx, content)
 
 def setup(bot):
     c = Utility(bot)
