@@ -72,11 +72,9 @@ class Utility(Cog):
         await or_check_perms(ctx, ['bot_admin'])
         code = bdel(code, '```py').strip('`')
         if self.s_check_tick == 3:
-            byte_size = asizeof(self.bot.asteval.symtable)
-            if byte_size > 107_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
-                del self.bot.asteval
-                self.bot.asteval = asteval.Interpreter(use_numpy=False)
-                self.bot.logger.warning(f'Reset ASTEval interpreter due to memory usage! (was using {byte_size / 1048576} MiB)')
+            byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
+            if byte_size > 70_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
+                await self.bot.reset_asteval(reason='due to memory usage > 70M', note=f'was using {byte_size / 1048576} MiB')
             s_check_tick = 0
         for key in eval_blocked:
             if re.search(key, code):
@@ -98,7 +96,16 @@ class Utility(Cog):
             return
         _result = ''
         if self.bot.asteval.error:
-            raise ValueError('ASTEval Error of type ' + self.bot.asteval.error[0].get_error()[0])
+            err_type = self.bot.asteval.error[0].get_error()[0]
+            if err_type == 'MemoryError':
+                await self.bot.reset_asteval(reason='due to MemoryError')
+                await self.calc.invoke(ctx)
+                return
+            elif err_type in ['NameError', 'UnboundLocalError']:
+                await self.bot.say(ctx.message.author.mention + ' **You tried to use a variable that didn\'t exist!**')
+                return
+            else:
+                raise ValueError('ASTEval Error of type ' + err_type)
         else:
             _result = str(m_result)
         if m_result is None:
