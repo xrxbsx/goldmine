@@ -34,6 +34,8 @@ except ImportError:
     print(' - Could not load PIL!')
     have_pil = False
 
+rt_level = 0
+
 class Utility(Cog):
     """Random commands that can be useful here and there.
     Settings, properties, and other stuff can be found here.
@@ -107,12 +109,22 @@ class Utility(Cog):
             else:
                 raise ValueError('ASTEval Error of type ' + err_type)
         else:
-            _result = str(m_result)
-        if m_result is None:
-            _result = '✅'
-        else:
-            if not ctx.invoked_with.startswith('r'):
-                _result = '```py\n' + _result + '```'
+            try:
+                _result = str(m_result)
+            except MemoryError:
+                await self.bot.reset_asteval(reason='due to MemoryError')
+                await self.calc.invoke(ctx)
+                return
+        try:
+            if m_result is None:
+                _result = '✅'
+            else:
+                if not ctx.invoked_with.startswith('r'):
+                    _result = '```py\n' + _result + '```'
+        except MemoryError:
+            await self.bot.reset_asteval(reason='due to MemoryError')
+            await self.calc.invoke(ctx)
+            return
         await self.bot.say(_result)
         self.s_check_tick += 1
 
@@ -595,18 +607,27 @@ Server Owner\'s ID: `{0.server.owner.id}`
     @commands.command()
     async def encode(self, *, content: str):
         """Encode your text into Goldmine's encoding!
-        Syntax: encode [text]"""
+        Usage: encode [text]"""
         await self.bot.say('```' + (await b_encode(content)) + '```')
     @commands.command()
     async def decode(self, *, content: str):
         """Decode your text from Goldmine's encoding!
-        Syntax: decode [encoded text]"""
+        Usage: decode [encoded text]"""
         await self.bot.say('```' + (await b_decode(content)) + '```')
     @commands.command()
     async def fakecode(self, *, content: str):
         """Fake encoding for Goldmine's encoding. Not secure at all.
-        Syntax: fakecode [text]"""
+        Usage: fakecode [text]"""
         await self.bot.say('```' + ('d1;g4.4689257;l0&' + ('@'.join([str(ord(c)) for c in content])) + '~51@77@97@105@110@83@104@105@102@116@67@111@114@114@101@99@116') + '```')
+
+    @commands.command(pass_context=True)
+    async def xrtest(self, ctx, *, content: str):
+        """Command invoke recursion test."""
+        global rt_level
+        await asyncio.sleep(0.1)
+        await self.bot.say('Recursion level ' + str(rt_level))
+        rt_level += 1
+        await self.xrtest.invoke(ctx)
 
 def setup(bot):
     c = Utility(bot)
