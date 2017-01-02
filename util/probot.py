@@ -743,11 +743,19 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
         self.emotes['bttv'] = {**bttv_v1, **bttv_v2}
 
     async def reset_asteval(self, log_reset=True, reason='upon request', note=''):
-        del self.asteval
-        self.asteval = asteval.Interpreter(use_numpy=False, writer=FakeObject(value=True))
-        self.asteval.symtable['print'] = decoy_print
-        del self.asteval.symtable['dir']
+        try:
+            del self.asteval
+        except AttributeError:
+            pass
+        print('ast> delete old')
         gc.collect()
+        print('ast> gc')
+        self.asteval = asteval.Interpreter(use_numpy=False, writer=FakeObject(value=True))
+        print('ast> create new')
+        self.asteval.symtable['print'] = decoy_print
+        print('ast> assign print')
+        del self.asteval.symtable['dir']
+        print('ast> remove dir')
         if log_reset:
             if note:
                 note = ' ' + note
