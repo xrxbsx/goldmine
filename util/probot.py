@@ -6,6 +6,7 @@ import subprocess
 from contextlib import suppress
 import os
 import sys
+import gc
 import traceback
 import re
 import shutil
