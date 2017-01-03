@@ -15,6 +15,7 @@ from fnmatch import filter
 from datetime import datetime
 import math
 import logging
+from http.client import responses as httpcodes
 import aiohttp
 import async_timeout
 from asteval import Interpreter
@@ -34,10 +35,14 @@ from util.fake import FakeObject
 import util.json as json
 
 try:
-    from d_props import store_path
+    from ex_props import store_path
     opath = store_path
 except ImportError:
     opath = None
+try:
+    from ex_props import discord_bots_token
+except ImportError:
+    discots_bots_token = None
 try:
     import speech_recognition as sr
     r = sr.Recognizer()
@@ -67,7 +72,7 @@ class ProBot(commands.Bot):
 
     def __init__(self, **options):
         self.logger = logging.getLogger('bot')
-        self.cb = Cleverbot()
+        self.cb = Cleverbot(get_cookies=False)
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
         self.perm_mask = '1609825363' # 66321741 = full
@@ -178,6 +183,7 @@ class ProBot(commands.Bot):
         if not os.path.exists(self.cog_json_cogs_path):
             with open(self.cog_json_cogs_path, 'a') as f:
                 f.write('{}')
+        self.guild_count_task = None
         super().__init__(**options)
 
     async def update_presence(self):
@@ -187,6 +193,27 @@ class ProBot(commands.Bot):
             'status': discord.Status(self.status)
         }
         await self.change_presence(**self.presence)
+    async def report_discordbots(self):
+        """Report the current server count to bots.discord.pw."""
+        if not discord_bots_token:
+            self.logger.warning('Tried to contact Discord Bots, but no token set!')
+            return False
+        data = {
+            'server_count': len(self.bot.servers)
+        }
+        dest = 'https://bots.discord.pw/api/bots/:' + self.user.id + '/stats'
+        with async_timeout.timeout(6):
+            async with aiohttp.request('POST', dest, data=data, headers={'Authorization': discord_bots_token}) as r:
+                resp_key = f'(got {r.status} {httpcodes[r.status]})'
+                if r.status == 200:
+                    self.logger.info('Successfully sent Discord Bots our guild count ' + resp_key)
+                else:
+                    self.logger.warning('Failed sending our guild count to Discord Bots! ' + resp_key)
+    async def report_dcbots_task(self):
+        """Perodic background task for reporting server count."""
+        while True:
+            await asyncio.sleep(120 * 60) # 2 hours
+            await self.report_discordbots()
 
     async def sctx(self, ctx, msg):
         """Send a message to the context's message origin.'"""
@@ -354,6 +381,10 @@ class ProBot(commands.Bot):
         """On_ready event for when the bot logs into Discord."""
         self.logger.info('Bot has logged into Discord, ID ' + self.user.id)
         await self.update_presence()
+        await self.cb.get_cookies()
+        if discord_bots_token:
+            await self.report_discordbots()
+            self.guild_count_task = asyncio.ensure_future(self.report_dcbots_task())
 
     async def on_member_join(self, member: discord.Member):
         """On_member_join event for newly joined members."""
@@ -472,7 +503,7 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                         await self.msend(msg, ':speech_balloon: ' + cb_reply)
                 elif (msg.content.lower().startswith(bname.lower())) and (prefix_convo):
                     await self.auto_cb_convo(msg, bname.lower())
-                elif msg.content == 'prefix':
+                elif msg.content.lower() in ['prefix', 'prefix?']:
                     await self.msend(msg, '**Current server command prefix is: **`' + cmdfix + '`')
                 else:
 #                    if msg.content.split('\n')[0] == cmdfix:
