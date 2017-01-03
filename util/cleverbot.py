@@ -42,7 +42,7 @@ class Cleverbot(object):
         'Pragma': 'no-cache'
     }
 
-    def __init__(self):
+    def __init__(self, get_cookies=True):
         """ The data that will get passed to Cleverbot's web API """
         self.data = collections.OrderedDict(
             (
@@ -80,7 +80,8 @@ class Cleverbot(object):
         self.loop = asyncio.get_event_loop()
         self.cookies = {}
         # get the main page to get a cookie (see bug #13)
-        asyncio.ensure_future(self.get_cookies())
+        if get_cookies:
+            asyncio.ensure_future(self.get_cookies())
 
     async def ask(self, question):
         """Asks Cleverbot a question.

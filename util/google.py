@@ -9,12 +9,9 @@ from bs4 import BeautifulSoup
 from convert_to_old_syntax import cur_dir
 
 url_home = "https://www.google.com/"
-m_user_agent = 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'
 
-async def get_page(url, user_agent=None):
+async def get_page(url, user_agent='Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)'):
     """Fetch the contents of an url."""
-    if user_agent is None:
-        user_agent = m_user_agent
     async with aiohttp.ClientSession(loop=asyncio.get_event_loop()) as session:
         with async_timeout.timeout(8):
             async with session.get(url, headers={'User-Agent': user_agent}) as resp:
