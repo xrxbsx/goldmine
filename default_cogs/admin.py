@@ -2,6 +2,7 @@
 from __future__ import print_function
 import asyncio
 import functools
+import copy
 import random
 import subprocess
 from contextlib import suppress
@@ -46,6 +47,9 @@ class Admin(Cog):
             else:
                 try:
                     limit = int(count[0]) + 1
+                    if limit > 1751:
+                        await self.bot.say(ctx.message.author.mention + ' **You can only clean messages by user or 1-1750!**')
+                        return
                     detected = True
                 except ValueError:
                     pass
