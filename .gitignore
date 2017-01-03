@@ -111,7 +111,7 @@ st2.json
 *.kdev4
 
 .google-cookie
-d_props.py
+ex_props.py
 cogs.txt
 test_data.ogg
 cogs
