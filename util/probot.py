@@ -202,7 +202,7 @@ class ProBot(commands.Bot):
         data = {
             'server_count': len(self.servers)
         }
-        dest = 'https://bots.discord.pw/api/bots/:' + self.user.id + '/stats'
+        dest = 'https://bots.discord.pw/api/bots/' + self.user.id + '/stats'
         with async_timeout.timeout(6):
             async with aiohttp.request('POST', dest, data=data, headers={'Authorization': discord_bots_token}) as r:
                 resp_key = f'(got {r.status} {httpcodes[r.status]})'
