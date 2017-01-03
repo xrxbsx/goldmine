@@ -7,7 +7,6 @@ gTTS-token
 bs4
 future
 asteval
-plyvel
 uvloop
 cchardet
 ujson
