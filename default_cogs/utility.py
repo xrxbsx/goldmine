@@ -282,7 +282,7 @@ class Utility(Cog):
         got_conversion = ram[0]
         emb = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
         emb.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
-        emb.set_footer(text='Made in Python 3.3+ with Discord.py %s' % self.bot.lib_version, icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
+        emb.set_footer(text='Made in Python 3.6+ with Discord.py %s' % self.bot.lib_version, icon_url='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/400px-Python-logo-notext.svg.png')
         emb.add_field(name='Servers Accessible', value=len(self.bot.servers))
         emb.add_field(name='Author', value='Dragon5232#1841')
         emb.add_field(name='Version', value=self.bot.version)

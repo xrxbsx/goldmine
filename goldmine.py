@@ -10,6 +10,12 @@ if sys.version_info[0] < 3: # [3].3
 if sys.version_info[1] < 3: # 3.[3]
     print('You must be using Python 3.3+! Please upgrade and try again.')
     exit(1)
+if sys.version_info[1] < 6:
+    print('You\'re not using Python 3.6+. This currently doesn\'t work.')
+    print('Please update.') # 'Note: not ALL features will work.'
+    #input()
+    #print('Not implemented yet. The converter needs to be updated.')
+    exit(0)
 if sys.version_info[1] < 5:
     print('You\'re using Python 3.3 or 3.4. This will require the old syntax converter.')
     print('Press Enter to convert. Note: not ALL features will work.')
