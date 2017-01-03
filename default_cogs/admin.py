@@ -1,6 +1,7 @@
 """Definition of the bot's Admin module.'"""
 from __future__ import print_function
 import asyncio
+import functools
 import random
 import subprocess
 from contextlib import suppress
@@ -112,7 +113,8 @@ class Admin(Cog):
         r_not_key = ', not restarting' if restart else ''
 #        subprocess.check_output(['git', 'reset', 'HEAD', '--hard'])
         try:
-            gitout = subprocess.check_output(['git', 'pull', '-v'], stderr=subprocess.STDOUT).decode('utf-8')
+            gitout = await self.loop.run_in_executor(None, functools.partial(subprocess.check_output, ['git', 'pull', '-v'], stderr=subprocess.STDOUT))
+            gitout = gitout.decode('utf-8')
         except subprocess.CalledProcessError as exp:
             await self.bot.edit_message(msg, 'An error occured while attempting to update!')
             await self.bot.send_message(ctx.message.author, '```' + str(exp) + '```')
@@ -122,7 +124,7 @@ class Admin(Cog):
         if not gitout:
             await self.bot.edit_message(msg, msg.content + f'\nUpdate failed{r_not_key}.')
         elif gitout.split('\n')[-2:][0] == 'Already up-to-date.':
-            await self.bot.edit_message(msg, f'Bot was already up-to-date, not restarting{r_not_key}.')
+            await self.bot.edit_message(msg, f'Bot was already up-to-date{r_not_key}.')
         else:
             await self.bot.edit_message(msg, f'Bot was able to update{r_key}.')
         if restart:
