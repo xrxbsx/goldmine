@@ -204,7 +204,7 @@ class ProBot(commands.Bot):
         }
         dest = 'https://bots.discord.pw/api/bots/' + self.user.id + '/stats'
         with async_timeout.timeout(6):
-            async with aiohttp.request('POST', dest, data=data, headers={'Authorization': discord_bots_token}) as r:
+            async with aiohttp.request('POST', dest, data=json.dumps(data), headers={'Authorization': discord_bots_token}) as r:
                 resp_key = f'(got {r.status} {httpcodes[r.status]})'
                 if r.status == 200:
                     self.logger.info('Successfully sent Discord Bots our guild count ' + resp_key)
