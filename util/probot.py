@@ -391,7 +391,7 @@ class ProBot(commands.Bot):
         if cemotes:
             em_string = ': ' + ' '.join([str(i) for i in cemotes])
         fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
-Remember to use the custom emotes{2} for extra fun! You can access my help with {3}help.'''
+Try some custom emotes{2}! Learn more about me with `{3}help`.'''
         bc = await self.store.get_prop(member, 'broadcast_join')
         cmdfix = await self.store.get_prop(member, 'command_prefix')
         if str(bc).lower() in bool_true:
@@ -402,8 +402,8 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
     async def on_member_remove(self, member: discord.Member):
         """On_member_remove event for members leaving."""
         target = member.server
-        fmt = '''Aw, **{0}** has just left this server. Bye!
-**{1.name}** has now lost a {2}. We'll miss you! :bear:'''
+        fmt = ''':eyes: **{0}** has just left this server. Bye!
+**{1.name}** just lost a {2}. We'll miss you!'''
         bc = await self.store.get_prop(member, 'broadcast_leave')
         if str(bc).lower() in bool_true:
             utype = ('bot' if member.bot else 'member')
