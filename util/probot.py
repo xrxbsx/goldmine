@@ -182,7 +182,7 @@ class ProBot(commands.Bot):
         if not os.path.exists(self.cog_json_cogs_path):
             with open(self.cog_json_cogs_path, 'a') as f:
                 f.write('{}')
-        self.guild_count_task = None
+        self.http_session = aiohttp.ClientSession()
         super().__init__(**options)
 
     async def update_presence(self):
@@ -192,7 +192,7 @@ class ProBot(commands.Bot):
             'status': discord.Status(self.status)
         }
         await self.change_presence(**self.presence)
-    async def report_discordbots(self):
+    async def update_stats(self):
         """Report the current server count to bots.discord.pw."""
         if not discord_bots_token:
             self.logger.warning('Tried to contact Discord Bots, but no token set!')
@@ -201,18 +201,17 @@ class ProBot(commands.Bot):
             'server_count': len(self.servers)
         }
         dest = 'https://bots.discord.pw/api/bots/' + self.user.id + '/stats'
+        headers = {
+            'Authorization': discord_bots_token,
+            'Content-Type': 'application/json'
+        }
         with async_timeout.timeout(6):
-            async with aiohttp.request('POST', dest, data=json.dumps(data), headers={'Authorization': discord_bots_token}) as r:
+            async with self.http_session.post(dest, data=json.dumps(data), headers=headers) as r:
                 resp_key = f'(got {r.status} {r.reason})'
                 if r.status == 200:
                     self.logger.info('Successfully sent Discord Bots our guild count ' + resp_key)
                 else:
                     self.logger.warning('Failed sending our guild count to Discord Bots! ' + resp_key)
-    async def report_dcbots_task(self):
-        """Perodic background task for reporting server count."""
-        while True:
-            await asyncio.sleep(120 * 60) # 2 hours
-            await self.report_discordbots()
 
     async def sctx(self, ctx, msg):
         """Send a message to the context's message origin.'"""
@@ -382,8 +381,7 @@ class ProBot(commands.Bot):
         await self.update_presence()
         await self.cb.get_cookies()
         if discord_bots_token:
-            await self.report_discordbots()
-            self.guild_count_task = asyncio.ensure_future(self.report_dcbots_task())
+            await self.update_stats()
 
     async def on_member_join(self, member: discord.Member):
         """On_member_join event for newly joined members."""
@@ -535,6 +533,10 @@ Remember to use the custom emotes{2} for extra fun! You can access my help with 
                     self.logger.warning('Couldn\'t announce join to server ' + server.name)
                     satisfied = True
                 c_count += 1
+        await self.update_stats()
+    async def on_server_remove(self, server):
+        """Update the stats."""
+        await self.update_stats()
 
     async def on_speaking(self, speaking, uid):
         """Event for when someone is speaking."""
