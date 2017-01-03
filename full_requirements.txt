@@ -12,3 +12,4 @@ uvloop
 cchardet
 ujson
 psutil
+cozmo
