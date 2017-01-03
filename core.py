@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import logging
 import asyncio
 import os
+import sys
 import shutil
 from fnmatch import filter
 import discord
@@ -53,17 +54,26 @@ def set_cog(cog, value):  # TODO: move this out of core.py
     data[cog] = value
     dataIO.save_json("data/cogs.json", data)
 
+async def io_flusher():
+    """Flush stdout and stderr buffers."""
+    while True:
+        await asyncio.sleep(1)
+        sys.stdout.flush()
+        sys.stderr.flush()
+
 def main(use_uvloop):
     """Executes the main bot."""
+    import __main__
     if use_uvloop:
         import uvloop
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    logger.info('Init: Starting IO flusher')
+    __main__.io_flusher_task = asyncio.ensure_future(io_flusher())
     logger.info('Init: Getting cog folder')
     cogs_dir = os.path.join(cur_dir, 'cogs')
     if not os.path.exists(os.path.join(cur_dir, 'cogs', 'utils')):
         shutil.copytree(os.path.join(cur_dir, 'default_cogs', 'utils'), os.path.join(cur_dir, 'cogs', 'utils') + os.path.sep)
     bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
-    import __main__
     __main__.send_cmd_help = bot.send_cmd_help
     logger.info('Init: Loading cogs')
     try:
