@@ -41,6 +41,7 @@ except ImportError:
     opath = None
 try:
     from ex_props import discord_bots_token
+    print(discord_bots_token)
 except ImportError:
     discots_bots_token = None
 try:
@@ -199,7 +200,7 @@ class ProBot(commands.Bot):
             self.logger.warning('Tried to contact Discord Bots, but no token set!')
             return False
         data = {
-            'server_count': len(self.bot.servers)
+            'server_count': len(self.servers)
         }
         dest = 'https://bots.discord.pw/api/bots/:' + self.user.id + '/stats'
         with async_timeout.timeout(6):
