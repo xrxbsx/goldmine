@@ -455,12 +455,12 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
             cmdfix = myself.name[0].lower() + '-'
             bname = myself.name
             prefix_convo = False
-            do_logic = ctx.message.author.id == self.user.id
+            do_logic = msg.author.id == self.user.id
         else:
             cmdfix = await self.store.get_cmdfix(msg)
             bname = await self.store.get_prop(msg, 'bot_name')
             prefix_convo = (await self.store.get_prop(msg, 'prefix_answer')) in bool_true
-            do_logic = ctx.message.author.id != self.user.id
+            do_logic = msg.author.id != self.user.id
         if do_logic:
             if msg.author.bot:
                 if self.selfbot: return
