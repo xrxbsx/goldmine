@@ -235,13 +235,13 @@ class ProBot(commands.Bot):
 
     async def on_command_error(self, exp, ctx):
         try:
-            myself = msg.server.me
+            myself = ctx.message.server.me
         except AttributeError:
             myself = self.user
         if self.selfbot:
             cmdfix = myself.name[0].lower() + '-'
         else:
-            cmdfix = await self.store.get_cmdfix(msg)
+            cmdfix = await self.store.get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]
         cprocessed = bdel(cproc, cmdfix)
         c_key = str(exp)

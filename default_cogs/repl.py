@@ -4,10 +4,14 @@ import discord
 import inspect
 from contextlib import redirect_stdout
 import io
+import asyncio
+import re
+import async_timeout
 import asteval
 import util.commands as commands
 from util.asizeof import asizeof
 from util.perms import echeck_perms
+from util.const import eval_blocked
 from .cog import Cog
 
 class REPL(Cog):
@@ -46,7 +50,7 @@ class REPL(Cog):
             with async_timeout.timeout(3):
                 m_result = await self.math_task(code)
         except (asyncio.TimeoutError, RuntimeError) as exp:
-            resp = '⚠ Your code takes too long to evaluate!'
+            resp = '⚠ Your code took too long to evaluate!'
             if isinstance(exp, RuntimeError):
                 if str(exp).startswith('Execution exceeded time limit, max runtime is '):
                     return resp
@@ -54,7 +58,6 @@ class REPL(Cog):
                     return '⚠ Timeouted!'
             else:
                 return resp
-        _result = ''
         if self.bot.asteval.error:
             err = self.bot.asteval.error[0].get_error()
             if err[0] == 'MemoryError':
@@ -62,14 +65,7 @@ class REPL(Cog):
                 return '⚠ Please rerun your code!'
             else:
                 return '\n'.join(err)
-        else:
-            try:
-                _result = str(m_result)
-            except MemoryError:
-                await self.bot.reset_asteval(reason='due to MemoryError')
-                return '⚠ Please rerun your code!'
-                return
-        return _result
+        return m_result
         self.s_check_tick += 1
 
     @commands.command(pass_context=True, hidden=True)
@@ -106,7 +102,7 @@ class REPL(Cog):
                 'author': msg.author
             }
         if 'asteval' in flags:
-            use_asteval = true
+            use_asteval = True
         if 'py' in flags:
             await self.bot.say('⚠ Flag `py` is not implemented yet!')
             return
@@ -140,6 +136,7 @@ class REPL(Cog):
                 result = await self.asteval_iface(cleaned)
                 if inspect.isawaitable(result):
                     result = await result
+                fmt = str(result) + '\n'
             else:
                 executor = exec
                 if cleaned.count('\n') == 0:
