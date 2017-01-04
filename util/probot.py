@@ -31,6 +31,7 @@ import util.ranks as rank
 from util.const import *
 from util.func import bdel, decoy_print
 from util.fake import FakeObject
+import util.token as token
 import util.json as json
 
 try:
@@ -41,7 +42,7 @@ except ImportError:
 try:
     from ex_props import discord_bots_token
 except ImportError:
-    discots_bots_token = None
+    discord_bots_token = None
 try:
     import speech_recognition as sr
     r = sr.Recognizer()
@@ -183,6 +184,7 @@ class ProBot(commands.Bot):
             with open(self.cog_json_cogs_path, 'a') as f:
                 f.write('{}')
         self.http_session = aiohttp.ClientSession()
+        self.selfbot = token.selfbot
         super().__init__(**options)
 
     async def update_presence(self):
@@ -232,9 +234,16 @@ class ProBot(commands.Bot):
         await self.send_message(ctx.message.channel, *apass, **kwpass)
 
     async def on_command_error(self, exp, ctx):
-        cmdfix = await self.store.get_cmdfix(ctx.message)
+        try:
+            myself = msg.server.me
+        except AttributeError:
+            myself = self.user
+        if self.selfbot:
+            cmdfix = myself.name[0].lower() + '-'
+        else:
+            cmdfix = await self.store.get_cmdfix(msg)
         cproc = ctx.message.content.split(' ')[0]
-        cprocessed = cproc[len(cmdfix):]
+        cprocessed = bdel(cproc, cmdfix)
         c_key = str(exp)
         bc_key = bdel(c_key, 'Command raised an exception: ')
         eprefix = 's'
@@ -381,10 +390,12 @@ class ProBot(commands.Bot):
         await self.update_presence()
         await self.cb.get_cookies()
         if discord_bots_token:
-            await self.update_stats()
+            if not self.selfbot:
+                await self.update_stats()
 
     async def on_member_join(self, member: discord.Member):
         """On_member_join event for newly joined members."""
+        if self.selfbot: return
         target = member.server
         cemotes = member.server.emojis
         em_string = ''
@@ -401,6 +412,7 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
                 self.logger.warning(f'Couldn\'t broadcast join of {member} to {member.server}')
     async def on_member_remove(self, member: discord.Member):
         """On_member_remove event for members leaving."""
+        if self.selfbot: return
         target = member.server
         fmt = ''':eyes: **{0}** has just left this server. Bye!
 **{1.name}** just lost a {2}. We'll miss you!'''
@@ -435,15 +447,23 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
         self.cleverbutt_timers.remove(msg.server.id)
 
     async def on_message(self, msg):
-        cmdfix = await self.store.get_cmdfix(msg)
-        bname = await self.store.get_prop(msg, 'bot_name')
-        prefix_convo = bool((await self.store.get_prop(msg, 'prefix_answer')) in bool_true)
         try:
             myself = msg.server.me
         except AttributeError:
             myself = self.user
-        if msg.author.id != myself.id:
+        if self.selfbot:
+            cmdfix = myself.name[0].lower() + '-'
+            bname = myself.name
+            prefix_convo = False
+            do_logic = ctx.message.author.id == self.user.id
+        else:
+            cmdfix = await self.store.get_cmdfix(msg)
+            bname = await self.store.get_prop(msg, 'bot_name')
+            prefix_convo = (await self.store.get_prop(msg, 'prefix_answer')) in bool_true
+            do_logic = ctx.message.author.id != self.user.id
+        if do_logic:
             if msg.author.bot:
+                if self.selfbot: return
                 if self.status == 'invisible': return
                 if str(msg.channel) == 'cleverbutts':
                     if msg.server.id in self.cleverbutt_timers: # still on timer for next response
@@ -451,9 +471,15 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
                         await asyncio.sleep(4.5)
                         if msg.id not in self.cleverbutt_replied_to:
                             await self.clever_reply(msg)
+                            self.logger.debug('Replying to stray message not answered after 4.5 secs.')
                     else:
                         await self.clever_reply(msg)
             else:
+                if self.selfbot:
+                    if msg.content.startswith(cmdfix):
+                        await self.process_commands(msg, cmdfix)
+                    self.logger.debug('Stopping early in on_message logic because I\'m a selfbot.')
+                    return
                 if not msg.channel.is_private:
                     int_name = await self.store.get_prop(msg, 'bot_name')
                     if msg.server.me.display_name != int_name:
@@ -509,15 +535,18 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
                     if msg.content.startswith(cmdfix):
                         await self.process_commands(msg, cmdfix)
         else:
-            pass
+            self.logger.debug('Didn\'t meet check for main on_message processing')
 
     async def on_error(self, ev_name, *ev_args, **ev_kwargs):
         kw_args = ', ' + (', '.join([k + '=' + str(ev_kwargs[k]) for k in ev_kwargs])) if ev_kwargs else ''
         self.logger.error(f'Event handler {ev_name} errored! Called with ' +
-                          ', '.join([bdel(str(i), 'Command raised an exception: ') for i in ev_args]) + kw_args)
+                          (', '.join([bdel(str(i), 'Command raised an exception: ') for i in ev_args]) if ev_args else 'nothing') + kw_args)
+        traceback.print_exc()
 
     async def on_server_join(self, server):
         """Send the bot introduction message when invited."""
+        self.logger.info('New server: ' + server.name + ', yay!')
+        if self.selfbot: return
         try:
             await self.send_message(server.default_channel, join_msg)
         except discord.Forbidden:
@@ -536,6 +565,8 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
         await self.update_stats()
     async def on_server_remove(self, server):
         """Update the stats."""
+        self.logger.info('Lost a server: ' + server.name + ', aww :\\')
+        if self.selfbot: return
         await self.update_stats()
 
     async def on_speaking(self, speaking, uid):
@@ -797,3 +828,9 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
             if note:
                 note = ' (' + note + ')'
             self.logger.warning(f'Reset ASTEval interpreter {reason}!{note}')
+    def del_command(self, *names):
+        """Remove a command and its aliases."""
+        for name in names:
+            for a in self.commands[name].aliases:
+                del self.commands[a]
+                del self.commands[name]

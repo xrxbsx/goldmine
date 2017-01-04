@@ -31,7 +31,7 @@ class Cozmo(Cog):
         Usage: cspeak [stuff to say]"""
         await self.check_conn()
         status = await self.bot.say('Talking...')
-        c_voice = bool('[VOICE:N]' not in text)
+        c_voice = '[VOICE:N]' not in text
         self.robot.say_text(text.replace('[VOICE:N]', '')[:255], use_cozmo_voice=c_voice, duration_scalar=0.9)
 
     @commands.command()

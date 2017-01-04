@@ -33,7 +33,7 @@ class Roleplay(Cog):
         m_list = [i[1] for i in list(enumerate(ctx.message.server.members))]
         while not satisfied:
             rmem = random.choice(m_list)
-            satisfied = bool(str(rmem.status) == 'online')
+            satisfied = str(rmem.status) == 'online'
         await ctx.bot.say(rmem.mention)
         return rmem
 
@@ -155,7 +155,7 @@ class Roleplay(Cog):
         """Add a quote to the quote collection.
         Usage: rquoteadd [user ID] [user name] [text here]"""
         await echeck_perms(ctx, ['bot_admin'])
-        await self.bot.say('⚠ Not working yet!')
+        await self.bot.say('⚠ Not working yet! (tip: the old rquoteadd is now quoteadd)')
         return False
         fmt_time = [int(i) for i in time.strftime("%m/%d/%Y").split('/')]
         bname = await self.store.get_prop(ctx.message, 'bot_name')

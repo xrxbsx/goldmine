@@ -70,7 +70,7 @@ class Utility(Cog):
         """Evaluates a mathematical experssion.
         Usage: calc [expression]"""
         await or_check_perms(ctx, ['bot_admin'])
-        code = bdel(code, '```py').strip('`')
+        code = bdel(bdel(code, '```python').strip('`'), '```py')
         if self.s_check_tick == 3:
             byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
             if byte_size > 70_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
@@ -201,9 +201,9 @@ class Utility(Cog):
             else:
                 c_srv = await check_perms(tg_ctx, ['manage_server'])
                 c_sown = await check_perms(tg_ctx, ['server_owner'])
-            c_own = bool(target.id == bot_owner)
-            c_adm = bool(target.id in self.dstore['bot_admins'])
-            is_server = bool(isinstance(target, discord.Member))
+            c_own = target.id == bot_owner
+            c_adm = target.id in self.dstore['bot_admins']
+            is_server = isinstance(target, discord.Member)
             if c_own:
                 b_roles.append('Bot Owner')
             if c_adm:

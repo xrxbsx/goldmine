@@ -13,4 +13,4 @@ logging.basicConfig(level=logging.INFO)
 if have_uvloop:
     asyncio.set_event_loop(uvloop.new_event_loop())
 bot = discord.Client()
-bot.run(token)
+bot.run(*token)

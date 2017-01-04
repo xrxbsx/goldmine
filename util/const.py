@@ -258,7 +258,7 @@ nam_err = '{0.mention} Something went wrong in the bot while responding to `{2}{
 big_msg = '{0.mention} Something went wrong in the bot while sending the message to respond to `{2}{1}`. This usually means the message was too long. Maybe try again?'
 tim_err = '{0.mention} The bot tried to respond to `{2}{1}`, but the web request timeouted! This usually means they\'re down. Maybe try again?'
 arg_err = '{0.mention} You tried to execute `{2}{1}` with{4}. Type `{2}help {1}` for extra help. Here\'s the correct usage:\n`{3}`'
-ast_err = '{0.mention} You tried to execute `{2}{1}` with an invalid math expression. Maybe numbers too big? Or wrong symbols?'
+ast_err = '{0.mention} You tried to execute `{2}{1}` with invalid code. Maybe try again?'
 ast_pow = '{0.mention} You tried to execute `{2}{1}` with a power too high. Max is `900**900`.'
 coc_fmt = '{0.mention} You\'re currently on cooldown for `{2}{1}`. Try again in **{3}**.'
 

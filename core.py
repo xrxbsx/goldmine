@@ -8,7 +8,7 @@ import shutil
 from fnmatch import filter
 import discord
 from default_cogs.utils.dataIO import dataIO
-from util.token import bot_token
+from util.token import bot_token, selfbot
 from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
 from util.datastore import initialize as init_store
@@ -41,7 +41,7 @@ def runbot(loop, bot):
     """Start the bot and handle Ctrl-C."""
     try:
         try:
-            loop.run_until_complete(bot.start(bot_token))
+            loop.run_until_complete(bot.start(*bot_token))
         except RuntimeError:
             pass
     except KeyboardInterrupt:
@@ -73,7 +73,7 @@ def main(use_uvloop):
     cogs_dir = os.path.join(cur_dir, 'cogs')
     if not os.path.exists(os.path.join(cur_dir, 'cogs', 'utils')):
         shutil.copytree(os.path.join(cur_dir, 'default_cogs', 'utils'), os.path.join(cur_dir, 'cogs', 'utils') + os.path.sep)
-    bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=None)
+    bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=(False if selfbot else None))
     __main__.send_cmd_help = bot.send_cmd_help
     logger.info('Init: Loading cogs')
     try:

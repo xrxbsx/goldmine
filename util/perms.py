@@ -30,7 +30,7 @@ async def check_perms(ctx, perms_required):
             perms_satisfied += 1
     if sender_id == bot_owner:
         return True
-    return bool(perms_required.__len__() == perms_satisfied)
+    return len(perms_required) == perms_satisfied
 
 async def echeck_perms(ctx, perms_required):
     """Easy wrapper for permission checking."""
