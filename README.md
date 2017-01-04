@@ -32,20 +32,15 @@ To do so, simply make sure you're a server admin (Manage Server permission), and
  - `!setprop bot_name MyAwesomeBot` for bot name, replacing **MyAwesomeBot** with your desired name.
  - `!prefix $` for command prefix, replacing **$** with your desired prefix.
 
-###Manual (Private Instance)
-####This method is more reliable, but harder to set up.
-Simply run `python3 -m pip install -U -r requirements.txt` to install all the dependencies of this bot.
-Next, you'll need to create a bot account on Discord and get your bot authentication token.
-Create a new file called `btoken.py` in the same folder as `goldmine.py`, and insert the following:
-```python
-bot_token = 'INSERT_YOUR_TOKEN_HERE'
-```
-Replace INSERT_YOUR_TOKEN_HERE with your actual token.
-Make sure you keep the quotes, though!
+###Manual (Private Instance) (Selfbot mode available)
+####This method is more reliable, but harder to set up. It's also required for selfbot mode.
+Simply run `python3 -m pip install -U -r requirements.txt` to install all the basic dependencies of this bot. 
+For many more advanced features and speed improvements, use `python3 -m pip install -U -r full_requirements.txt` (this doesn't work on Windows!).
+For as much as you can get on Windows, use `python3 -m pip install -U -r win_requirements.txt`.
 
-Then, you'll want to replace the owner with your DiscordTag.
+Now, you'll want to replace the owner with your DiscordTag.
 To do this, open `properties.py` in a text editor and edit `bot_owner = '160567046642335746'` to match your Discord user ID.
 Example: 012345678901234567 - make sure you don't leave out any numbers, though.
 There should be 18 of them.
 
-####Now simply run `python3 goldmine.py` and your bot is good to go!
+####Now simply run `python3 goldmine.py` to complete the rest of the setup!
