@@ -43,7 +43,7 @@ class DataStore():
                     self.store = json.loads('' + storefile.read())
             except FileNotFoundError:
                 print('Creating storage file...')
-                with open(self.path, 'a') as f, open(os.path.join(self.dir, 'emp_storage.json')) as df:
+                with open(self.path, 'a') as f, open(os.path.join(self.dir, 'assets', 'emp_storage.json')) as df:
                     orig = df.read()
                     f.write(orig)
                 self.store = json.loads(orig)

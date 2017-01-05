@@ -131,6 +131,7 @@ class Admin(Cog):
             await self.bot.edit_message(msg, 'An error occured while attempting to update!')
             await self.bot.send_message(ctx.message.author, '```' + str(exp) + '```')
             gitout = False
+        # https://github.com/Armored-Dragon/goldmine/archive/master.zip
         if gitout != False:
             await self.bot.send_message(ctx.message.author, 'Update Output:\n```' + gitout + '```')
         if not gitout:

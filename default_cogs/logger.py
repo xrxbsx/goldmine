@@ -45,7 +45,7 @@ class Logger(Cog):
             await asyncio.sleep(self.int)
             await self.write()
 
-    @commands.group(pass_context=True, aliases=['chatlog', 'log'], hidden=True)
+    @commands.group(pass_context=True, aliases=['chatlog', 'log'])
     async def logger(self, ctx):
         """Control panel for the logger.
         Usage: logger {stuff}"""

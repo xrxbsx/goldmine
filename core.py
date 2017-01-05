@@ -39,6 +39,8 @@ if not discord.opus.is_loaded():
 
 def login_fail_loop(loop, bot):
     """Handler if I couldn't login to Discord."""
+    global bot_token
+    global selfbot
     print('Should I: [E]xit / [Q]uit, [R]etry, or run [S]etup again?')
     r = input('> ').lower()[0]
     if r in ['e', 'q']:
@@ -51,7 +53,7 @@ def login_fail_loop(loop, bot):
     elif r == 's':
         print('Ok, here\'s to re-running setup!')
         try:
-            os.remove(os.path.join(cur_dir, 'bot_token.txt'))
+            os.remove(os.path.join(cur_dir, 'data', 'bot_token.txt'))
         except OSError:
             print('Hmm, I couldn\'t delete the token file. Try another choice.')
             login_fail_loop(loop, bot)

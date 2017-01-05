@@ -1,6 +1,7 @@
 """General utility functions."""
 import contextlib
 import random
+import inspect
 from asyncio import ensure_future
 from functools import partial
 import datetime
@@ -165,3 +166,17 @@ async def async_decode(content: str) -> str:
 def decoy_print(*ina: str) -> str:
     """Print function!"""
     return ' '.join(ina)
+
+def _get_variable(name):
+    stack = inspect.stack()
+    try:
+        for frames in stack:
+            try:
+                frame = frames[0]
+                current_locals = frame.f_locals
+                if name in current_locals:
+                    return current_locals[name]
+            finally:
+                del frame
+    finally:
+        del stack

@@ -1,9 +1,14 @@
+"""Wrapper for everything Discord token."""
 import os
 import sys
 from getpass import getpass
 bot_token = ['']
 root_dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
+data_dir = os.path.join(root_dir, 'data')
 self_setup_finished = False
+
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir)
 
 def self_loop():
     global bot_token

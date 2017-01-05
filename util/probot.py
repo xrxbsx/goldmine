@@ -29,7 +29,7 @@ from properties import storage_backend
 from util.datastore import DataStore
 import util.ranks as rank
 from util.const import *
-from util.func import bdel, decoy_print
+from util.func import bdel, decoy_print, _get_variable
 from util.fake import FakeObject
 import util.token as token
 import util.json as json
@@ -762,6 +762,13 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
                     e_text += kv['name'] + '\n-----------------------------------\n' + kv['value'] + '\n\n'
                 e_text += '⚠ I need the Embed Links permission to send awesome embeds! ⚠```'
                 data = await self.http.send_message(channel_id, (content if content else '') + '\n' + e_text, guild_id=guild_id, tts=tts, embed=None)
+                channel = self.get_channel(data.get('channel_id'))
+                message = self.connection._create_message(channel=channel, **data)
+                return message
+            elif self.selfbot and (destination.id == self.user.id):
+                destination = _get_variable('_internal_channel')
+                channel_id, guild_id = await self._resolve_destination(destination)
+                data = await self.http.send_message(channel_id, content, guild_id=guild_id, tts=tts, embed=embed)
                 channel = self.get_channel(data.get('channel_id'))
                 message = self.connection._create_message(channel=channel, **data)
                 return message
