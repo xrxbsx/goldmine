@@ -457,7 +457,7 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
             myself = self.user
         if self.selfbot:
             try:
-                cmdfix = self.store['properties']['global']['selfbot_prefix']
+                cmdfix = self.store.store['properties']['global']['selfbot_prefix']
             except KeyError:
                 cmdfix = myself.name[0].lower() + '.'
             bname = myself.name
