@@ -25,7 +25,7 @@ def self_loop():
 def inter_loop():
     global bot_token
     bot_token = [input('Bot token: ')]
-    if bot_token[0] == 'self':
+    if bot_token[0].lower().startswith('self'):
         print('''Ok, here\'s to selfbot mode. I\'ll need your Discord e-mail and password.
 It\'s normal for the password to not appear when you type it. Don\'t worry, it\'s working.
 This is done for security purposes.''')
