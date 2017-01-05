@@ -56,9 +56,9 @@ To make one, go to https://discordapp.com/developers/applications/@me and click 
 Fill in the details as you wish, then click Done. Now, click Create Bot User.
 When that\'s done, click Show Token, copy it, and paste it here.
 HOWEVER, if you want me to run as a selfbot, just answer \'self\' for this.''')
-try:
-    inter_loop()
-except KeyboardInterrupt:
-    print('\nYou pressed Ctrl-C... Ok, exiting setup.')
-    exit(0)
+    try:
+        inter_loop()
+    except KeyboardInterrupt:
+        print('\nYou pressed Ctrl-C... Ok, exiting setup.')
+        exit(0)
 selfbot = len(bot_token) > 1
