@@ -65,7 +65,7 @@ class Utility(Cog):
         eval_exc = self.loop.run_in_executor(None, self.bot.asteval.eval, code)
         return await eval_exc
 
-    @commands.command(pass_context=True, name='eval', aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate', 'expr', 'expression', 'rcalculate', 'rcalculator', 'rmath', 'remath', 'reval', 'revaluate', 'rexpr', 'rexpression'])
+    @commands.command(pass_context=True, name='eval', aliases=['calculate', 'calculator', 'math', 'emath', 'calc', 'evaluate', 'expr', 'expression', 'rcalculate', 'rcalculator', 'rmath', 'remath', 'reval', 'revaluate', 'rexpr', 'rexpression'])
     async def cmd_eval(self, ctx, *, code: str):
         """Evaluate some code, or a math expression.
         Usage: eval [code/expression]"""
