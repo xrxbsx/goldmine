@@ -185,6 +185,10 @@ class ProBot(commands.Bot):
                 f.write('{}')
         self.http_session = aiohttp.ClientSession()
         self.selfbot = token.selfbot
+        if self.selfbot:
+            self.game['name'] = ''
+            self.game['type'] = 0
+            self.game['url'] = ''
         super().__init__(**options)
 
     async def update_presence(self):
@@ -452,7 +456,10 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
         except AttributeError:
             myself = self.user
         if self.selfbot:
-            cmdfix = myself.name[0].lower() + '-'
+            try:
+                cmdfix = self.store['properties']['global']['selfbot_prefix']
+            except KeyError:
+                cmdfix = myself.name[0].lower() + '.'
             bname = myself.name
             prefix_convo = False
             do_logic = msg.author.id == self.user.id

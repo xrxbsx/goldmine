@@ -37,17 +37,54 @@ if not discord.opus.is_loaded():
         except OSError:
             logger.warning('could not load libopus, voice will NOT be available.')
 
+def login_fail_loop(loop, bot):
+    """Handler if I couldn't login to Discord."""
+    print('Should I: [E]xit / [Q]uit, [R]etry, or run [S]etup again?')
+    r = input('> ').lower()[0]
+    if r in ['e', 'q']:
+        print('Ok, I\'ll exit. Bye!')
+        exit(0)
+    elif r == 'r':
+        print('Ok, I\'ll try logging in again. Here we go!')
+        runbot(loop, bot)
+        return
+    elif r == 's':
+        print('Ok, here\'s to re-running setup!')
+        try:
+            os.remove(os.path.join(cur_dir, 'bot_token.txt'))
+        except OSError:
+            print('Hmm, I couldn\'t delete the token file. Try another choice.')
+            login_fail_loop(loop, bot)
+        else:
+            try:
+                del sys.modules['util.token']
+            except (KeyError, ValueError):
+                pass
+            try:
+                del sys.modules['goldmine.util.token']
+            except (KeyError, ValueError):
+                pass
+            del bot_token
+            del selfbot
+            from util.token import bot_token, selfbot
+    else:
+        print('That\'s not a valid choice, try again!')
+        login_fail_loop(loop, bot)
+        return
 def runbot(loop, bot):
     """Start the bot and handle Ctrl-C."""
     try:
         try:
             loop.run_until_complete(bot.start(*bot_token))
-        except RuntimeError:
-            pass
+        except discord.errors.LoginFailure:
+            print('''Hmm... I\'m having trouble logging into Discord.
+This usually means you revoked your token, or gave an invalid token.
+In selfbot mode, it usually means you changed your password, or typed it wrong.''')
+            login_fail_loop(loop, bot)
+            return
     except KeyboardInterrupt:
         logger.info('The bot is now shutting down, please wait...')
         loop.run_until_complete(bot.logout())
-        # cancel all tasks lingering
 
 def set_cog(cog, value):  # TODO: move this out of core.py
     data = dataIO.load_json("data/cogs.json")
