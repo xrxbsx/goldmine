@@ -34,6 +34,9 @@ class Admin(Cog):
     async def nuke(self, ctx, *count):
         """NUKES a channel by deleting all messages!
         Usage: nuke"""
+        if self.bot.selfbot:
+            await self.bot.say('**That command doesn\'t work in selfbot mode, due to a Discord restriction.**')
+            return
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
         mode = 'count'
         detected = False
@@ -98,11 +101,16 @@ class Admin(Cog):
                 await self.bot.say('**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
                 return
             purge_ids = [m.id for m in targets]
-        if mode == 'count':
-            deleted = await self.bot.purge_from(ctx.message.channel, limit=limit)
-        else:
-            deleted = await self.bot.purge_from(ctx.message.channel, limit=1500, check=lambda m: m.author.id in purge_ids)
-        del_msg = await self.bot.say('Deleted {} message(s)'.format(len(deleted)))
+        try:
+            if mode == 'count':
+                deleted = await self.bot.purge_from(ctx.message.channel, limit=limit)
+            else:
+                deleted = await self.bot.purge_from(ctx.message.channel, limit=1500, check=lambda m: m.author.id in purge_ids)
+        except discord.Forbidden:
+            await self.bot.say(ctx.message.author.mention + ' **I don\'t have enough permissions to do that here 😢**')
+            return
+        dn = len(deleted)
+        del_msg = await self.bot.say('👏 I\'ve finished, deleting {0} message{1}!'.format(dn, ('' if dn == 1 else 's')))
         await asyncio.sleep(2.8)
         await self.bot.delete_message(del_msg)
 
@@ -345,17 +353,22 @@ class Admin(Cog):
             await self.bot.change_nickname(ctx.message.server.me, value)
 
     @commands.command(pass_context=True, aliases=['getprefix', 'setprefix'])
-    async def prefix(self, ctx, *prefix):
+    async def prefix(self, ctx, *prefix: str):
         """Get or set the command prefix.
-        Usage: prefix {optional: new prefix}"""
+        Usage: prefix {new prefix}"""
+        sk = ' server'
+        prop = ('command_prefix', 'by_server')
+        if self.bot.selfbot:
+            sk = ''
+            prop = ('selfbot_prefix', 'global')
         if prefix:
             await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
             jprefix = ' '.join(list(prefix))
-            await self.store.set_prop(ctx.message, 'by_server', 'command_prefix', jprefix)
+            await self.store.set_prop(ctx.message, *prop, jprefix)
             await self.bot.say('Successfully set command prefix as `' + jprefix + '`!')
         else:
             oprefix = await self.store.get_cmdfix(ctx.message)
-            await self.bot.say('**Current server command prefix is: **`' + oprefix + '`')
+            await self.bot.say(f'**Current{sk} command prefix is: **`' + oprefix + '`')
 
     @commands.command(pass_context=True, aliases=['usersetprop', 'psetprop'])
     async def usetprop(self, ctx, pname: str, value: str):

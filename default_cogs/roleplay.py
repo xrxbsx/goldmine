@@ -370,6 +370,13 @@ class Roleplay(Cog):
         """(╯°□°）╯︵ ┻━┻
         Usage: pleb"""
         await self.bot.say('You\'re the pleb!')
+    @commands.command(aliases=['tri'])
+    async def triforce(self):
+        """Zelda triforce...
+        Usage: triforce"""
+        await self.bot.say('''```
+ ▲
+▲ ▲```''')
 
 def setup(bot):
     c = Roleplay(bot)
