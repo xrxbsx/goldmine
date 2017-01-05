@@ -264,7 +264,7 @@ class Admin(Cog):
         Usage: addadmin [user]"""
         tmp = await check_perms(ctx, ['bot_admin'])
         if not rrtarget:
-            await self.bot.say('**You need to specify a name, nickname, name#discriminator, or ID!**')
+            await self.bot.say('**You need to specify a name, nickname, name#0000, mention, or ID!**')
             return
         rtarget = ' '.join(rrtarget)
         try:
@@ -275,8 +275,10 @@ class Admin(Cog):
             target = _target.id
         elif len(rtarget) == 18:
             target = rtarget[0]
+        elif ctx.message.mentions:
+            target = ctx.message.mentions[0].id
         else:
-            await self.bot.say('**Invalid name! Name, nickname, name#discriminator, or ID work.**')
+            await self.bot.say('**Invalid name! Name, nickname, name#0000, mention, or ID work.**')
             return
         if tmp:
             aentry = target
@@ -331,7 +333,7 @@ class Admin(Cog):
                 _name = None
             if not _name:
                 _name = await self.bot.get_user_info(i)
-            alist += '**' + str(_name) + '**\n'
+            alist += '**' + str(_name) + f'** (ID `{_name.id}`)\n'
         await self.bot.say('The following people are bot admins:\n' + alist)
 
     @commands.command(pass_context=True)
