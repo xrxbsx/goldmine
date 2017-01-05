@@ -1,4 +1,4 @@
-"""The bot'a chatlogger for AIctraining."""
+"""The bot's chatlogger for AI training."""
 import asyncio
 import os
 import util.commands as commands
@@ -14,12 +14,13 @@ class Logger(Cog):
         self.w_task = asyncio.ensure_future(self.writer())
         self.active = True
         super().__init__(bot)
+
     def __unload(self):
         self.w_task.cancel()
         self.bot.loop.create_task(self.write())
 
     async def on_message(self, msg):
-        """Log message"""
+        """Log messages."""
         if not self.active: return
         try:
             self.log[msg.channel.id].append(msg.content)
@@ -27,7 +28,7 @@ class Logger(Cog):
             self.log[msg.channel.id] = [msg.content]
 
     async def write(self):
-        """Write logs"""
+        """Commit logs to disk."""
         t_len = 0
         for channel in self.log:
             ct = '\n'.join(self.log[channel])
@@ -52,8 +53,8 @@ class Logger(Cog):
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @logger.command(aliases=['commit', 'save'])
-    async def write(self):
+    @logger.command(aliases=['commit', 'save'], name='write')
+    async def cmd_write(self):
         """Commit all the logs to disk.
         Usage: logger write"""
         await self.bot.say('**Writing...**')

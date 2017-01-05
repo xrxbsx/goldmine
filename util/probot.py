@@ -243,7 +243,10 @@ class ProBot(commands.Bot):
         except AttributeError:
             myself = self.user
         if self.selfbot:
-            cmdfix = myself.name[0].lower() + '-'
+            try:
+                cmdfix = self.store.store['properties']['global']['selfbot_prefix']
+            except KeyError:
+                cmdfix = myself.name[0].lower() + '.'
         else:
             cmdfix = await self.store.get_cmdfix(ctx.message)
         cproc = ctx.message.content.split(' ')[0]

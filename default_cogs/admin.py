@@ -359,10 +359,10 @@ class Admin(Cog):
         """Get or set the command prefix.
         Usage: prefix {new prefix}"""
         sk = ' server'
-        prop = ('command_prefix', 'by_server')
+        prop = ('by_server', 'command_prefix')
         if self.bot.selfbot:
             sk = ''
-            prop = ('selfbot_prefix', 'global')
+            prop = ('global', 'selfbot_prefix')
         if prefix:
             await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages'])
             jprefix = ' '.join(list(prefix))
