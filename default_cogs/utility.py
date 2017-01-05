@@ -65,11 +65,11 @@ class Utility(Cog):
         eval_exc = self.loop.run_in_executor(None, self.bot.asteval.eval, code)
         return await eval_exc
 
-    @commands.command(pass_context=True, aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate', 'expr', 'expression', 'rcalculate', 'rcalculator', 'rmath', 'remath', 'reval', 'revaluate', 'rexpr', 'rexpression'])
-    async def calc(self, ctx, *, code: str):
-        """Evaluates a mathematical experssion.
-        Usage: calc [expression]"""
-        await or_check_perms(ctx, ['bot_admin'])
+    @commands.command(pass_context=True, name='eval', aliases=['calculate', 'calculator', 'math', 'emath', 'eval', 'evaluate', 'expr', 'expression', 'rcalculate', 'rcalculator', 'rmath', 'remath', 'reval', 'revaluate', 'rexpr', 'rexpression'])
+    async def cmd_eval(self, ctx, *, code: str):
+        """Evaluate some code, or a math expression.
+        Usage: eval [code/expression]"""
+        #await or_check_perms(ctx, ['bot_admin'])
         code = bdel(bdel(code, '```python').strip('`'), '```py')
         if self.s_check_tick == 3:
             byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
