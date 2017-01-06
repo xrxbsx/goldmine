@@ -24,7 +24,7 @@ class DataStore():
         'pickle': 'db'
     }
     def __init__(self, backend, path=None, join_path=True, commit_interval=3):
-        self.dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
+        self.dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file))
         self.backend = backend
         self.session = None
         self.commit_interval = commit_interval
@@ -47,6 +47,9 @@ class DataStore():
                     orig = df.read()
                     f.write(orig)
                 self.store = json.loads(orig)
+
+    def __getitem__(self, item: str):
+        return self.store[item]
 
     async def read(self):
         """Re-read the datastore from disk, discarding changes."""

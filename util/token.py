@@ -3,7 +3,7 @@ import os
 import sys
 from getpass import getpass
 bot_token = ['']
-root_dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
+root_dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file))
 data_dir = os.path.join(root_dir, 'data')
 self_setup_finished = False
 

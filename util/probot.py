@@ -110,7 +110,7 @@ class ProBot(commands.Bot):
         except Exception:
             pass
         self.start_time = datetime.now()
-        self.dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].__file__))
+        self.dir = os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file))
         self.storepath = os.path.join(self.dir, 'storage.')
         if storage_backend not in DataStore.exts:
             self.logger.critical('Invalid storage backend specified, quitting!')
@@ -244,7 +244,7 @@ class ProBot(commands.Bot):
             myself = self.user
         if self.selfbot:
             try:
-                cmdfix = self.store.store['properties']['global']['selfbot_prefix']
+                cmdfix = self.store['properties']['global']['selfbot_prefix']
             except KeyError:
                 cmdfix = myself.name[0].lower() + '.'
         else:
@@ -460,7 +460,7 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
             myself = self.user
         if self.selfbot:
             try:
-                cmdfix = self.store.store['properties']['global']['selfbot_prefix']
+                cmdfix = self.store['properties']['global']['selfbot_prefix']
             except KeyError:
                 cmdfix = myself.name[0].lower() + '.'
             bname = myself.name

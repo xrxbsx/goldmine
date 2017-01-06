@@ -85,9 +85,10 @@ class REPL(Cog):
             'self': self,
             'msg': msg,
             'test': 'Test right back at ya!',
-            'lol': 'kek'
+            'lol': 'kek',
+            'loop': self.bot.loop
         }
-        valid_flags = ['public', 'asteval', 'py']
+        valid_flags = ['public', 'asteval', 'py', 'split']
         for flag in flags:
             if flag not in valid_flags:
                 await self.bot.say(f'Flag `{flag}` is invalid. Valid flags are `{", ".join(valid_flags)}`.')
@@ -101,8 +102,8 @@ class REPL(Cog):
             checks = {
                 'author': msg.author
             }
-        if 'asteval' in flags:
-            use_asteval = True
+        use_asteval = 'asteval' in flags
+        truncate = 'split' not in flags
         if 'py' in flags:
             await self.bot.say('⚠ Flag `py` is not implemented yet!')
             return
@@ -132,7 +133,7 @@ class REPL(Cog):
                 self.sessions.remove(msg.channel.id)
                 return
 
-            if asteval:
+            if use_asteval:
                 result = await self.asteval_iface(cleaned)
                 if inspect.isawaitable(result):
                     result = await result
@@ -173,8 +174,11 @@ class REPL(Cog):
             try:
                 if fmt is not None:
                     if len(fmt) > 2000:
-                        for i in range(0, len(fmt), 1992):
-                           await self.bot.send_message(msg.channel, '```py\n%s```' % fmt[i:i+1992])
+                        if truncate:
+                            await self.bot.send_message(msg.channel, f'```py\n{fmt}```')
+                        else:
+                            for i in range(0, len(fmt), 1990):
+                                await self.bot.send_message(msg.channel, '```py\n%s```' % fmt[i:i+1992])
                     else:
                         await self.bot.send_message(msg.channel, f'```py\n{fmt}```')
             except discord.Forbidden:

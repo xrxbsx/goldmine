@@ -8,6 +8,8 @@ import shutil
 from fnmatch import filter
 import discord
 from default_cogs.utils.dataIO import dataIO
+import __main__
+__main__.core_file = __file__
 from util.token import bot_token, selfbot
 from convert_to_old_syntax import rc_files, cur_dir
 from util.probot import ProBot as PBot
@@ -102,12 +104,12 @@ async def io_flusher():
 
 def main(use_uvloop):
     """Executes the main bot."""
-    import __main__
     if use_uvloop:
         import uvloop
         asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
     logger.info('Init: Starting IO flusher')
     __main__.io_flusher_task = asyncio.ensure_future(io_flusher())
+    __main__.goldmine = True
     logger.info('Init: Getting cog folder')
     cogs_dir = os.path.join(cur_dir, 'cogs')
     if not os.path.exists(os.path.join(cur_dir, 'cogs', 'utils')):

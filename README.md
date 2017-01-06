@@ -43,4 +43,7 @@ To do this, open `properties.py` in a text editor and edit `bot_owner = '1605670
 Example: 012345678901234567 - make sure you don't leave out any numbers, though.
 There should be 18 of them.
 
-####Now simply run `python3 goldmine.py` to complete the rest of the setup! This works for both bot mode and selfbot mode.
+The bot will guide you through the setup, including login (token or email+password),
+bot owner (soon), and all that good stuff.
+
+####Simply run `python3 goldmine.py` to complete the rest of the setup! This works for both bot mode and selfbot mode.

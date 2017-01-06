@@ -24,7 +24,7 @@ async def check_perms(ctx, perms_required):
             pass
         elif (i == 'server_owner') and (sender_id == sowner_id):
             perms_satisfied += 1
-        elif (i == 'bot_admin') and ((sender_id in ctx.bot.store.store['bot_admins']) or (sender_id == bot_owner)):
+        elif (i == 'bot_admin') and ((sender_id in ctx.bot.store['bot_admins']) or (sender_id == bot_owner)):
             perms_satisfied += 1
         elif i.lower() in dc_perms:
             perms_satisfied += 1

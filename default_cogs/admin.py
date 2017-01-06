@@ -2,6 +2,10 @@
 from __future__ import print_function
 import asyncio
 import functools
+import zipfile
+import io
+import aiohttp
+import async_timeout
 import copy
 import random
 import subprocess
@@ -131,7 +135,12 @@ class Admin(Cog):
             await self.bot.edit_message(msg, 'An error occured while attempting to update!')
             await self.bot.send_message(ctx.message.author, '```' + str(exp) + '```')
             gitout = False
-        # https://github.com/Armored-Dragon/goldmine/archive/master.zip
+        '''async with aiohttp.ClientSession() as session:
+            with async_timeout.timeout(15): # for streaming
+                async with session.get('https://github.com/Armored-Dragon/goldmine/archive/master.zip') as r:
+                    tarball = await r.read()
+        with zipfile.ZipFile(io.BytesIO(tarball)) as z:
+            z.extractall(self.bot.dir)'''
         if gitout != False:
             await self.bot.send_message(ctx.message.author, 'Update Output:\n```' + gitout + '```')
         if not gitout:
