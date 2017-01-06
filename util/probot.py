@@ -758,9 +758,13 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
         except discord.HTTPException as e:
             if embed: # let's try non embed
                 e_text = '```md\n'
+                if 'author' in embed:
+                    e_text += embed['author']['name'] + '\n\n'
                 for kv in embed['fields']:
                     e_text += kv['name'] + '\n-----------------------------------\n' + kv['value'] + '\n\n'
-                e_text += '⚠ I need the Embed Links permission to send awesome embeds! ⚠```'
+                if 'footer' in embed:
+                    e_text += embed['footer']['text'] + '\n\n'
+                e_text += '⚠ I need the Embed Links permission to send embeds! ⚠```'
                 data = await self.http.send_message(channel_id, (content if content else '') + '\n' + e_text, guild_id=guild_id, tts=tts, embed=None)
                 channel = self.get_channel(data.get('channel_id'))
                 message = self.connection._create_message(channel=channel, **data)
