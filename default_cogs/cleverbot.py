@@ -59,6 +59,14 @@ class Cleverbot(Cog):
         self.cleverbutt_replied_to.add(msg.id)
         self.cleverbutt_timers.remove(msg.server.id)
 
+    async def cleverbot_logic(self, msg):
+        """Cleverbot message handling magic."""
+        if str(msg.channel) == 'cleverbutts':
+            if msg.server.id in self.cleverbutt_timers: # still on timer for next response
+                self.cleverbutt_latest[msg.server.id] = msg.content
+            else:
+                await self.clever_reply(msg)
+
     @commands.command(aliases=['cb', 'ask', 'ai', 'bot'])
     async def cleverbot(self, *, query: str):
         """Queries the Cleverbot service. Because why not.
