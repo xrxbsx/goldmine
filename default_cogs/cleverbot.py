@@ -3,6 +3,7 @@ import asyncio
 import random
 from util.cleverbot import Cleverbot as RealCleverbot
 import util.commands as commands
+from util.func import bdel
 from .cog import Cog
 
 class Cleverbot(Cog):
@@ -27,7 +28,7 @@ class Cleverbot(Cog):
 
     async def auto_cb_convo(self, msg, kickstart, replace=False):
         """Cleverbot auto conversation manager."""
-        if self.status == 'invisible': return
+        if self.bot.status == 'invisible': return
         await self.bot.send_typing(msg.channel)
         lmsg = msg.content.lower().replace('@everyone', 'everyone').replace('@here', 'here')
         if replace:
@@ -59,13 +60,35 @@ class Cleverbot(Cog):
         self.cleverbutt_replied_to.add(msg.id)
         self.cleverbutt_timers.remove(msg.server.id)
 
-    async def cleverbot_logic(self, msg):
-        """Cleverbot message handling magic."""
+    async def on_bot_message(self, msg):
+        """Cleverbutt message handling magic."""
         if str(msg.channel) == 'cleverbutts':
             if msg.server.id in self.cleverbutt_timers: # still on timer for next response
                 self.cleverbutt_latest[msg.server.id] = msg.content
             else:
                 await self.clever_reply(msg)
+
+    async def on_mention(self, msg):
+        """Cleverbot on-mention logic."""
+        await self.auto_cb_convo(msg, self.bot.user.mention, replace=True)
+
+    async def on_not_command(self, msg):
+        """Cleverbutts kickstarting logic."""
+        if str(msg.channel) == 'cleverbutts':
+            if self.bot.status == 'invisible': return
+            if msg.content.lower() == 'kickstart':
+                await self.msend(msg, 'Hi, how are you doing?')
+                return
+
+    async def on_pm(self, msg):
+        """PM replying logic."""
+        await self.send_typing(msg.channel)
+        cb_reply = await self.askcb(msg.content)
+        return await self.msend(msg, ':speech_balloon: ' + cb_reply)
+
+    async def on_prefix_convo(self, msg, lbname):
+        """Reply to prefix conversation."""
+        return await self.auto_cb_convo(msg, lbname)
 
     @commands.command(aliases=['cb', 'ask', 'ai', 'bot'])
     async def cleverbot(self, *, query: str):

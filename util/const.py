@@ -450,7 +450,8 @@ default_cogs = [
     'emoji',
     'welcome',
     'google',
-    'errors'
+    'errors',
+    'ranks'
 ]
 essential_cogs = [
     'cogs',

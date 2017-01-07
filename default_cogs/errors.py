@@ -1,6 +1,7 @@
 """Error handlers."""
 import traceback
 import asyncio
+import discord
 import util.commands as commands
 from util.const import *
 from util.func import bdel
@@ -32,7 +33,7 @@ class Errors(Cog):
             myself = ctx.message.server.me
         except AttributeError:
             myself = self.user
-        if self.selfbot:
+        if self.bot.selfbot:
             try:
                 cmdfix = self.store['properties']['global']['selfbot_prefix']
             except KeyError:
@@ -124,13 +125,13 @@ class Errors(Cog):
                     await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
             elif isinstance(exp.original, asyncio.TimeoutError):
                 await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
-            elif (cprocessed in self.commands['calc'].aliases) or (cprocessed == 'calc'):
+            elif (cprocessed in self.bot.commands['calc'].aliases) or (cprocessed == 'calc'):
                 await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.csend(ctx, 'An internal error occured while responding to `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
         elif type(exp) in [commands.MissingRequiredArgument, commands.TooManyArguments, commands.BadArgument]:
             if ctx.invoked_subcommand is None:
-                tgt_cmd = self.commands[cprocessed]
+                tgt_cmd = self.bot.commands[cprocessed]
             else:
                 tgt_cmd = ctx.invoked_subcommand
             await self.csend(ctx, arg_err.format(ctx.message.author, cprocessed, cmdfix, cmdfix +

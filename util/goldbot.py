@@ -37,10 +37,6 @@ try:
     opath = store_path
 except ImportError:
     opath = None
-try:
-    from ex_props import discord_bots_token
-except ImportError:
-    discord_bots_token = None
 
 try:
     import psutil
@@ -115,11 +111,11 @@ class GoldBot(commands.Bot):
         self.lib_version = '.'.join([str(i) for i in self.dc_ver])
         self.store_writer = self.loop.create_task(self.store.commit_task())
         self.asteval = None
-        asyncio.ensure_future(self.reset_asteval())
+        self.loop.create_task(self.reset_asteval())
         self.have_resource = False
         if sys.platform in ['linux', 'linux2', 'darwin']:
             self.have_resource = True
-        asyncio.ensure_future(self.update_emote_data())
+        self.loop.create_task(self.update_emote_data())
         self.emotes = {}
         self.dl_cogs_path = os.path.join(self.dir, 'cogs')
         self.ex_cogs_path = os.path.join(self.dir, 'cogs.txt')
@@ -169,26 +165,6 @@ class GoldBot(commands.Bot):
         if self.game['name']:
             self.presence['game'] = discord.Game(**self.game)
         await self.change_presence(**self.presence)
-    async def update_stats(self):
-        """Report the current server count to bots.discord.pw."""
-        if not discord_bots_token:
-            self.logger.warning('Tried to contact Discord Bots, but no token set!')
-            return False
-        data = {
-            'server_count': len(self.servers)
-        }
-        dest = 'https://bots.discord.pw/api/bots/' + self.user.id + '/stats'
-        headers = {
-            'Authorization': discord_bots_token,
-            'Content-Type': 'application/json'
-        }
-        with async_timeout.timeout(6):
-            async with self.http_session.post(dest, data=json.dumps(data), headers=headers) as r:
-                resp_key = f'(got {r.status} {r.reason})'
-                if r.status == 200:
-                    self.logger.info('Successfully sent Discord Bots our guild count ' + resp_key)
-                else:
-                    self.logger.warning('Failed sending our guild count to Discord Bots! ' + resp_key)
 
     async def send(self, *apass, **kwpass):
         await self.send_message(*apass, **kwpass)
@@ -201,9 +177,6 @@ class GoldBot(commands.Bot):
         """On_ready event for when the bot logs into Discord."""
         self.logger.info('Bot has logged into Discord, ID ' + self.user.id)
         await self.update_presence()
-        if discord_bots_token:
-            if not self.selfbot:
-                await self.update_stats()
 
     async def on_message(self, msg):
         try:
@@ -223,15 +196,11 @@ class GoldBot(commands.Bot):
             bname = await self.store.get_prop(msg, 'bot_name')
             prefix_convo = (await self.store.get_prop(msg, 'prefix_answer')) in bool_true
             do_logic = msg.author.id != self.user.id
+        lbname = bname.lower()
         if do_logic:
             if msg.author.bot:
-                if self.selfbot: return
                 if self.status == 'invisible': return
-                if str(msg.channel) == 'cleverbutts':
-                    if msg.server.id in self.cleverbutt_timers: # still on timer for next response
-                        self.cleverbutt_latest[msg.server.id] = msg.content
-                    else:
-                        await self.clever_reply(msg)
+                self.dispatch('bot_message', msg)
             else:
                 if self.selfbot:
                     if msg.content.startswith(cmdfix):
@@ -246,40 +215,21 @@ class GoldBot(commands.Bot):
                         if sntn in bool_true:
                             await self.change_nickname(msg.server.me, int_name)
                     if not msg.content.startswith(cmdfix):
-                        prof_name = 'profile_' + msg.server.id
-                        prof = await self.store.get_prop(msg, prof_name)
-                        prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
-                        new_level = rank.xp_level(prof['exp'])[0]
-                        if self.status != 'invisible':
-                            if new_level > prof['level']:
-                                bclu = await self.store.get_prop(msg, 'broadcast_level_up')
-                                if isinstance(bclu, str):
-                                    bclu = bclu.lower()
-                                if bclu in bool_true:
-                                    await self.msend(msg, '**Hooray!** {0.mention} has just *advanced* to **level {1}**.'.format(msg.author, str(new_level)))
-                        prof['level'] = new_level
-                        await self.store.set_prop(msg, 'by_user', prof_name, prof)
-                    if str(msg.channel) == 'cleverbutts':
-                        if self.status == 'invisible': return
-                        if msg.content.lower() == 'kickstart':
-                            await self.msend(msg, 'Hi, how are you doing?')
-                            return
+                        self.dispatch('not_command', msg)
                 if self.status == 'invisible':
                     if msg.content.lower().startswith(cmdfix + 'resume'):
                         self.status = 'dnd'
                         await self.update_presence()
                         await self.msend(msg, 'Successfully **resumed** my features!')
                 elif myself.mentioned_in(msg) and ('@everyone' not in msg.content) and ('@here' not in msg.content):
-                    await self.auto_cb_convo(msg, self.user.mention, replace=True)
+                    self.dispatch('mention', msg)
                 elif msg.channel.is_private:
                     if msg.content.startswith(cmdfix):
                         await self.process_commands(msg, cmdfix)
                     else:
-                        await self.send_typing(msg.channel)
-                        cb_reply = await self.askcb(msg.content)
-                        await self.msend(msg, ':speech_balloon: ' + cb_reply)
-                elif (msg.content.lower().startswith(bname.lower() + ' ')) and (prefix_convo):
-                    await self.auto_cb_convo(msg, bname.lower())
+                        self.dispatch('pm', msg)
+                elif (msg.content.lower().startswith(lbname + ' ')) and prefix_convo:
+                    self.dispatch('prefix_convo', msg, lbname)
                 elif msg.content.lower() in ['prefix', 'prefix?']:
                     await self.msend(msg, '**Current server command prefix is: **`' + cmdfix + '`')
                 else:
@@ -289,9 +239,7 @@ class GoldBot(commands.Bot):
             self.logger.debug('Didn\'t meet check for main on_message processing')
 
     async def on_error(self, *a, **b):
-        pass # it's in Errors cog now
-    async def on_command_error(self, *a):
-        pass # it's in Errors cog now
+        await self.cogs['Errors'].on_error(*a, **b)
 
     async def on_server_join(self, server):
         """Send the bot introduction message when invited."""
@@ -312,12 +260,9 @@ class GoldBot(commands.Bot):
                     self.logger.warning('Couldn\'t announce join to server ' + server.name)
                     satisfied = True
                 c_count += 1
-        await self.update_stats()
     async def on_server_remove(self, server):
         """Update the stats."""
         self.logger.info('Lost a server: ' + server.name + ', aww :\\')
-        if self.selfbot: return
-        await self.update_stats()
 
     async def suspend(self):
         """Suspend the bot."""
@@ -367,8 +312,7 @@ class GoldBot(commands.Bot):
 
     async def format_uptime(self):
         """Return a human readable uptime."""
-        def s(num):
-            return '' if num == 1 else 's'
+        s = lambda n: '' if n == 1 else 's'
         fmt = '{0} day{4} {1} hour{5} {2} minute{6} {3} second{7}'
         time_diff = datetime.now() - self.start_time
         time_mins = divmod(time_diff.total_seconds(), 60)

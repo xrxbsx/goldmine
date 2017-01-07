@@ -10,9 +10,7 @@ import aiohttp
 import async_timeout
 import discord
 import util.commands as commands
-import util.ranks as rank
 from .cog import Cog
-from util.fake import FakeMessageMember
 from util.const import charsets, spinners, lvl_base
 
 class Cosmetic(Cog):
@@ -31,68 +29,6 @@ class Cosmetic(Cog):
         """Set a public role on your account.
         Usage: role [role name]"""
         await self.bot.say('Role setting is not implemented yet!')
-
-    @commands.command(pass_context=True, aliases=['xp', 'level', 'lvl', 'exp', 'levels'], no_pm=True)
-    async def rank(self, ctx, *users: str):
-        """Check your experience, level, and rank!
-        Usage: xp"""
-        targets = []
-        s = ctx.message.server
-        if users:
-            members = {}
-            for i in getattr(s, 'members', []):
-                members[i.mention] = i
-                members[i.id] = i
-                members[i.display_name] = i
-                members[i.name] = i
-            for i in users:
-                try:
-                    member = s.get_member(i)
-                except AttributeError:
-                    try:
-                        member = await self.bot.get_user_info(i)
-                    except discord.HTTPException:
-                        member = None
-                if member:
-                    targets.append(member)
-                else:
-                    try:
-                        member = await self.bot.get_user_info(i)
-                    except discord.HTTPException:
-                        member = None
-                    if member:
-                        targets.append(member)
-            names = []
-            _i = 0
-            while _i < len(users):
-                names.append(users[_i])
-                with suppress(KeyError):
-                    if ' '.join(names) in members:
-                        targets.append(members[' '.join(names)])
-                        names = []
-                    elif _i + 1 == len(users):
-                        targets.append(members[users[0]])
-                        _i = -1
-                        users = users[1:]
-                        names = []
-                _i += 1
-            if not targets:
-                await self.bot.say('**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
-                return
-        else:
-            targets.append(ctx.message.author)
-        stat_fmt = '''{0.author.mention} Here are {5} **stats**:
-**LEVEL: {1}
-EXPERIENCE: __{2}/{3}__ for next level
-TOTAL EXPERIENCE: {4}**
-*Try getting some more! :smiley:*
-'''
-        for r_tgt in targets:
-            target = FakeMessageMember(r_tgt)
-            prof = await self.store.get_prop(target, 'profile_' + target.server.id)
-            rlevel = rank.xp_level(prof['exp'])
-            await self.bot.say(stat_fmt.format(target, str(rlevel[0]), str(int(rlevel[1])),
-                                               str(int((rlevel[0] + 1) * lvl_base)), str(prof['exp']), ('your' if target.author.id == ctx.message.author.id else str(target.author) + "'s")))
 
     @commands.command(pass_context=True)
     async def emotes(self, ctx):

@@ -11,7 +11,7 @@ class Logger(Cog):
     def __init__(self, bot):
         self.int = 6 * 60
         self.log = {}
-        self.w_task = asyncio.ensure_future(self.writer())
+        self.w_task = self.loop.create_task(self.writer())
         self.active = True
         super().__init__(bot)
 
@@ -65,7 +65,7 @@ class Logger(Cog):
     async def wstart(self):
         """Start the 6-min writer task.
         Usage: logger wstart"""
-        self.w_task = asyncio.ensure_future(self.writer())
+        self.w_task = self.loop.create_task(self.writer())
         await self.bot.say('**Started 6-min writer task!**')
 
     @logger.command()

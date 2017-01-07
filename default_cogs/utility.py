@@ -448,7 +448,7 @@ class Utility(Cog):
         await self.bot.edit_message(msg, msg_key + '**POLL IS NOW ACTIVE. Give it a vote!**')
         emojis = list(emojis)
         poll_table = OrderedDict((str(i), []) for i in emojis)
-        task = asyncio.ensure_future(self.poll_task(emojis, msg, poll_table))
+        task = self.loop.create_task(self.poll_task(emojis, msg, poll_table))
         await asyncio.sleep(stime)
         task.cancel()
         _vote_table = {i: len(poll_table[i]) for i in poll_table}

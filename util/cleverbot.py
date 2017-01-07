@@ -81,7 +81,7 @@ class Cleverbot(object):
         self.cookies = {}
         # get the main page to get a cookie (see bug #13)
         if get_cookies:
-            asyncio.ensure_future(self.get_cookies())
+            self.loop.create_task(self.get_cookies())
 
     async def ask(self, question):
         """Asks Cleverbot a question.

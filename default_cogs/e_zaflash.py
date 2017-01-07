@@ -22,7 +22,7 @@ class ZaFlash(Cog):
             await self.bot.say('No permission!')
             return False
         def print(*ina: str):
-            asyncio.ensure_future(self.bot.say(' '.join(ina)))
+            self.loop.create_task(self.bot.say(' '.join(ina)))
             return True
         try:
             ev_output = eval(bdel(bdel(code, '```python'), '```py').strip('`'))
@@ -91,7 +91,7 @@ class ZaFlash(Cog):
             await self.bot.say('No permission!')
             return False
         def print(*ina: str):
-            asyncio.ensure_future(self.bot.say(' '.join(ina)))
+            self.loop.create_task(self.bot.say(' '.join(ina)))
             return True
         try:
             ev_output = eval(bdel(bdel(code, '```python'), '```py').strip('`'))

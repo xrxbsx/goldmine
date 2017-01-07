@@ -142,7 +142,8 @@ class Admin(Cog):
         with zipfile.ZipFile(io.BytesIO(tarball)) as z:
             z.extractall(self.bot.dir)'''
         if gitout != False:
-            await self.bot.send_message(ctx.message.author, 'Update Output:\n```' + gitout + '```')
+            dest = ctx.message.channel if self.bot.selfbot else ctx.message.author
+            await self.bot.send_message(dest, 'Update Output:\n```' + gitout + '```')
         if not gitout:
             await self.bot.edit_message(msg, msg.content + f'\nUpdate failed{r_not_key}.')
         elif gitout.split('\n')[-2:][0] == 'Already up-to-date.':
@@ -159,8 +160,8 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_owner'])
 #        for i in self.bot.servers:
 #            await self.bot.send_message(i.default_channel, 'This bot (' + self.bname + ') is now restarting!')
-        self.bot.store_writer.cancel()
-        await self.bot.store.commit()
+        self.store_writer.cancel()
+        await self.store.commit()
         if ctx.invoked_with != 'update':
             await self.bot.say('I\'ll try to restart. Hopefully I come back alive :stuck_out_tongue:')
         self.logger.info('The bot is now restarting!')
@@ -173,7 +174,7 @@ class Admin(Cog):
         """Commit the current datastore.
         Usage: dcommit"""
         await echeck_perms(ctx, ['bot_owner'])
-        await self.bot.store.commit()
+        await self.store.commit()
         await self.bot.say('**Commited the current copy of the datastore!**')
 
     @commands.command(pass_context=True, aliases=['dread', 'storeread', 'readstore', 'load_store', 'read_store'], hidden=True)
@@ -184,7 +185,7 @@ class Admin(Cog):
         await self.bot.say('**ARE YOU SURE YOU WANT TO LOAD THE DATASTORE?** *yes, no*')
         resp = await self.bot.wait_for_message(author=ctx.message.author)
         if resp.content.lower() == 'yes':
-            await self.bot.store.commit()
+            await self.store.commit()
             await self.bot.say('**Read the datastore from disk, overwriting current copy!**')
         else:
             await self.bot.say('**Didn\'t say yes, aborting.**')
@@ -222,7 +223,7 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_owner'])
         dc = self.dc_funcs
         def print(*ina: str):
-            asyncio.ensure_future(self.bot.say(' '.join(ina)))
+            self.loop.create_task(self.bot.say(' '.join(ina)))
             return True
         try:
             ev_output = eval(bdel(bdel(code, '```python'), '```py').strip('`'))
@@ -243,7 +244,7 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_owner'])
         dc = self.dc_funcs
         def print(*ina: str):
-            asyncio.ensure_future(self.bot.say(' '.join(ina)))
+            self.loop.create_task(self.bot.say(' '.join(ina)))
             return True
         try:
             ev_output = exec(bdel(bdel(code, '```python'), '```py').strip('`'))
@@ -500,7 +501,7 @@ class Admin(Cog):
         Usage: mute [person's name]"""
         await or_check_perms(ctx, ['mute_members', 'manage_roles', 'manage_channels', 'manage_messages'])
         status = await self.bot.say('Muting... 🌚')
-        pg_task = asyncio.ensure_future(self.progress(status, 'Muting'))
+        pg_task = self.loop.create_task(self.progress(status, 'Muting'))
         try:
             ch_perms = discord.PermissionOverwrite(**{p: False for p in muted_perms})
             for channel in ctx.message.server.channels:
@@ -520,7 +521,7 @@ class Admin(Cog):
         Usage: unmute [person's name]"""
         await or_check_perms(ctx, ['mute_members', 'manage_roles', 'manage_channels', 'manage_messages'])
         status = await self.bot.say('Unmuting... 🌚')
-        pg_task = asyncio.ensure_future(self.progress(status, 'Unmuting'))
+        pg_task = self.loop.create_task(self.progress(status, 'Unmuting'))
         role_map = {r.name: r for r in member.roles}
         try:
             if 'Muted' in role_map:
