@@ -15,7 +15,6 @@ from fnmatch import filter
 from datetime import datetime
 import math
 import logging
-import aiohttp
 import async_timeout
 from asteval import Interpreter
 import discord
@@ -151,7 +150,6 @@ class GoldBot(commands.Bot):
         if not os.path.exists(self.cog_json_cogs_path):
             with open(self.cog_json_cogs_path, 'a') as f:
                 f.write('{}')
-        self.http_session = aiohttp.ClientSession()
         self.selfbot = token.selfbot
         if self.selfbot:
             self.game['name'] = ''
