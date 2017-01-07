@@ -432,7 +432,7 @@ Words: {words}
 Characters: {chars}'''
 
 quote_format = '**#{0}**: {4}"{1}"{4} \u2014 `{2}` [{3}]'
-essential_cogs = [
+default_cogs = [
     'cogs',
     'admin',
     'cosmetic',
@@ -441,7 +441,12 @@ essential_cogs = [
     'roleplay',
     'utility',
     'voice',
-    'repl'
+    'repl',
+    'e_zaflash',
+    'game_night'
+]
+essential_cogs = [
+    'cogs'
 ]
 
 join_msg = '''👀🤔👀🤔👀🤔👀🤔 **Hmm...** 👀🤔👀🤔👀🤔👀🤔

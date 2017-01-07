@@ -12,9 +12,9 @@ import __main__
 __main__.core_file = __file__
 from util.token import bot_token, selfbot
 from convert_to_old_syntax import rc_files, cur_dir
-from util.probot import ProBot as PBot
+from util.goldbot import GoldBot
 from util.datastore import initialize as init_store
-from util.const import description, essential_cogs
+from util.const import description, default_cogs
 from util.proformatter import RichFormatter
 
 logging.basicConfig(level=logging.INFO)
@@ -102,19 +102,9 @@ async def io_flusher():
         sys.stdout.flush()
         sys.stderr.flush()
 
-def main(use_uvloop):
-    """Executes the main bot."""
-    if use_uvloop:
-        import uvloop
-        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-    logger.info('Init: Starting IO flusher')
-    __main__.io_flusher_task = asyncio.ensure_future(io_flusher())
-    __main__.goldmine = True
-    logger.info('Init: Getting cog folder')
-    cogs_dir = os.path.join(cur_dir, 'cogs')
-    if not os.path.exists(os.path.join(cur_dir, 'cogs', 'utils')):
-        shutil.copytree(os.path.join(cur_dir, 'default_cogs', 'utils'), os.path.join(cur_dir, 'cogs', 'utils') + os.path.sep)
-    bot = PBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=(False if selfbot else None))
+def init_bot():
+    """Initialize the bot."""
+    bot = GoldBot(command_prefix='!', description=description, formatter=RichFormatter(), pm_help=(False if selfbot else None))
     __main__.send_cmd_help = bot.send_cmd_help
     logger.info('Init: Loading cogs')
     try:
@@ -122,10 +112,12 @@ def main(use_uvloop):
             disabled_cogs = [i.replace('\r', '').replace('\n', '') for i in f.readlines()]
     except FileNotFoundError:
         disabled_cogs = []
-    for cog in essential_cogs:
+    for cog in default_cogs:
         if cog not in disabled_cogs:
             logger.info('Init: Loading cog: ' + cog)
             bot.load_extension('default_cogs.' + cog)
+    if not os.path.exists(os.path.join(cur_dir, 'cogs', 'utils')):
+        shutil.copytree(os.path.join(cur_dir, 'default_cogs', 'utils'), os.path.join(cur_dir, 'cogs', 'utils') + os.path.sep)
     logger.info('Init: Loading extra cogs')
     try:
         with open('cogs.txt', 'r') as f:
@@ -142,6 +134,16 @@ def main(use_uvloop):
                             exit(1)
     except FileNotFoundError:
         pass
+    return bot
+def main(use_uvloop):
+    """Executes the main bot."""
+    if use_uvloop:
+        import uvloop
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+    logger.info('Init: Starting IO flusher')
+    __main__.io_flusher_task = asyncio.ensure_future(io_flusher())
+    __main__.goldmine = True
+    bot = init_bot()
     logger.info('Init: Initializing event loop')
     loop = asyncio.get_event_loop()
     logger.info('Init: Starting bot!')

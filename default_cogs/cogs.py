@@ -15,7 +15,7 @@ from core import set_cog
 from convert_to_old_syntax import cur_dir
 import util.commands as commands
 from util.perms import or_check_perms
-from util.const import essential_cogs
+from util.const import default_cogs, essential_cogs
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 from cogs.utils.chat_formatting import pagify, box
@@ -77,7 +77,7 @@ class Cogs(Cog):
         except OSError:
             dl_cogs = ['None! 😦']
         dis_cogs = [c.replace('_', ' ').title() for c in self.bot.disabled_cogs if c != '']
-        essential_enb = essential_cogs
+        essential_enb = default_cogs
         for cog in self.bot.disabled_cogs:
             if cog in essential_enb:
                 essential_enb.remove(cog)
@@ -173,7 +173,7 @@ class Cogs(Cog):
         dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs + ['all']
         req_cog = cog_name.lower().replace(' ', '_')
-        if req_cog == 'cogs':
+        if req_cog in essential_cogs:
             await self.bot.say('**You can\'t unload that!**')
             return
         if req_cog in cogs:
@@ -241,14 +241,14 @@ class Cogs(Cog):
         dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs
         req_cog = cog_name.lower().replace(' ', '_')
-        if req_cog == 'cogs':
+        if req_cog in essential_cogs:
             await self.bot.say('**You can\'t disable that!**')
             return
         if req_cog in cogs:
-            if (req_cog in self.bot.enabled_cogs) or (req_cog in list(set(essential_cogs) - set(self.bot.disabled_cogs))):
+            if (req_cog in self.bot.enabled_cogs) or (req_cog in list(set(default_cogs) - set(self.bot.disabled_cogs))):
                 start_time = datetime.now()
                 status = await self.bot.say(f'**Disabling cog** `{cog_name}` (`{req_cog}`)...')
-                if req_cog in essential_cogs:
+                if req_cog in default_cogs:
                     self.bot.disabled_cogs.append(req_cog)
                     with open(self.bot.dis_cogs_path, 'w+') as f:
                         f.write('\r\n'.join(self.bot.disabled_cogs))

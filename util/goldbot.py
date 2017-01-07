@@ -1,4 +1,4 @@
-"""The bot's ProBot subclass module, to operate the whole bot."""
+"""Where all the good stuff happens in the bot."""
 import asyncio
 import random
 import inspect
@@ -67,8 +67,8 @@ arg_err_map = {
     commands.TooManyArguments: ' too many arguments'
 }
 
-class ProBot(commands.Bot):
-    """The brain of the bot, ProBot."""
+class GoldBot(commands.Bot):
+    """The brain of the bot, GoldBot."""
 
     def __init__(self, **options):
         self.logger = logging.getLogger('bot')
@@ -356,27 +356,6 @@ class ProBot(commands.Bot):
                 return True
         return False
 
-    async def oauto_cb_convo(self, msg, kickstart):
-        """The old, broken auto conversation manager."""
-        if self.status == 'invisible': return
-        absid = msg.server.id + ':' + msg.channel.id + ':' + msg.author.id
-        if absid not in self.auto_convos:
-            await self.send_typing(msg.channel)
-            self.auto_convos.add(absid)
-            lmsg = msg.content.lower()
-            reply = lmsg
-            reply_bot = await self.askcb(bdel(lmsg, kickstart + ' ')) #ORIG
-            await self.msend(msg, msg.author.mention + ' ' + reply_bot) #ORIG
-#            cb_query = CleverQuery(msg.channel, bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
-#            await self.main_cb_queue.put(cb_query) #NEW
-            while self.casein('?', [reply_bot, reply]) or (reply_bot in q_replies):
-                rep = await self.wait_for_message(author=msg.author)
-                reply = rep.content
-#                cb_query = CleverQuery(msg.channel, bdel(lmsg, kickstart + ' '), msg.author.mention + ' ', '') #NEW
-#                await self.main_cb_queue.put(cb_query) #NEW
-                reply_bot = await self.askcb(reply) #ORIG
-                await self.msend(msg, msg.author.mention + ' ' + reply_bot) #ORIG
-            self.auto_convos.remove(absid)
     async def auto_cb_convo(self, msg, kickstart, replace=False):
         """Current auto conversation manager."""
         if self.status == 'invisible': return
@@ -394,7 +373,10 @@ class ProBot(commands.Bot):
         """On_ready event for when the bot logs into Discord."""
         self.logger.info('Bot has logged into Discord, ID ' + self.user.id)
         await self.update_presence()
-        await self.cb.get_cookies()
+        try:
+            await self.cb.get_cookies()
+        except asyncio.TimeoutError:
+            self.logger.warning('Couldn\'t get cookies for Cleverbot, so it probably won\'t work.')
         if discord_bots_token:
             if not self.selfbot:
                 await self.update_stats()
