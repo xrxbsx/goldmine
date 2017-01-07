@@ -18,6 +18,9 @@ class DiscordBots(Cog):
         super().__init__(bot)
         self.loop.create_task(self.init_http())
 
+    def __unload(self):
+        self.http.close()
+
     async def init_http(self):
         self.http = aiohttp.ClientSession()
 
