@@ -128,17 +128,21 @@ class Errors(Cog):
             elif (cprocessed in self.bot.commands['calc'].aliases) or (cprocessed == 'calc'):
                 await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
-                await self.csend(ctx, 'An internal error occured while responding to `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
+                await self.csend(ctx, '⚠ Error in `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
         elif type(exp) in [commands.MissingRequiredArgument, commands.TooManyArguments, commands.BadArgument]:
             if ctx.invoked_subcommand is None:
                 tgt_cmd = self.bot.commands[cprocessed]
             else:
                 tgt_cmd = ctx.invoked_subcommand
+            try:
+                r_usage = bdel(bdel(bdel(tgt_cmd.help.split('\n')[-1], 'Usage: '),
+                                         tgt_cmd.name), cprocessed)
+            except AttributeError:
+                r_usage = ''
             await self.csend(ctx, arg_err.format(ctx.message.author, cprocessed, cmdfix, cmdfix +
-                             cprocessed + bdel(bdel(bdel(tgt_cmd.help.split('\n')[-1], 'Usage: '),
-                             tgt_cmd.name), cprocessed), arg_err_map[type(exp)]))
+                             cprocessed + r_usage, arg_err_map[type(exp)]))
         else:
-            await self.csend(ctx, 'An internal error occured while responding to` %s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
+            await self.csend(ctx, '⚠ Error in `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
 
 def setup(bot):
     bot.add_cog(Errors(bot))

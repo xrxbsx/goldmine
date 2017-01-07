@@ -168,7 +168,7 @@ class RichFormatter(ProFormatter):
                 # skip aliases
                 continue
 
-            entry = '  \u2022  **{0}**: *{1}'.format(name, command.short_doc)
+            entry = '  \u2022  **{0}**: *{1}'.format(name, (command.short_doc if command.short_doc else 'I\'m a command.'))
             shortened = self.shorten(entry) + '*'
             self._paginator.add_line(shortened)
 

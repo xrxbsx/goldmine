@@ -11,6 +11,7 @@ if not os.path.exists(data_dir):
     os.makedirs(data_dir)
 
 def self_loop():
+    global self_setup_finished
     global bot_token
     email = input('Your e-mail: ')
     passwd = getpass(prompt='Your password: ')
@@ -27,6 +28,10 @@ def self_loop():
         self_loop()
         return
     self_setup_finished = True
+def write():
+    print('Thanks! I\'ll be loading right up.')
+    with open(os.path.join(root_dir, 'bot_token.txt'), 'w+') as f:
+        f.write(', '.join(bot_token))
 def inter_loop():
     global bot_token
     bot_token = [input('Bot token: ')]
@@ -35,12 +40,11 @@ def inter_loop():
 It\'s normal for the password to not appear when you type it. Don\'t worry, it\'s working.
 This is done for security purposes.''')
         self_loop()
+        write()
         return
     else:
         if ('.' in bot_token[0]) or (self_setup_finished):
-            print('Thanks! I\'ll be loading right up.')
-            with open(os.path.join(root_dir, 'bot_token.txt'), 'w+') as f:
-                f.write(', '.join(bot_token))
+            write()
         else:
             print('Hmm, that token doesn\'t seem right. Let\'s try again...')
             inter_loop()

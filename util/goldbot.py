@@ -203,6 +203,8 @@ class GoldBot(commands.Bot):
                 if self.selfbot:
                     if msg.content.startswith(cmdfix):
                         await self.process_commands(msg, cmdfix)
+                    else:
+                        self.dispatch('not_command', msg)
                     return
                 if not msg.channel.is_private:
                     int_name = await self.store.get_prop(msg, 'bot_name')
