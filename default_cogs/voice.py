@@ -13,11 +13,16 @@ from util.perms import echeck_perms, or_check_perms
 from util.func import assert_msg, check
 from util.const import sem_cells
 from .cog import Cog
+
 try:
     import speech_recognition as sr
     r = sr.Recognizer()
 except Exception:
     r = None
+try:
+    from opuslib import Decoder
+except Exception:
+    Decoder = None
 
 class VoiceEntry:
     """Class to represent an entry in the standard voice queue."""
@@ -174,6 +179,7 @@ class VoiceState:
             self.currents.player.start()
             await self.play_next_speech.wait()
 
+# ----------------------------------------------------
 class Voice(Cog):
     """Voice related commands.
     Works in multiple servers at once.
@@ -181,6 +187,12 @@ class Voice(Cog):
     def __init__(self, bot):
         self.voice_states = {}
         self.tokenizer = gtts_token.Token()
+        self.servers_recording = set()
+        self.recording_data = {}
+        if Decoder:
+            self.opus_decoder = Decoder(48000, 2)
+        else:
+            self.opus_decoder = None
         super().__init__(bot)
 
     def get_voice_state(self, server):
@@ -208,6 +220,19 @@ class Voice(Cog):
                     self.bot.loop.create_task(state.voice.disconnect())
             except:
                 pass
+
+    async def on_speaking(self, speaking, uid):
+        """Event for when someone is speaking."""
+        pass
+
+    async def on_speak(self, data, timestamp, voice):
+        """Event for when a voice packet is received."""
+        if voice.server.id in self.servers_recording:
+            decoded_data = await self.loop.run_in_executor(None, self.opus_decoder.decode, data, voice.encoder.frame_size)
+            try:
+                self.recording_data[voice.server.id] += decoded_data
+            except KeyError:
+                self.recording_data[voice.server.id] = decoded_data
 
     @commands.command(no_pm=True)
     async def join(self, *, channel: discord.Channel):
@@ -519,11 +544,11 @@ class Voice(Cog):
                 return
 
         sid = ctx.message.server.id
-        if sid not in self.bot.servers_recording:
+        if sid not in self.servers_recording:
             self.bot.servers_recording.add(sid)
             await self.bot.say('**Voice in this server is now being recorded!**')
         else:
-            self.bot.servers_recording.remove(sid)
+            self.servers_recording.remove(sid)
             await self.bot.say('**Voice is no longer being recorded in this server!**')
 
     @recording.command(pass_context=True, name='recognize', aliases=['recog', 'rec'])
@@ -532,12 +557,12 @@ class Voice(Cog):
         Usage: recording recog"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'move_members'])
         with assert_msg(ctx, '**The bot owner has not set up this feature!**'):
-            check(self.bot.opus_decoder != None)
+            check(self.opus_decoder != None)
         with assert_msg(ctx, '**This server does not have a recording!**'):
             check(ctx.message.server.id in self.bot.pcm_data)
         status = await self.bot.say('Hmm, let me think... 🌚')
         pg_task = asyncio.ensure_future(self.progress(status, 'Hmm, let me think'))
-        sr_data = sr.AudioData(self.bot.pcm_data[ctx.message.server.id], 48000, 2)
+        sr_data = sr.AudioData(self.recording_data[ctx.message.server.id], 48000, 2)
         try:
             with async_timeout.timeout(16):
                 final = await self.loop.run_in_executor(None, r.recognize_sphinx, sr_data)
@@ -558,9 +583,9 @@ class Voice(Cog):
             if not success:
                 return
         with assert_msg(ctx, '**This server does not have a recording!**'):
-            check(ctx.message.server.id in self.bot.pcm_data)
+            check(ctx.message.server.id in self.recording_data)
         state.voice.encoder_options(sample_rate=48000, channels=2)
-        player = state.voice.create_stream_player(io.BytesIO(self.bot.pcm_data[ctx.message.server.id]), after=state.toggle_next)
+        player = state.voice.create_stream_player(io.BytesIO(self.recording_data[ctx.message.server.id]), after=state.toggle_next)
         player.volume = 0.7
         entry = VoiceEntry(ctx.message, player, False, override_name='Voice Recording from ' + ctx.message.server.name)
         await state.songs.put(entry)

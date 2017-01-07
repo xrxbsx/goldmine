@@ -26,7 +26,7 @@ class Cosmetic(Cog):
         self.stop_anim = set()
         super().__init__(bot)
 
-    @commands.command(aliases=['color'])
+    @commands.command(aliases=['color', 'giveme', 'race'])
     async def role(self, role: str):
         """Set a public role on your account.
         Usage: role [role name]"""

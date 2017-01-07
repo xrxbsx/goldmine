@@ -1,11 +1,10 @@
-"""Definition of the bot's Misc module."""
-import asyncio
+"""Miscellaneous stuff."""
 import util.commands as commands
 from .cog import Cog
 
 class Misc(Cog):
     """Random commands that can be useful here and there.
-    This can be... truly random. Don't be scared! :smile:
+    This can be... truly random. Don't be scared! 😄
     """
 
     @commands.command()
@@ -22,6 +21,12 @@ class Misc(Cog):
         if count:
             fn_i = count[0]
         await self.bot.say('\n'.join(reversed(['buzz ' * i for i in range(fn_i)])))
+
+    @commands.command()
+    async def test(self):
+        """Do a basic test of the bot.
+        Usage: test"""
+        await self.bot.reply('everything is looking good! :smiley:')
 
 def setup(bot):
     c = Misc(bot)

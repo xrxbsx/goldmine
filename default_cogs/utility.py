@@ -323,24 +323,6 @@ class Utility(Cog):
         if destination == ctx.message.author:
             await self.bot.say(ctx.message.author.mention + ' **__I\'ve private messaged you my help, please check your DMs!__**')
 
-    @commands.command(aliases=['g', 'search', 'query', 'q'])
-    async def google(self, *rawin: str):
-        """Search something on Google.
-        Usage: google [search terms]"""
-        if rawin:
-            m = ''
-            intxt = ' '.join(rawin)
-            fql = await self.bot.google(intxt, num=2)
-            try:
-                m = 'Google returned: ' + fql[0]
-            except IndexError:
-                m = '**There were no results!**'
-            if len(fql) >= 2:
-                m += ' and ' + fql[1]
-            await self.bot.say(m)
-        else:
-            await self.bot.say('**You must specify some search terms!**')
-
     @commands.cooldown(1, 9.5, type=commands.BucketType.server)
     @commands.command(pass_context=True, aliases=['ping', 'pong', 'delay', 'net', 'network', 'lag', 'netlag'])
     async def latency(self, ctx):
@@ -352,12 +334,6 @@ class Utility(Cog):
             await self.bot.edit_message(msg, 'Getting latency... `%s`' % str(i + 1))
         time_diff = datetime.now() - begin_time
         await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 4) * 1000, 2)))
-
-    @commands.command(pass_context=True)
-    async def test(self, ctx):
-        """Do a basic test of the bot.
-        Usage: test"""
-        await self.bot.say('Everything is looking good, ' + ctx.message.author.mention + '! :smiley:')
 
     @commands.command(pass_context=True, aliases=['ram', 'memory', 'usage'])
     async def uptime(self, ctx):

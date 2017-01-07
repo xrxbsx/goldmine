@@ -32,7 +32,7 @@ class ZaFlash(Cog):
         await self.bot.say('```py\n' + o + '```')
 
 def setup(bot):
-    if bot.user.name == 'ZaFlash':
+    if 'zaflash' in bot.dir:
         bot.del_command('eref', 'seref', 'info', 'gm', 'home', 'etest', 'buzz')
         bot.game['type'] = 0
         bot.game['name'] = 'with the Owner'

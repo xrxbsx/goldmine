@@ -21,15 +21,13 @@ from asteval import Interpreter
 import discord
 import util.commands as commands
 from .commands.bot import ProContext, StringView, CommandError, CommandNotFound
-from util.google import search
-from util.cleverbot import Cleverbot
 import pickledb
 from convert_to_old_syntax import cur_dir, rc_files
 from properties import storage_backend
 from util.datastore import DataStore
 import util.ranks as rank
 from util.const import *
-from util.func import bdel, decoy_print, _get_variable
+from util.func import decoy_print, _get_variable
 from util.fake import FakeObject
 import util.token as token
 import util.json as json
@@ -43,15 +41,6 @@ try:
     from ex_props import discord_bots_token
 except ImportError:
     discord_bots_token = None
-try:
-    import speech_recognition as sr
-    r = sr.Recognizer()
-except ImportError:
-    r = None
-try:
-    from opuslib import Decoder
-except Exception:
-    Decoder = None
 
 try:
     import psutil
@@ -61,18 +50,11 @@ except ImportError:
     if sys.platform in ['linux', 'linux2', 'darwin']:
         import resource
 
-arg_err_map = {
-    commands.MissingRequiredArgument: 'out enough arguments',
-    commands.BadArgument: ' an invalid argument',
-    commands.TooManyArguments: ' too many arguments'
-}
-
 class GoldBot(commands.Bot):
     """The brain of the bot, GoldBot."""
 
     def __init__(self, **options):
         self.logger = logging.getLogger('bot')
-        self.cb = Cleverbot(get_cookies=False)
         self.is_restart = False
         self.loop = asyncio.get_event_loop()
         self.perm_mask = '1609825363' # 66321741 = full
@@ -129,25 +111,15 @@ class GoldBot(commands.Bot):
         elif storage_backend == 'pickledb':
             self.storage = pickledb.load(self.storepath, False)
         self.modules = sys.modules
-        self.continued_index_errors = 0
         self.dc_ver = discord.version_info
         self.lib_version = '.'.join([str(i) for i in self.dc_ver])
         self.store_writer = self.loop.create_task(self.store.commit_task())
-        self.cleverbutt_timers = set()
-        self.cleverbutt_latest = {}
         self.asteval = None
         asyncio.ensure_future(self.reset_asteval())
         self.have_resource = False
         if sys.platform in ['linux', 'linux2', 'darwin']:
             self.have_resource = True
-        if Decoder:
-            self.opus_decoder = Decoder(48000, 2)
-        else:
-            self.opus_decoder = None
-        self.pcm_data = {}
-        self.servers_recording = set()
-        self.cleverbutt_replied_to = set()
-        self.get_emote_task = asyncio.ensure_future(self.update_emote_data())
+        asyncio.ensure_future(self.update_emote_data())
         self.emotes = {}
         self.dl_cogs_path = os.path.join(self.dir, 'cogs')
         self.ex_cogs_path = os.path.join(self.dir, 'cogs.txt')
@@ -218,17 +190,6 @@ class GoldBot(commands.Bot):
                 else:
                     self.logger.warning('Failed sending our guild count to Discord Bots! ' + resp_key)
 
-    async def sctx(self, ctx, msg):
-        """Send a message to the context's message origin.'"""
-        self.send_message(ctx.message.channel, msg)
-
-    async def askcb(self, query):
-        """A method of querying Cleverbot safe for async."""
-        return await self.cb.ask(query) # now just an alias
-    async def google(self, query, num=3):
-        """A method of querying Google safe for async."""
-        return await search(query, num=num)
-
     async def send(self, *apass, **kwpass):
         await self.send_message(*apass, **kwpass)
     async def msend(self, msg, *apass, **kwpass):
@@ -236,203 +197,13 @@ class GoldBot(commands.Bot):
     async def csend(self, ctx, *apass, **kwpass):
         await self.send_message(ctx.message.channel, *apass, **kwpass)
 
-    async def on_command_error(self, exp, ctx):
-        try:
-            myself = ctx.message.server.me
-        except AttributeError:
-            myself = self.user
-        if self.selfbot:
-            try:
-                cmdfix = self.store['properties']['global']['selfbot_prefix']
-            except KeyError:
-                cmdfix = myself.name[0].lower() + '.'
-        else:
-            cmdfix = await self.store.get_cmdfix(ctx.message)
-        cproc = ctx.message.content.split(' ')[0]
-        cprocessed = bdel(cproc, cmdfix)
-        c_key = str(exp)
-        bc_key = bdel(c_key, 'Command raised an exception: ')
-        eprefix = 's'
-        try:
-            cmid = ctx.message.server.id
-        except AttributeError:
-            cmid = ctx.message.author.id
-            eprefix = 'dm'
-        if isinstance(exp, commands.CommandNotFound):
-            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': command \'' + cprocessed + '\' not found')
-        elif isinstance(exp, commands.CommandInvokeError):
-            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + f': [cmd {cprocessed}] ' + bc_key)
-            traceback.print_exception(type(exp.original), exp.original, exp.original.__traceback__)
-            traceback.print_exception(type(exp), exp, exp.__traceback__)
-        else:
-            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': ' + str(exp) + ' (%s)' % type(exp).__name__)
-            traceback.print_exception(type(exp), exp, exp.__traceback__)
-        if isinstance(exp, commands.NoPrivateMessage):
-            await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
-        elif isinstance(exp, commands.CommandNotFound):
-            pass
-#            await self.csend(ctx, cnf_fmt.format(ctx.message.author, cprocessed, cmdfix))
-        elif isinstance(exp, commands.DisabledCommand):
-            await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
-        elif isinstance(exp, commands.CommandOnCooldown):
-            await self.send_message(exp.ctx.message.author, coc_fmt.format(ctx.message.author, cprocessed, cmdfix, bdel(c_key, 'You are on cooldown. Try again in ')))
-        elif isinstance(exp, commands.PassException):
-            pass
-        elif isinstance(exp, commands.ReturnError):
-            await self.csend(ctx, exp.text)
-        elif isinstance(exp, commands.CommandPermissionError):
-            _perms = ''
-            if exp.perms_required:
-                perm_list = [i.lower().replace('_', ' ').title() for i in exp.perms_required]
-                if len(perm_list) > 1:
-                    perm_list[-1] = '**and **' + perm_list[-1] # to cancel bold
-                _perms = ', '.join(perm_list)
-            else:
-                _perms = 'Not specified'
-            await self.csend(ctx, cpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
-        elif isinstance(exp, commands.OrCommandPermissionError):
-            _perms = ''
-            if exp.perms_ok:
-                perm_list = [i.lower().replace('_', ' ').title() for i in exp.perms_ok]
-                if len(perm_list) > 1:
-                    perm_list[-1] = '**or **' + perm_list[-1] # to cancel bold
-                _perms = ', '.join(perm_list)
-            else:
-                _perms = 'Not specified'
-            await self.csend(ctx, ocpe_fmt.format(ctx.message.author, cprocessed, cmdfix, _perms))
-        elif isinstance(exp, commands.CommandInvokeError):
-            if isinstance(exp.original, discord.HTTPException):
-                key = bdel(bc_key, 'HTTPException: ')
-                if key.startswith('BAD REQUEST'):
-                    key = bdel(bc_key, 'BAD REQUEST')
-                    if key.endswith('Cannot send an empty message'):
-                        await self.csend(ctx, emp_msg.format(ctx.message.author, cprocessed, cmdfix))
-                    elif c_key.startswith('Command raised an exception: HTTPException: BAD REQUEST (status code: 400)'):
-                        if (eprefix == 'dm') and (ctx.invoked_with == 'user'):
-                            await self.csend(ctx, '**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
-                        else:
-                            await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
-                    else:
-                        await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
-                elif c_key.startswith('Command raised an exception: HTTPException: BAD REQUEST (status code: 400)'):
-                    if (eprefix == 'dm') and (ctx.invoked_with == 'user'):
-                        await self.csend(ctx, '**No matching users, try again! Name, nickname, name#0000 (discriminator), or ID work. Spaces do, too!**')
-                    else:
-                        await self.csend(ctx, big_msg.format(ctx.message.author, cprocessed, cmdfix))
-                elif c_key.startswith('Command raised an exception: RuntimeError: PyNaCl library needed in order to use voice'):
-                    await self.csend(ctx, '**The bot owner hasn\'t enabled voice!**')
-                else:
-                    await self.csend(ctx, msg_err.format(ctx.message.author, cprocessed, cmdfix, key))
-            elif isinstance(exp.original, NameError):
-                if isinstance(exp.original, UnboundLocalError):
-                    key = bdel(bc_key, "UnboundLocalError: local variable '")
-                    key = key.replace("' referenced before assignment", '')
-                    await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key))
-                else:
-                    key = bdel(bc_key, "NameError: name '")
-                    key = key.replace("' is not defined", '')
-                    await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
-            elif isinstance(exp.original, asyncio.TimeoutError):
-                await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
-            elif (cprocessed in self.commands['calc'].aliases) or (cprocessed == 'calc'):
-                await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
-            else:
-                await self.csend(ctx, 'An internal error occured while responding to `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
-        elif type(exp) in [commands.MissingRequiredArgument, commands.TooManyArguments, commands.BadArgument]:
-            if ctx.invoked_subcommand is None:
-                tgt_cmd = self.commands[cprocessed]
-            else:
-                tgt_cmd = ctx.invoked_subcommand
-            await self.csend(ctx, arg_err.format(ctx.message.author, cprocessed, cmdfix, cmdfix +
-                             cprocessed + bdel(bdel(bdel(tgt_cmd.help.split('\n')[-1], 'Usage: '),
-                             tgt_cmd.name), cprocessed), arg_err_map[type(exp)]))
-        else:
-            await self.csend(ctx, 'An internal error occured while responding to` %s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
-
-    def casein(self, substr, clist):
-        """Return if a substring is found in any of clist."""
-        for i in clist:
-            if substr in i:
-                return True
-        return False
-
-    async def auto_cb_convo(self, msg, kickstart, replace=False):
-        """Current auto conversation manager."""
-        if self.status == 'invisible': return
-        await self.send_typing(msg.channel)
-        lmsg = msg.content.lower().replace('@everyone', '').replace('@here', '')
-        reply = lmsg
-        if replace:
-            cb_string = lmsg.replace(kickstart, '')
-        else:
-            cb_string = bdel(lmsg, kickstart)
-        reply_bot = await self.askcb(cb_string)
-        await self.msend(msg, msg.author.mention + ' ' + reply_bot)
-
     async def on_ready(self):
         """On_ready event for when the bot logs into Discord."""
         self.logger.info('Bot has logged into Discord, ID ' + self.user.id)
         await self.update_presence()
-        try:
-            await self.cb.get_cookies()
-        except asyncio.TimeoutError:
-            self.logger.warning('Couldn\'t get cookies for Cleverbot, so it probably won\'t work.')
         if discord_bots_token:
             if not self.selfbot:
                 await self.update_stats()
-
-    async def on_member_join(self, member: discord.Member):
-        """On_member_join event for newly joined members."""
-        if self.selfbot: return
-        target = member.server
-        cemotes = member.server.emojis
-        em_string = ''
-        if cemotes:
-            em_string = ': ' + ' '.join([str(i) for i in cemotes])
-        fmt = '''Welcome {0.mention} to **{1.name}**. Have a good time here! :wink:
-Try some custom emotes{2}! Learn more about me with `{3}help`.'''
-        bc = await self.store.get_prop(member, 'broadcast_join')
-        cmdfix = await self.store.get_prop(member, 'command_prefix')
-        if str(bc).lower() in bool_true:
-            try:
-                await self.send_message(target, fmt.format(member, member.server, em_string, cmdfix))
-            except discord.Forbidden:
-                self.logger.warning(f'Couldn\'t broadcast join of {member} to {member.server}')
-    async def on_member_remove(self, member: discord.Member):
-        """On_member_remove event for members leaving."""
-        if self.selfbot: return
-        target = member.server
-        fmt = ''':eyes: **{0}** has just left this server. Bye!
-**{1.name}** just lost a {2}. We'll miss you!'''
-        bc = await self.store.get_prop(member, 'broadcast_leave')
-        if str(bc).lower() in bool_true:
-            utype = ('bot' if member.bot else 'member')
-            try:
-                await self.send_message(target, fmt.format(str(member), member.server, utype))
-            except discord.Forbidden:
-                self.logger.warning(f'Couldn\'t broadcast leave of {member} from {member.server}')
-
-    async def clever_reply(self, msg):
-        self.cleverbutt_timers.add(msg.server.id)
-        await asyncio.sleep((random.random()) * 2)
-        await self.send_typing(msg.channel)
-        try:
-            query = self.cleverbutt_latest[msg.server.id]
-        except KeyError:
-            query = msg.content
-        reply_bot = await self.askcb(query)
-        s_duration = (((len(reply_bot) / 15) * 1.4) + random.random()) - 0.2
-        await asyncio.sleep(s_duration / 2)
-        await self.send_typing(msg.channel)
-        await asyncio.sleep((s_duration / 2) - 0.4)
-        await self.msend(msg, reply_bot)
-        await asyncio.sleep(1)
-        try:
-            del self.cleverbutt_latest[msg.server.id]
-        except Exception:
-            pass
-        self.cleverbutt_replied_to.add(msg.id)
-        self.cleverbutt_timers.remove(msg.server.id)
 
     async def on_message(self, msg):
         try:
@@ -459,17 +230,12 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
                 if str(msg.channel) == 'cleverbutts':
                     if msg.server.id in self.cleverbutt_timers: # still on timer for next response
                         self.cleverbutt_latest[msg.server.id] = msg.content
-                        await asyncio.sleep(4.5)
-                        if msg.id not in self.cleverbutt_replied_to:
-                            await self.clever_reply(msg)
-                            self.logger.debug('Replying to stray message not answered after 4.5 secs.')
                     else:
                         await self.clever_reply(msg)
             else:
                 if self.selfbot:
                     if msg.content.startswith(cmdfix):
                         await self.process_commands(msg, cmdfix)
-                    self.logger.debug('Stopping early in on_message logic because I\'m a selfbot.')
                     return
                 if not msg.channel.is_private:
                     int_name = await self.store.get_prop(msg, 'bot_name')
@@ -506,33 +272,26 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
                 elif myself.mentioned_in(msg) and ('@everyone' not in msg.content) and ('@here' not in msg.content):
                     await self.auto_cb_convo(msg, self.user.mention, replace=True)
                 elif msg.channel.is_private:
-#                    if msg.content.split('\n')[0] == cmdfix:
-#                        await self.send_typing(msg.channel)
-#                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
                     if msg.content.startswith(cmdfix):
                         await self.process_commands(msg, cmdfix)
                     else:
                         await self.send_typing(msg.channel)
                         cb_reply = await self.askcb(msg.content)
                         await self.msend(msg, ':speech_balloon: ' + cb_reply)
-                elif (msg.content.lower().startswith(bname.lower())) and (prefix_convo):
+                elif (msg.content.lower().startswith(bname.lower() + ' ')) and (prefix_convo):
                     await self.auto_cb_convo(msg, bname.lower())
                 elif msg.content.lower() in ['prefix', 'prefix?']:
                     await self.msend(msg, '**Current server command prefix is: **`' + cmdfix + '`')
                 else:
-#                    if msg.content.split('\n')[0] == cmdfix:
-#                        await self.send_typing(msg.channel)
-#                        await self.msend(msg, ece_fmt.format(msg.author, '', cmdfix))
                     if msg.content.startswith(cmdfix):
                         await self.process_commands(msg, cmdfix)
         else:
             self.logger.debug('Didn\'t meet check for main on_message processing')
 
-    async def on_error(self, ev_name, *ev_args, **ev_kwargs):
-        kw_args = ', ' + (', '.join([k + '=' + str(ev_kwargs[k]) for k in ev_kwargs])) if ev_kwargs else ''
-        self.logger.error(f'Event handler {ev_name} errored! Called with ' +
-                          (', '.join([bdel(str(i), 'Command raised an exception: ') for i in ev_args]) if ev_args else 'nothing') + kw_args)
-        traceback.print_exc()
+    async def on_error(self, *a, **b):
+        pass # it's in Errors cog now
+    async def on_command_error(self, *a):
+        pass # it's in Errors cog now
 
     async def on_server_join(self, server):
         """Send the bot introduction message when invited."""
@@ -560,45 +319,13 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
         if self.selfbot: return
         await self.update_stats()
 
-    async def on_speaking(self, speaking, uid):
-        """Event for when someone is speaking."""
-        pass
-
-    async def on_speak(self, data, timestamp, voice):
-        """Event for when a voice packet is received."""
-        if voice.server.id in self.servers_recording:
-            decoded_data = await self.loop.run_in_executor(None, self.opus_decoder.decode, data, voice.encoder.frame_size)
-            try:
-                self.pcm_data[voice.server.id] += decoded_data
-            except KeyError:
-                self.pcm_data[voice.server.id] = decoded_data
-
     async def suspend(self):
         """Suspend the bot."""
         self.status = 'invisible'
         await self.update_presence()
 
     async def process_commands(self, message, prefix):
-        """|coro|
-        This function processes the commands that have been registered
-        to the bot and other groups. Without this coroutine, none of the
-        commands will be triggered.
-        By default, this coroutine is called inside the :func:`on_message`
-        event. If you choose to override the :func:`on_message` event, then
-        you should invoke this coroutine as well.
-        Warning
-        --------
-        This function is necessary for :meth:`say`, :meth:`whisper`,
-        :meth:`type`, :meth:`reply`, and :meth:`upload` to work due to the
-        way they are written. It is also required for the :func:`on_command`
-        and :func:`on_command_completion` events.
-        Parameters
-        -----------
-        message : discord.Message
-            The message to process commands for.
-        prefix : str
-            Command prefix to use in context.
-        """
+        """This function processes the commands that have been registered."""
         if self.status == 'invisible': return
         _internal_channel = message.channel
         _internal_author = message.author
@@ -633,22 +360,15 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
             self.dispatch('command_error', exc, ctx)
 
     async def send_typing(self, destination):
-        """|coro|
-        Send a *typing* status to the destination.
-        *Typing* status will go away after 10 seconds, or after a message is sent.
-        The destination parameter follows the same rules as :meth:`send_message`.
-        Parameters
-        ----------
-        destination
-            The location to send the typing update.
-        """
+        """Send a typing status to the destination. """
         if self.status == 'invisible': return
         channel_id, guild_id = await self._resolve_destination(destination)
         await self.http.send_typing(channel_id)
 
     async def format_uptime(self):
+        """Return a human readable uptime."""
         def s(num):
-            return 's' if (num == 0) or (num > 1) else ''
+            return '' if num == 1 else 's'
         fmt = '{0} day{4} {1} hour{5} {2} minute{6} {3} second{7}'
         time_diff = datetime.now() - self.start_time
         time_mins = divmod(time_diff.total_seconds(), 60)
@@ -659,65 +379,8 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
         return final
 
     async def send_message(self, destination, content=None, *, tts=False, embed=None):
-        """|coro|
-        Sends a message to the destination given with the content given.
-        The destination could be a :class:`Channel`, :class:`PrivateChannel` or :class:`Server`.
-        For convenience it could also be a :class:`User`. If it's a :class:`User` or :class:`PrivateChannel`
-        then it sends the message via private message, otherwise it sends the message to the channel.
-        If the destination is a :class:`Server` then it's equivalent to calling
-        :attr:`Server.default_channel` and sending it there.
-        If it is a :class:`Object` instance then it is assumed to be the
-        destination ID. The destination ID is a *channel* so passing in a user
-        ID will not be a valid destination.
-        .. versionchanged:: 0.9.0
-            ``str`` being allowed was removed and replaced with :class:`Object`.
-        The content must be a type that can convert to a string through ``str(content)``.
-        If the content is set to ``None`` (the default), then the ``embed`` parameter must
-        be provided.
-        If the ``embed`` parameter is provided, it must be of type :class:`Embed` and
-        it must be a rich embed type.
-        Parameters
-        ------------
-        destination
-            The location to send the message.
-        content
-            The content of the message to send. If this is missing,
-            then the ``embed`` parameter must be present.
-        tts : bool
-            Indicates if the message should be sent using text-to-speech.
-        embed: :class:`Embed`
-            The rich embed for the content.
-        Raises
-        --------
-        HTTPException
-            Sending the message failed.
-        Forbidden
-            You do not have the proper permissions to send the message.
-        NotFound
-            The destination was not found and hence is invalid.
-        InvalidArgument
-            The destination parameter is invalid.
-        Examples
-        ----------
-        Sending a regular message:
-        .. code-block:: python
-            await client.send_message(message.channel, 'Hello')
-        Sending a TTS message:
-        .. code-block:: python
-            await client.send_message(message.channel, 'Goodbye.', tts=True)
-        Sending an embed message:
-        .. code-block:: python
-            em = discord.Embed(title='My Embed Title', description='My Embed Content.', colour=0xDEADBF)
-            em.set_author(name='Someone', icon_url=client.user.default_avatar_url)
-            await client.send_message(message.channel, embed=em)
-        Returns
-        ---------
-        :class:`Message`
-            The message that was sent.
-        """
-
+        """Sends a message to the destination given with the content given."""
         channel_id, guild_id = await self._resolve_destination(destination)
-
         if content:
             content = str(content)
             if len(content) > 2000:
@@ -727,10 +390,8 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
                 if '```' in content:
                     truncate_msg = '```' + truncate_msg
                 content = content[:2000 - len(truncate_msg)] + truncate_msg
-
         if embed:
             embed = embed.to_dict()
-
         try:
             data = await self.http.send_message(channel_id, content, guild_id=guild_id, tts=tts, embed=embed)
             channel = self.get_channel(data.get('channel_id'))
@@ -751,6 +412,7 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
                 message = self.connection._create_message(channel=channel, **data)
                 return message
             elif self.selfbot and (destination.id == self.user.id):
+                print('Sending to ourselves. what??')
                 destination = _get_variable('_internal_channel')
                 channel_id, guild_id = await self._resolve_destination(destination)
                 data = await self.http.send_message(channel_id, content, guild_id=guild_id, tts=tts, embed=embed)
@@ -770,10 +432,6 @@ Try some custom emotes{2}! Learn more about me with `{3}help`.'''
             pages = self.formatter.format_help_for(ctx, ctx.command)
             for page in pages:
                 await self.csend(ctx, page)
-
-    async def get_info(self):
-        """Get bot info in an OrderedDict. To be implemented."""
-        return None
 
     async def get_ram(self):
         """Get the bot's RAM usage info."""

@@ -6,8 +6,9 @@ from .cog import Cog
 class GameNight(Cog):
     """Now's your chance to have a quick and easy game night!"""
 
-    @commands.command()
-    async def nyet(self):
+    @commands.command(aliases=['ny', 'nyet', 'noty'])
+    async def notyet(self):
+        """Not yet, coming Soon™!"""
         await self.bot.say('⚠ Not finished yet!')
 
 def setup(bot):

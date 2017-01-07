@@ -442,11 +442,19 @@ default_cogs = [
     'utility',
     'voice',
     'repl',
-    'e_zaflash',
-    'game_night'
+    'game_night',
+    'quotes',
+    'pokemon',
+    'custom_commands',
+    'cleverbot',
+    'emoji',
+    'welcome',
+    'google',
+    'errors'
 ]
 essential_cogs = [
-    'cogs'
+    'cogs',
+    'errors'
 ]
 
 join_msg = '''👀🤔👀🤔👀🤔👀🤔 **Hmm...** 👀🤔👀🤔👀🤔👀🤔
