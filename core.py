@@ -49,13 +49,13 @@ def login_fail_loop(loop, bot):
         print('Ok, I\'ll exit. Bye!')
         exit(0)
     elif r == 'r':
-        print('Ok, I\'ll try logging in again. Here we go!')
+        print('Ok, I\'ll try logging in again.')
         runbot(loop, bot)
         return
     elif r == 's':
         print('Ok, here\'s to re-running setup!')
         try:
-            os.remove(os.path.join(cur_dir, 'data', 'bot_token.txt'))
+            os.remove(os.path.join(cur_dir, 'bot_token.txt'))
         except OSError:
             print('Hmm, I couldn\'t delete the token file. Try another choice.')
             login_fail_loop(loop, bot)

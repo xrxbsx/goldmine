@@ -193,10 +193,9 @@ class ProBot(commands.Bot):
 
     async def update_presence(self):
         """Generate an updated presence and change it."""
-        self.presence = {
-            'game': discord.Game(**self.game),
-            'status': discord.Status(self.status)
-        }
+        self.presence = dict(status=discord.Status(self.status))
+        if self.game['name']:
+            self.presence['game'] = discord.Game(**self.game)
         await self.change_presence(**self.presence)
     async def update_stats(self):
         """Report the current server count to bots.discord.pw."""
