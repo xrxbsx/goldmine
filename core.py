@@ -148,7 +148,6 @@ def main(use_uvloop):
     loop = asyncio.get_event_loop()
     logger.info('Init: Starting bot!')
     runbot(loop, bot)
-    loop.create_task(bot.http_session.close())
     return bot.is_restart
 
 if __name__ == '__main__':
