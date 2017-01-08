@@ -160,7 +160,7 @@ class Admin(Cog):
         await echeck_perms(ctx, ['bot_owner'])
 #        for i in self.bot.servers:
 #            await self.bot.send_message(i.default_channel, 'This bot (' + self.bname + ') is now restarting!')
-        self.store_writer.cancel()
+        self.bot.store_writer.cancel()
         await self.store.commit()
         if ctx.invoked_with != 'update':
             await self.bot.say('I\'ll try to restart. Hopefully I come back alive :stuck_out_tongue:')
