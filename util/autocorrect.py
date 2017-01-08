@@ -8,10 +8,13 @@ class Corrector():
     """Autocorrection engine."""
     letters = 'abcdefghijklmnopqrstuvwxyz'
     special_chars = ['.', ',', '!', '?', ';', ':']
-    def __init__(self, file_path=None):
-        if file_path is None:
-            file_path = os.path.join(os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file)), 'assets', 'big.txt')
-        self.dictionary = Counter(self.get_words(file_path))
+    def __init__(self, text=None, file_path=None):
+        if text is None:
+            if file_path is None:
+                file_path = os.path.join(os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file)), 'data', 'autocorrect.txt')
+            self.dictionary = Counter(self.get_words(file_path))
+        else:
+            self.dictionary = Counter(re.findall(r'\w+', text.lower()))
 
     def __call__(self, word):
         return self.correct(word)
