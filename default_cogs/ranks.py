@@ -3,7 +3,7 @@ import math
 import random
 import util.commands as commands
 import util.ranks as rank
-from util.const import lvl_base
+from util.const import lvl_base, bool_true
 from util.fake import FakeMessageMember
 from .cog import Cog
 
