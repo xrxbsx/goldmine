@@ -7,7 +7,7 @@ class GameNight(Cog):
     """Now's your chance to have a quick and easy game night!"""
 
     @commands.group(pass_context=True, aliases=['game_night'])
-    async def gamenight(self):
+    async def gamenight(self, ctx):
         """Game night!
         Syntax: gamenight {stuff}"""
         if ctx.invoked_subcommand is None:
