@@ -95,6 +95,11 @@ class Emoji(Cog):
         await self.bot.say('''**```fix
  ▲
 ▲ ▲```**''')
+    @commands.command(aliases=['triggerd'])
+    async def triggered(self):
+        """TRIGGERED!!
+        Usage: triggered"""
+        await self.bot.say('***TRIGGERED***')
 
 def setup(bot):
     """Set up the cog."""
