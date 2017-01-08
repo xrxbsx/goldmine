@@ -451,7 +451,8 @@ default_cogs = [
     'welcome',
     'google',
     'errors',
-    'ranks'
+    'ranks',
+    'moderation'
 ]
 essential_cogs = [
     'cogs',
