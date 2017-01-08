@@ -22,7 +22,7 @@ class Ranks(Cog):
                 if isinstance(bclu, str):
                     bclu = bclu.lower()
                 if bclu in bool_true:
-                    await self.msend(msg, '**Hooray!** {0.mention} has just *advanced* to **level {1}**.'.format(msg.author, str(new_level)))
+                    await self.bot.msend(msg, '**Hooray!** {0.mention} has just *advanced* to **level {1}**.'.format(msg.author, str(new_level)))
         prof['level'] = new_level
         await self.store.set_prop(msg, 'by_user', prof_name, prof)
 
