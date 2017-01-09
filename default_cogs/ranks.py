@@ -17,6 +17,7 @@ class Ranks(Cog):
         prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
         new_level = rank.xp_level(prof['exp'])[0]
         if self.bot.status != 'invisible':
+            if self.bot.selfbot: return
             if new_level > prof['level']:
                 bclu = await self.store.get_prop(msg, 'broadcast_level_up')
                 if isinstance(bclu, str):
