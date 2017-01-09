@@ -4,6 +4,7 @@ import discord
 import inspect
 from contextlib import redirect_stdout
 import io
+import sys
 import asyncio
 import re
 import async_timeout
@@ -19,6 +20,7 @@ class REPL(Cog):
         self.sessions = set()
         self.s_check_tick = 0
         self.asteval = asteval.Interpreter(use_numpy=False)
+        self.root_path = os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file))
         super().__init__(bot)
 
     def cleanup_code(self, content):
@@ -173,6 +175,7 @@ class REPL(Cog):
                         fmt = f'{value}\n'
             try:
                 if fmt is not None:
+                    fmt = fmt.replace(self.root_path, 'bot_path')
                     if len(fmt) > 2000:
                         if truncate:
                             await self.bot.send_message(msg.channel, f'```py\n{fmt}```')
