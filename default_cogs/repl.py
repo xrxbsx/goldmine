@@ -4,6 +4,7 @@ import discord
 import inspect
 from contextlib import redirect_stdout
 import io
+import os
 import sys
 import asyncio
 import re
