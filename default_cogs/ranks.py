@@ -12,6 +12,7 @@ class Ranks(Cog):
 
     async def on_not_command(self, msg):
         """Do level-up logic."""
+        if msg.channel.is_private: return
         prof_name = 'profile_' + msg.server.id
         prof = await self.store.get_prop(msg, prof_name)
         prof['exp'] += math.ceil(((len(msg.content) / 6) * 1.5) + random.randint(0, 14))
