@@ -50,14 +50,21 @@ class Errors(Cog):
         except AttributeError:
             cmid = ctx.message.author.id
             eprefix = 'dm'
+        try:
+            server = ctx.message.server
+        except AttributeError:
+            server = ctx.message.author
+            if not server:
+                if self.selfbot:
+                    server = myself
         if isinstance(exp, commands.CommandNotFound):
-            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': command \'' + cprocessed + '\' not found')
+            self.logger.error(str(ctx.message.author) + ' in ' + server.name + ': command \'' + cprocessed + '\' not found')
         elif isinstance(exp, commands.CommandInvokeError):
-            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + f': [cmd {cprocessed}] ' + bc_key)
+            self.logger.error(str(ctx.message.author) + ' in ' + server.name + f': [cmd {cprocessed}] ' + bc_key)
             traceback.print_exception(type(exp.original), exp.original, exp.original.__traceback__)
             traceback.print_exception(type(exp), exp, exp.__traceback__)
         else:
-            self.logger.error(str(ctx.message.author) + ' in ' + ctx.message.server.name + ': ' + str(exp) + ' (%s)' % type(exp).__name__)
+            self.logger.error(str(ctx.message.author) + ' in ' + server.name + ': ' + str(exp) + ' (%s)' % type(exp).__name__)
             traceback.print_exception(type(exp), exp, exp.__traceback__)
         if isinstance(exp, commands.NoPrivateMessage):
             await self.csend(ctx, npm_fmt.format(ctx.message.author, cprocessed, cmdfix))
