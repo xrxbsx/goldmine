@@ -1,5 +1,5 @@
 # Goldmine
-<a href="https://discord.gg/RkFgnUt"><img src="https://discordapp.com/api/guilds/239772188649979904/widget.png?" alt="Goldmine Support"></a>
+<a href="https://discord.gg/PQ9qWWr"><img src="https://discordapp.com/api/guilds/239772188649979904/widget.png?" alt="Goldmine Support"></a>
 
 This is Goldmine, a new bot for Discord that keeps things nice and snug.
 Featuring VOICE (MUSIC), NATURAL LANGUAGE, IMAGES, CUSTOM WIDGETS, RANKS, and more!

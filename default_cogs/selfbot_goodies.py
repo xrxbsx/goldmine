@@ -7,7 +7,7 @@ class SelfbotGoodies(Cog):
 
     @commands.command()
     async def screenshot(self):
-        await self.bot.upload(fp=)
+        await self.bot.upload(fp='ugh')
 
 def setup(bot):
     bot.add_cog(SelfbotGoodies(bot))
