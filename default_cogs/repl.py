@@ -21,7 +21,7 @@ class REPL(Cog):
         self.sessions = set()
         self.s_check_tick = 0
         self.asteval = asteval.Interpreter(use_numpy=False)
-        self.root_path = os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file))
+        self.root_path = os.path.dirname(os.path.realpath(sys.modules['__main__'].core_file))
         super().__init__(bot)
 
     def cleanup_code(self, content):
