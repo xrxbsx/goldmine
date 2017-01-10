@@ -8,6 +8,7 @@ class Moderation(Cog):
     """Some moderation at least."""
 
     async def on_message(self, msg):
+        if self.bot.selfbot: return
         if msg.author.id == self.bot.user.id: return
         if ('_' in msg.content) or ('*' in msg.content):
             if (len(re.findall(r'_', msg.content)) >= 1996) or (len(re.findall(r'\*', msg.content)) >= 1996):

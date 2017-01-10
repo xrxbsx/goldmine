@@ -26,9 +26,10 @@ class Cosmetic(Cog):
 
     async def on_not_command(self, msg):
         """Table flipping!"""
+        if self.bot.selfbot: return
         if msg.author.id != self.bot.user.id:
             if msg.content.endswith('(╯°□°）╯︵ ┻━┻'):
-                await self.bot.say('┬─┬﻿ ノ( ゜-゜ノ)')
+                await self.bot.send_message(msg.channel, '┬─┬﻿ ノ( ゜-゜ノ)')
 
     @commands.command(aliases=['color', 'giveme', 'race'])
     async def role(self, role: str):
