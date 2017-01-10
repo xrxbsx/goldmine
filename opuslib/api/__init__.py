@@ -16,7 +16,7 @@ from ctypes.util import find_library
 lib_location = find_library('opus')
 
 if lib_location is None:
-    lib_location = os.path.join(os.path.dirname(os.path.realpath(sys.modules['__main__'].core_file)), 'libopus.dll')
+    lib_location = os.path.join(os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file)), 'libopus.dll')
 
 libopus = ctypes.CDLL(lib_location)
 
