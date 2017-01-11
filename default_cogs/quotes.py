@@ -24,8 +24,8 @@ class Quotes(Cog):
         except ValueError:
             await self.bot.reply('that isn\'t a number!')
             return
-        if qindex < 0:
-            await self.bot.reply('there aren\'t negative quotes!')
+        if qindex < 1:
+            await self.bot.reply('there aren\'t negative or zero quotes!')
             return
         try:
             await self.bot.say(quote.qrender(self.dstore['quotes'][qindex - 1], qindex - 1, self.bot))
@@ -71,7 +71,7 @@ class Quotes(Cog):
         q_template['author_ids'] = [mauthor.id]
         q_template['id'] = len(self.dstore['quotes']) # +1 for next id, but len() counts from 1
         self.dstore['quotes'].append(q_template)
-        await self.bot.reply(f'you added quote **#{q_template["id"]}**!')
+        await self.bot.reply(f'you added quote **#{q_template["id"] + 1}**!')
 
     @commands.command(pass_context=True, aliases=['quoteedit', 'modquote', 'editquote'])
     async def quotemod(self, ctx, qindex: int, *, text: str):
