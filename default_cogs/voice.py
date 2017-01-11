@@ -545,7 +545,7 @@ class Voice(Cog):
 
         sid = ctx.message.server.id
         if sid not in self.servers_recording:
-            self.bot.servers_recording.add(sid)
+            self.servers_recording.add(sid)
             await self.bot.say('**Voice in this server is now being recorded!**')
         else:
             self.servers_recording.remove(sid)
