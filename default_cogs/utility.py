@@ -40,7 +40,6 @@ class Utility(Cog):
     """
     def __init__(self, bot):
         self.stopwatches = {}
-        self.s_check_tick = 0
         super().__init__(bot)
 
     @commands.command(pass_context=True, no_pm=True)
@@ -71,11 +70,14 @@ class Utility(Cog):
         Usage: eval [code/expression]"""
         #await or_check_perms(ctx, ['bot_admin'])
         code = bdel(bdel(code, '```python').strip('`'), '```py')
-        if self.s_check_tick == 3:
+        try:
             byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
             if byte_size > 70_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
                 await self.bot.reset_asteval(reason='due to memory usage > 70M', note=f'was using {byte_size / 1048576} MiB')
-            s_check_tick = 0
+        except MemoryError:
+            await self.bot.reset_asteval(reason='due to MemoryError during asizeof')
+        else:
+            del byte_size
         for key in eval_blocked:
             if re.search(key, code):
                 await self.bot.say(ctx.message.author.mention + ' **Blocked keyword found!**')
@@ -124,7 +126,6 @@ class Utility(Cog):
             await self.bot.say(ctx.message.author.mention + ' **Please re-run your `eval` command!**')
             return
         await self.bot.say(_result)
-        self.s_check_tick += 1
 
     @commands.command(pass_context=True, aliases=['whois', 'who'])
     async def user(self, ctx, *users: str):
