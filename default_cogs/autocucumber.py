@@ -8,7 +8,6 @@ import async_timeout
 import util.commands as commands
 from util.autocorrect import Corrector
 from util.perms import echeck_perms
-from autocorrect import spell
 from .cog import Cog
 
 class AutoCucumber(Cog):

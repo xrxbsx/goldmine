@@ -19,7 +19,6 @@ from .cog import Cog
 class REPL(Cog):
     def __init__(self, bot):
         self.sessions = set()
-        self.s_check_tick = 0
         self.asteval = asteval.Interpreter(use_numpy=False)
         self.root_path = os.path.dirname(os.path.abspath(sys.modules['__main__'].core_file))
         super().__init__(bot)
@@ -41,11 +40,14 @@ class REPL(Cog):
         return await eval_exc
 
     async def asteval_iface(self, code):
-        if self.s_check_tick == 3:
+        try:
             byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
             if byte_size > 70_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
                 await self.bot.reset_asteval(reason='due to memory usage > 70M', note=f'was using {byte_size / 1048576} MiB')
-            s_check_tick = 0
+        except MemoryError:
+            await self.bot.reset_asteval(reason='due to MemoryError during asizeof')
+        else:
+            del byte_size
         for key in eval_blocked:
             if re.search(key, code):
                 return '⚠ Blocked keyword found!'
@@ -69,7 +71,6 @@ class REPL(Cog):
             else:
                 return '\n'.join(err)
         return m_result
-        self.s_check_tick += 1
 
     @commands.command(pass_context=True, hidden=True)
     async def repl(self, ctx, *flags: str):
@@ -101,10 +102,12 @@ class REPL(Cog):
             del variables['bot']
             del variables['ctx'].bot
             checks = {}
+            ex_check = lambda m: m.author.id != self.bot.user.id
         else:
             checks = {
                 'author': msg.author
             }
+            ex_check = lambda m: True
         use_asteval = 'asteval' in flags
         truncate = 'split' not in flags
         if 'py' in flags:
@@ -127,7 +130,7 @@ class REPL(Cog):
             flags_imsg = ' Using flag(s) `' + ' '.join(flags) + '`.'
         await self.bot.say(f'Enter code to execute or evaluate. `exit()` or `quit` to exit.{flags_imsg} Prefix is: ```{prefix}```')
         while True:
-            response = await self.bot.wait_for_message(channel=msg.channel, check=lambda m: m.content.startswith(prefix), **checks)
+            response = await self.bot.wait_for_message(channel=msg.channel, check=lambda m: m.content.startswith(prefix) and ex_check(m), **checks)
             variables['message'] = response
             cleaned = self.cleanup_code(response.content)
 
