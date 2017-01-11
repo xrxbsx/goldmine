@@ -28,7 +28,7 @@ class Cosmetic(Cog):
         """Table flipping!"""
         if self.bot.selfbot: return
         if msg.author.id != self.bot.user.id:
-            if msg.content.endswith('(╯°□°）╯︵ ┻━┻'):
+            if msg.content == '(╯°□°）╯︵ ┻━┻':
                 await self.bot.send_message(msg.channel, '┬─┬﻿ ノ( ゜-゜ノ)')
 
     @commands.command(aliases=['color', 'giveme', 'race'])
