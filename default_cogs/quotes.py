@@ -4,6 +4,7 @@ import random
 import discord
 import util.quote as quote
 import util.commands as commands
+from util.perms import check_perms
 from .cog import Cog
 
 class Quotes(Cog):

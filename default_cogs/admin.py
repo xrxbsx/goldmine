@@ -351,7 +351,11 @@ class Admin(Cog):
     async def getprop(self, ctx, pname: str):
         """Fetch a property from the datastore.
         Usage: getprop [property name]"""
-        pout = await self.store.get_prop(ctx.message, pname)
+        try:
+            pout = await self.store.get_prop(ctx.message, pname)
+        except Exception:
+            await self.bot.say('⚠ An error occured.')
+            return
         await self.bot.say(pout)
 
     @commands.command(pass_context=True, no_pm=True)
@@ -395,7 +399,11 @@ class Admin(Cog):
         """Set the value of a property on any level.
         Usage: rawsetprop [scope] [property name] [value]"""
         await echeck_perms(ctx, ['bot_admin'])
-        await self.store.set_prop(ctx.message, scope, pname, value)
+        try:
+            await self.store.set_prop(ctx.message, scope, pname, value)
+        except Exception:
+            await self.bot.say('⚠ An error occured.')
+            return
         await self.bot.say('Successfully set `{0}` as `{1}`!'.format(pname, value))
 
     @commands.command(pass_context=True)
