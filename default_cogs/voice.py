@@ -492,19 +492,22 @@ class Voice(Cog):
         """Uses a TTS voice to speak a message.
         Usage: gspeak [message]"""
         state = self.get_voice_state(ctx.message.server)
-
-        if state.voice is None:
-            success = await ctx.invoke(self.summon)
-            if not success:
-                return
-
         opts = {
             'quiet': True,
             'user-agent': 'stagefright/1.2 (Linux;Android 6.0)',
             'referer': 'https://translate.google.com/'
         }
         base_url = 'http://translate.google.com/translate_tts'
+        if len(text) > 400:
+            await self.bot.say('Hmm, that text is too long. I\'ll cut it to 400 characters.')
+            text = text[:400]
         rounds = textwrap.wrap(text, width=100)
+
+        if state.voice is None:
+            success = await ctx.invoke(self.summon)
+            if not success:
+                return
+
         for intxt in rounds:
             g_args = {
                 'ie': 'UTF-8',

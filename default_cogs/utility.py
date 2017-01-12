@@ -68,16 +68,8 @@ class Utility(Cog):
     async def cmd_eval(self, ctx, *, code: str):
         """Evaluate some code, or a math expression.
         Usage: eval [code/expression]"""
-        #await or_check_perms(ctx, ['bot_admin'])
+        await or_check_perms(ctx, ['bot_admin'])
         code = bdel(bdel(code, '```python').strip('`'), '```py')
-        try:
-            byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
-            if byte_size > 70_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
-                await self.bot.reset_asteval(reason='due to memory usage > 70M', note=f'was using {byte_size / 1048576} MiB')
-        except MemoryError:
-            await self.bot.reset_asteval(reason='due to MemoryError during asizeof')
-        else:
-            del byte_size
         for key in eval_blocked:
             if re.search(key, code):
                 await self.bot.say(ctx.message.author.mention + ' **Blocked keyword found!**')
@@ -125,6 +117,14 @@ class Utility(Cog):
             await self.bot.reset_asteval(reason='due to MemoryError')
             await self.bot.say(ctx.message.author.mention + ' **Please re-run your `eval` command!**')
             return
+        try:
+            byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
+            if byte_size > 50_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
+                await self.bot.reset_asteval(reason='due to memory usage > 50M', note=f'was using {byte_size / 1048576} MiB')
+        except MemoryError:
+            await self.bot.reset_asteval(reason='due to MemoryError during asizeof')
+        else:
+            del byte_size
         await self.bot.say(_result)
 
     @commands.command(pass_context=True, aliases=['whois', 'who'])

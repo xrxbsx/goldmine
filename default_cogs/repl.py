@@ -8,6 +8,8 @@ import os
 import sys
 import asyncio
 import re
+import subprocess
+import importlib.util
 import async_timeout
 import asteval
 import util.commands as commands
@@ -40,14 +42,6 @@ class REPL(Cog):
         return await eval_exc
 
     async def asteval_iface(self, code):
-        try:
-            byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
-            if byte_size > 70_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
-                await self.bot.reset_asteval(reason='due to memory usage > 70M', note=f'was using {byte_size / 1048576} MiB')
-        except MemoryError:
-            await self.bot.reset_asteval(reason='due to MemoryError during asizeof')
-        else:
-            del byte_size
         for key in eval_blocked:
             if re.search(key, code):
                 return '⚠ Blocked keyword found!'
@@ -70,6 +64,14 @@ class REPL(Cog):
                 return '⚠ Please rerun your code!'
             else:
                 return '\n'.join(err)
+        try:
+            byte_size = await self.loop.run_in_executor(None, asizeof, self.bot.asteval.symtable)
+            if byte_size > 50_000_000: # 110 MiB 115_343_360, 107 MiB 112_197_632, 107 MB 107_000_000
+                await self.bot.reset_asteval(reason='due to memory usage > 50M', note=f'was using {byte_size / 1048576} MiB')
+        except MemoryError:
+            await self.bot.reset_asteval(reason='due to MemoryError during asizeof')
+        else:
+            del byte_size
         return m_result
 
     @commands.command(pass_context=True, hidden=True)
@@ -77,6 +79,10 @@ class REPL(Cog):
         await echeck_perms(ctx, ['bot_owner'])
         msg = ctx.message
 
+        def import_by_path(name: str, path: str) -> None:
+            """Import a module (name) from path."""
+            spec = importlib.util.spec_from_file_location(name, path)
+            spec.loader.exec_module(importlib.util.module_from_spec(spec))
         variables = {
             'ctx': ctx,
             'bot': self.bot,
@@ -90,7 +96,10 @@ class REPL(Cog):
             'msg': msg,
             'test': 'Test right back at ya!',
             'lol': 'kek',
-            'loop': self.bot.loop
+            'loop': self.bot.loop,
+            'context': ctx,
+            'shell': lambda s: subprocess.check_output(s.split()).decode('utf-8'),
+            'file_import': import_by_path
         }
         valid_flags = ['public', 'asteval', 'py', 'split']
         for flag in flags:

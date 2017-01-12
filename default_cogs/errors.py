@@ -132,7 +132,7 @@ class Errors(Cog):
                     await self.csend(ctx, nam_err.format(ctx.message.author, cprocessed, cmdfix, key.split("''")[0]))
             elif isinstance(exp.original, asyncio.TimeoutError):
                 await self.csend(ctx, tim_err.format(ctx.message.author, cprocessed, cmdfix))
-            elif (cprocessed in self.bot.commands['calc'].aliases) or (cprocessed == 'calc'):
+            elif (cprocessed in self.bot.commands['eval'].aliases) or (cprocessed == 'eval'):
                 await self.csend(ctx, ast_err.format(ctx.message.author, cprocessed, cmdfix))
             else:
                 await self.csend(ctx, '⚠ Error in `%s`!\n```' % (cmdfix + cprocessed) + bc_key + '```')
