@@ -214,7 +214,7 @@ class Utility(Cog):
             with suppress(ValueError, AttributeError):
                 t_roles.remove(target.server.default_role)
             r_embed = discord.Embed(color=int('0x%06X' % random.randint(0, 256**3-1), 16))
-            r_embed.set_author(name=str(target), url='https://blog.khronodragon.com/', icon_url=avatar_link)
+            r_embed.set_author(name=str(target), url=avatar_link, icon_url=avatar_link)
             r_embed.set_thumbnail(url=avatar_link) #top right
             r_embed.set_footer(text=str(target), icon_url=avatar_link)
             r_embed.add_field(name='Nickname', value=('No nickname set 😦' if d_name == target.name else d_name))
