@@ -293,7 +293,7 @@ class Voice(Cog):
         Usage: play [song/video name]"""
         state = self.get_voice_state(ctx.message.server)
         opts = {
-            'default_search': 'auto',
+            'default_search': 'ytsearch',
             'quiet': True,
         }
 
