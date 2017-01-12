@@ -12,16 +12,16 @@ class SelfbotGoodies(Cog):
         self.start_time = datetime.now()
         super().__init__(bot)
 
-    @commands.command()
-    async def screenshot(self):
+    @commands.command(pass_context=True)
+    async def screenshot(self, ctx):
         await echeck_perms(ctx, ['bot_owner'])
         await self.bot.upload(fp='ugh')
 
     async def on_message(self, msg):
         self.messages += 1
 
-    @commands.command()
-    async def msg_rate(self):
+    @commands.command(pass_context=True)
+    async def msg_rate(self, ctx):
         await echeck_perms(ctx, ['bot_owner'])
         time_elapsed = datetime.now() - self.start_time
         time_elapsed = time_elapsed.total_seconds()

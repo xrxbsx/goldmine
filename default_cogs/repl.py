@@ -82,7 +82,9 @@ class REPL(Cog):
         def import_by_path(name: str, path: str) -> None:
             """Import a module (name) from path."""
             spec = importlib.util.spec_from_file_location(name, path)
-            spec.loader.exec_module(importlib.util.module_from_spec(spec))
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
         variables = {
             'ctx': ctx,
             'bot': self.bot,
