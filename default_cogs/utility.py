@@ -340,7 +340,7 @@ class Utility(Cog):
         time_diff = datetime.now() - begin_time
         await self.bot.edit_message(msg, 'Latency is: %sms.' % str(round((time_diff.total_seconds() / 4) * 1000, 2)))
 
-    @commands.command(pass_context=True, aliases=['ram', 'memory', 'usage'])
+    @commands.command(pass_context=True, aliases=['ram', 'memory', 'usage', 'mem', 'musage', ''])
     async def uptime(self, ctx):
         """Report the current uptime of the bot.
         Usage: uptime"""
