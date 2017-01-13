@@ -101,7 +101,9 @@ class REPL(Cog):
             'loop': self.bot.loop,
             'context': ctx,
             'shell': lambda s: subprocess.check_output(s.split()).decode('utf-8'),
-            'file_import': import_by_path
+            'file_import': import_by_path,
+            'get_server': lambda s_name: {s.name: s for s in self.bot.servers}[s_name],
+            'server_dict': lambda: {s.name: s for s in self.bot.servers}
         }
         valid_flags = ['public', 'asteval', 'py', 'split']
         for flag in flags:
@@ -142,7 +144,7 @@ class REPL(Cog):
         await self.bot.say(f'Enter code to execute or evaluate. `exit()` or `quit` to exit.{flags_imsg} Prefix is: ```{prefix}```')
         while True:
             response = await self.bot.wait_for_message(channel=msg.channel, check=lambda m: m.content.startswith(prefix) and ex_check(m), **checks)
-            variables['message'] = response
+            variables['message'], variables['msg'] = response
             cleaned = self.cleanup_code(response.content)
 
             if cleaned in ('quit', 'exit', 'exit()'):

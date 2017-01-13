@@ -194,6 +194,7 @@ class GoldBot(commands.Bot):
             bname = await self.store.get_prop(msg, 'bot_name')
             prefix_convo = (await self.store.get_prop(msg, 'prefix_answer')) in bool_true
             do_logic = msg.author.id != self.user.id
+        prefix_help = True # TODO: actually make it a property
         lbname = bname.lower()
         if do_logic:
             if msg.author.bot:
@@ -228,9 +229,9 @@ class GoldBot(commands.Bot):
                         await self.process_commands(msg, cmdfix)
                     else:
                         self.dispatch('pm', msg)
-                elif (msg.content.lower().startswith(lbname + ' ')) and prefix_convo:
+                elif msg.content.lower().startswith(lbname + ' ') and prefix_convo:
                     self.dispatch('prefix_convo', msg, lbname)
-                elif msg.content.lower() in ['prefix', 'prefix?']:
+                elif (msg.content.lower() in ['prefix', 'prefix?']) and prefix_help:
                     await self.msend(msg, '**Current server command prefix is: **`' + cmdfix + '`')
                 else:
                     if msg.content.startswith(cmdfix):

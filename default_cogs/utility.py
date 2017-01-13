@@ -58,6 +58,10 @@ class Utility(Cog):
         """Simply sends the input as a message. For testing.
         Usage: say [message]"""
         await or_check_perms(ctx, ['bot_admin'])
+        try:
+            await self.bot.delete_message(ctx.message)
+        except discord.Forbidden:
+            pass
         await self.bot.say(stuffs)
 
     async def math_task(self, code: str):
