@@ -1,30 +1,23 @@
 """Definition of the bot's Utility module.'"""
-import asyncio
-import random
-import re
-import sys
-import time
-import textwrap
-import unicodedata
 from contextlib import suppress
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from fnmatch import filter
 from io import BytesIO
-import aiohttp
-import util.json as json
-import async_timeout
-import discord
-import asteval
-import util.commands as commands
 from properties import bot_owner
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats, eval_blocked, v_level_map
 from util.fake import FakeContextMember, FakeMessageMember
 from util.func import bdel, async_encode as b_encode, async_decode as b_decode
 from util.asizeof import asizeof
 from util.perms import check_perms, or_check_perms
-
+import util.dynaimport as di
 from .cog import Cog
+
+for mod in ['asyncio', 'random', 're', 'sys', 'time', 'textwrap', 'unicodedata',
+            'aiohttp', 'async_timeout', 'discord', 'asteval']:
+    globals()[mod] = di.load(mod)
+json = di.load('util.json')
+commands = di.load('util.commands')
 
 have_pil = True
 print(' - Loading PIL...')

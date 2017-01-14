@@ -1,18 +1,16 @@
 """Definition of the bot's Voice module.'"""
-import asyncio
-import io
-import random
-import subprocess
-import textwrap
 from urllib.parse import urlencode
-import discord
-import util.commands as commands
-import async_timeout
 from gtts_token import gtts_token
 from util.perms import echeck_perms, or_check_perms
 from util.func import assert_msg, check
 from util.const import sem_cells
+import util.dynaimport as di
 from .cog import Cog
+
+for mod in ['asyncio', 'random', 'io', 'subprocess', 'textwrap', 'async_timeout',
+            'discord']:
+    globals()[mod] = di.load(mod)
+commands = di.load('util.commands')
 
 try:
     import speech_recognition as sr

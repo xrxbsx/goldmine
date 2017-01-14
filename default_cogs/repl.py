@@ -1,22 +1,16 @@
 """The REPL module for power users."""
-import traceback
-import discord
-import inspect
 from contextlib import redirect_stdout
-import io
-import os
-import sys
-import asyncio
-import re
-import subprocess
 import importlib.util
-import async_timeout
-import asteval
-import util.commands as commands
 from util.asizeof import asizeof
 from util.perms import echeck_perms
 from util.const import eval_blocked
+import util.dynaimport as di
 from .cog import Cog
+
+for mod in ['asyncio', 're', 'os', 'sys', 'io', 'traceback', 'inspect',
+            'asteval', 'async_timeout', 'discord', 'subprocess']:
+    globals()[mod] = di.load(mod)
+commands = di.load('util.commands')
 
 class REPL(Cog):
     def __init__(self, bot):

@@ -1,25 +1,27 @@
 """The bot's cog and gear manipulator."""
-import asyncio
 from asyncio import as_completed
-import os
 from functools import partial
 from setuptools import distutils
 from datetime import datetime
 from fnmatch import filter
 from subprocess import run, PIPE
-import shutil
 from concurrent.futures import ThreadPoolExecutor
 from time import time
-import discord
 from core import set_cog
 from convert_to_old_syntax import cur_dir
-import util.commands as commands
 from util.perms import or_check_perms
 from util.const import default_cogs, essential_cogs
 from cogs.utils.dataIO import dataIO
 from cogs.utils import checks
 from cogs.utils.chat_formatting import pagify, box
+import util.dynaimport as di
 from .cog import Cog
+
+asyncio = di.load('asyncio')
+shutil = di.load('shutil')
+discord = di.load('discord')
+commands = di.load('util.commands')
+os = di.load('os')
 
 NUM_THREADS = 4
 REPO_NONEX = 0x1

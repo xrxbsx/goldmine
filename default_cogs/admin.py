@@ -1,24 +1,18 @@
 """Definition of the bot's Admin module.'"""
 from __future__ import print_function
-import asyncio
-import functools
-import zipfile
-import io
-import aiohttp
-import async_timeout
-import copy
-import random
-import subprocess
 from contextlib import suppress
 from importlib import import_module as imp
 from datetime import datetime, timedelta
-
-import discord
-import util.commands as commands
 from util.perms import or_check_perms, echeck_perms, check_perms
 from util.func import bdel, DiscordFuncs, _set_var, _import, _del_var, snowtime, assert_msg, check
 from util.const import muted_perms
+import util.dynaimport as di
 from .cog import Cog
+
+for mod in ['asyncio', 'random', 'functools', 'zipfile', 'io', 'copy', 'subprocess',
+            'aiohttp', 'async_timeout', 'discord']:
+    globals()[mod] = di.load(mod)
+commands = di.load('util.commands')
 
 def gimport(mod_name, name=None, attr=None):
     return exec(_import(mod_name, var_name=name, attr_name=attr))

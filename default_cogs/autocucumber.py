@@ -1,14 +1,14 @@
 """Awesome auto cucumber."""
-import os
-import re
-import copy
 from collections import Counter
-import aiohttp
-import async_timeout
-import util.commands as commands
 from util.autocorrect import Corrector
 from util.perms import echeck_perms
+import util.dynaimport as di
 from .cog import Cog
+
+for mod in ['os', 're', 'copy', 'aiohttp',
+            'async_timeout']:
+    globals()[mod] = di.load(mod)
+commands = di.load('util.commands')
 
 class AutoCucumber(Cog):
     """Spelling corrector :)"""

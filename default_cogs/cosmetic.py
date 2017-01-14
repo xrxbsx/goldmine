@@ -1,17 +1,15 @@
 """Definition of the bot's Cosmetic module.'"""
-import asyncio
-import random
-import io
-from imghdr import what as imgdet
 from contextlib import suppress
 from urllib.parse import urlencode
-import util.json as json
-import aiohttp
-import async_timeout
-import discord
-import util.commands as commands
 from .cog import Cog
 from util.const import charsets, spinners, lvl_base
+import util.dynaimport as di
+
+for mod in ['asyncio', 'random', 'io', 'imghdr', 'aiohttp',
+            'async_timeout', 'discord']:
+    globals()[mod] = di.load(mod)
+json = di.load('util.json')
+commands = di.load('util.commands')
 
 class Cosmetic(Cog):
     """Commands for some neat-o fun!
@@ -176,7 +174,7 @@ cool right?''',
                     await self.bot.say(f'**Failed to get a cat, maybe random.cat is down?**')
                     return
         img_bytes = io.BytesIO(img)
-        await self.bot.send_file(ctx.message.channel, img_bytes, filename='random-cat.' + imgdet(img_bytes))
+        await self.bot.send_file(ctx.message.channel, img_bytes, filename='random-cat.' + imghdr.what(img_bytes))
     @commands.command(pass_context=True, aliases=['random.dog', 'randomdog', 'rdog', 'dogs', 'dograndom', 'random_dog'])
     async def dog(self, ctx):
         """Get a random dog! Because why not.
@@ -192,7 +190,7 @@ cool right?''',
                     await self.bot.say(f'**Failed to get a cat, maybe random.dog is down?**')
                     return
         img_bytes = io.BytesIO(img)
-        await self.bot.send_file(ctx.message.channel, img_bytes, filename='random-dog.' + imgdet(img_bytes))
+        await self.bot.send_file(ctx.message.channel, img_bytes, filename='random-dog.' + imghdr.what(img_bytes))
 
     @commands.command(pass_context=True, aliases=['temote', 'bemote', 'dcemote', 'getemote', 'fetchemote'])
     async def emote(self, ctx, _emote: str):
@@ -217,7 +215,7 @@ cool right?''',
                             await self.bot.say('**No such emote!** I can fetch from Twitch, FrankerFaceZ, BetterTTV, or Discord (soon).')
                             return False
         img_bytes = io.BytesIO(emote_img)
-        ext = imgdet(img_bytes)
+        ext = imghdr.what(img_bytes)
         await self.bot.send_file(ctx.message.channel, img_bytes, filename=f'emote.{ext}')
 
 def setup(bot):
