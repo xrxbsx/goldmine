@@ -79,6 +79,9 @@ class REPL(Cog):
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             return module
+        platform_shell = lambda s: subprocess.check_output(['bash', '-c', s]).decode('utf-8')
+        if sys.platform == 'win32':
+            platform_shell = lambda s: subprocess.check_output(s.split()).decode('utf-8')
         variables = {
             'ctx': ctx,
             'bot': self.bot,
@@ -94,7 +97,7 @@ class REPL(Cog):
             'lol': 'kek',
             'loop': self.bot.loop,
             'context': ctx,
-            'shell': lambda s: subprocess.check_output(s.split()).decode('utf-8'),
+            'shell': platform_shell,
             'file_import': import_by_path,
             'get_server': lambda s_name: {s.name: s for s in self.bot.servers}[s_name],
             'server_dict': lambda: {s.name: s for s in self.bot.servers}
