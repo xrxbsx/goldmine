@@ -207,7 +207,10 @@ class Voice(Cog):
     async def create_voice_client(self, channel):
         """Create a new voice client on a specified channel."""
         voice = await self.bot.join_voice_channel(channel)
-        await voice.enable_voice_events()
+        try:
+            await voice.enable_voice_events()
+        except AttributeError:
+            pass
         state = self.get_voice_state(channel.server)
         state.voice = voice
 
@@ -259,7 +262,10 @@ class Voice(Cog):
         state = self.get_voice_state(ctx.message.server)
         if state.voice is None:
             state.voice = await self.bot.join_voice_channel(summoned_channel)
-            await state.voice.enable_voice_events()
+            try:
+                await state.voice.enable_voice_events()
+            except AttributeError:
+                pass
         else:
             await state.voice.move_to(summoned_channel)
         await self.bot.say('Ready to play audio in **' + summoned_channel.name + '**!')
@@ -301,6 +307,12 @@ class Voice(Cog):
             success = await ctx.invoke(self.summon)
             if not success:
                 return
+        if state.voice.channel != ctx.message.author.voice_channel:
+            await self.bot.say('You can only modify the queue if you\'re in the same channel as me!')
+            return
+        if len(state.songs._queue) >= 6:
+            await self.bot.say('There can only be up to 6 items in queue!')
+            return
 
         status = await self.bot.say('Loading... 🌚')
         pg_task = self.loop.create_task(self.progress(status, 'Loading'))
@@ -431,6 +443,12 @@ class Voice(Cog):
             success = await ctx.invoke(self.summon)
             if not success:
                 return
+        if state.voice.channel != ctx.message.author.voice_channel:
+            await self.bot.say('You can only modify the queue if you\'re in the same channel as me!')
+            return
+        if len(state.songs._queue) >= 6:
+            await self.bot.say('There can only be up to 6 items in queue!')
+            return
 
         stream = io.BytesIO(subprocess.check_output(['pico2wave', '-w', '/tmp/pipe.wav', tospeak]))
         state.voice.encoder_options(sample_rate=16000, channels=1)
@@ -440,52 +458,6 @@ class Voice(Cog):
         await state.songs.put(entry)
         await self.bot.say('Queued ' + str(entry))
         state.voice.encoder_options(sample_rate=48000, channels=2)
-
-    @commands.command(pass_context=True, aliases=['xmas', 'santa', 'c', 'season'])
-    async def christmas(self, ctx):
-        """Start the Christmas music playlist!
-        Usage: christmas"""
-        state = self.get_voice_state(ctx.message.server)
-
-        if state.voice is None:
-            success = await ctx.invoke(self.summon)
-            if not success:
-                return
-
-        songs = [
-            ('https://www.youtube.com/watch?v=NJ8U6TEO-qE', 'Jingle Bells'),
-            ('https://www.youtube.com/watch?v=RPCXMTnO2Yw', 'Deck The Halls'),
-            ('https://www.youtube.com/watch?v=nVMCUtsmWmQ', 'Have A Holly Jolly Christmas'),
-            ('https://www.youtube.com/watch?v=g-OF7KGyDis', 'We Wish You A Merry Christmas'),
-            ('https://www.youtube.com/watch?v=0byH9h1ClBY', 'Rudolph The Red Nosed Reindeer'),
-            ('https://www.youtube.com/watch?v=vwHEqx_3BYE', 'Sleigh Ride'),
-            ('https://www.youtube.com/watch?v=HWv72L4wgCc', 'Santa Claus Is Coming To Town'),
-            ('https://www.youtube.com/watch?v=VfLf7A_-1Vw', 'Jingle Bells Rock'),
-            ('https://www.youtube.com/watch?v=t3HJgCcSUqQ', 'Rockin\' Around The Christmas Tree'),
-            ('https://www.youtube.com/watch?v=oyEyMjdD2uk', 'Twelve Days of Christmas'),
-            ('https://www.youtube.com/watch?v=PJ2CuKgyNW0', 'Santa Claus Is Coming To Town'),
-            ('https://www.youtube.com/watch?v=Wq73h6XZQGA', 'Carol Of The Bells'),
-            ('https://www.youtube.com/watch?v=3mJrPgplZ1I', 'Rock The Holly')
-        ]
-        songc = len(songs)
-        status = [
-            'Starting Christmas playlist with jukebox! :tada::christmas_tree:',
-            '**Queued [0/{0}] so far! Be patient :wink:**'.format(songc)
-        ]
-        st_msg = await self.bot.say(status[0])
-        random.shuffle(songs)
-
-        for n, i in enumerate(songs):
-            player = await state.voice.create_ytdl_player(i[0], ytdl_options={'quiet': True}, after=state.toggle_next)
-            player.volume = 0.75
-            entry = VoiceEntry(ctx.message, player, False)
-            await state.songs.put(entry)
-            del status[len(status) - 1]
-            status.append('Queued **{0}**! :smiley::christmas_tree:'.format(i[1]))
-            status.append('**Queued *[{0}/{1}]* so far! Be patient :wink:**'.format(n + 1, songc))
-            await self.bot.edit_message(st_msg, '\n'.join(status))
-            await asyncio.sleep(1)
-        await self.bot.say('**All Christmas songs have been queued!** :tada::santa:')
 
     @commands.command(pass_context=True, no_pm=True)
     async def gspeak(self, ctx, *, text: str):
@@ -507,6 +479,12 @@ class Voice(Cog):
             success = await ctx.invoke(self.summon)
             if not success:
                 return
+        if state.voice.channel != ctx.message.author.voice_channel:
+            await self.bot.say('You can only modify the queue if you\'re in the same channel as me!')
+            return
+        if len(state.songs._queue) >= 6:
+            await self.bot.say('There can only be up to 6 items in queue!')
+            return
 
         for intxt in rounds:
             g_args = {
@@ -519,7 +497,7 @@ class Voice(Cog):
                 'textlen': '12',
                 'tk': str(self.tokenizer.calculate_token(intxt))
             }
-            await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *15 seconds* to queue.**')
+            await self.bot.say('Adding to voice queue:```' + intxt + '```**It may take up to *10 seconds* to queue.**')
             player = await state.voice.create_ytdl_player(base_url + '?' + urlencode(g_args), ytdl_options=opts, after=state.toggle_next)
             player.volume = 0.75
             entry = VoiceEntry(ctx.message, player, False)
@@ -585,6 +563,12 @@ class Voice(Cog):
             success = await ctx.invoke(self.summon)
             if not success:
                 return
+        if state.voice.channel != ctx.message.author.voice_channel:
+            await self.bot.say('You can only modify the queue if you\'re in the same channel as me!')
+            return
+        if len(state.songs._queue) >= 6:
+            await self.bot.say('There can only be up to 6 items in queue!')
+            return
         with assert_msg(ctx, '**This server does not have a recording!**'):
             check(ctx.message.server.id in self.recording_data)
         state.voice.encoder_options(sample_rate=48000, channels=2)
