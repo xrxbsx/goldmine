@@ -34,7 +34,7 @@ class Admin(Cog):
         self.dc_funcs = DiscordFuncs(bot)
         super().__init__(bot)
 
-    @commands.command(pass_context=True, aliases=['clear', 'purge', 'prune', 'clean'])
+    @commands.command(pass_context=True, aliases=['clear', 'purge', 'prune', 'clean'], no_pm=True)
     async def nuke(self, ctx, *count):
         """NUKES a channel by deleting all messages!
         Usage: nuke"""
