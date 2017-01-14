@@ -102,7 +102,8 @@ class REPL(Cog):
             'get_server': lambda s_name: {s.name: s for s in self.bot.servers}[s_name],
             'server_dict': lambda: {s.name: s for s in self.bot.servers}
         }
-        valid_flags = ['public', 'asteval', 'py', 'split']
+        is_shell = False
+        valid_flags = ['public', 'asteval', 'py', 'split', 'shell']
         for flag in flags:
             if flag not in valid_flags:
                 await self.bot.say(f'Flag `{flag}` is invalid. Valid flags are `{", ".join(valid_flags)}`.')
@@ -123,6 +124,8 @@ class REPL(Cog):
         if 'py' in flags:
             await self.bot.say('⚠ Flag `py` is not implemented yet!')
             return
+        if 'shell' in flags:
+            is_shell = True
 
         if msg.channel.id in self.sessions:
             await self.bot.say('Already running a REPL session in this channel. Exit it with `quit`.')
@@ -155,6 +158,9 @@ class REPL(Cog):
                 if inspect.isawaitable(result):
                     result = await result
                 fmt = str(result) + '\n'
+            elif is_shell:
+                result = await self.loop.run_in_executor(None, platform_shell, cleaned)
+                fmt = result + '\n'
             else:
                 executor = exec
                 if cleaned.count('\n') == 0:
