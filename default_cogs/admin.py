@@ -122,12 +122,13 @@ class Admin(Cog):
         r_key = ', now restarting' if restart else ''
         r_not_key = ', not restarting' if restart else ''
 #        subprocess.check_output(['git', 'reset', 'HEAD', '--hard'])
+        dest = ctx.message.channel if self.bot.selfbot else ctx.message.author
         try:
             gitout = await self.loop.run_in_executor(None, functools.partial(subprocess.check_output, ['git', 'pull', '-v'], stderr=subprocess.STDOUT))
             gitout = gitout.decode('utf-8')
         except subprocess.CalledProcessError as exp:
             await self.bot.edit_message(msg, 'An error occured while attempting to update!')
-            await self.bot.send_message(ctx.message.author, '```' + str(exp) + '```')
+            await self.bot.send_message(dest, '```' + str(exp) + '```')
             gitout = False
         '''async with aiohttp.ClientSession() as session:
             with async_timeout.timeout(15): # for streaming
@@ -136,7 +137,6 @@ class Admin(Cog):
         with zipfile.ZipFile(io.BytesIO(tarball)) as z:
             z.extractall(self.bot.dir)'''
         if gitout != False:
-            dest = ctx.message.channel if self.bot.selfbot else ctx.message.author
             await self.bot.send_message(dest, 'Update Output:\n```' + gitout + '```')
         if not gitout:
             await self.bot.edit_message(msg, msg.content + f'\nUpdate failed{r_not_key}.')
