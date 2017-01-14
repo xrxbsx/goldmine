@@ -1,35 +1,25 @@
 """Where all the good stuff happens in the bot."""
-import asyncio
-import random
-import inspect
-import subprocess
 from contextlib import suppress
-import os
-import sys
-import gc
-import traceback
-import re
-import shutil
 from collections import deque
 from fnmatch import filter
 from datetime import datetime
-import math
-import logging
-import async_timeout
 from asteval import Interpreter
-import discord
-import util.commands as commands
 from .commands.bot import ProContext, StringView, CommandError, CommandNotFound
-import pickledb
 from convert_to_old_syntax import cur_dir, rc_files
 from properties import storage_backend
 from util.datastore import DataStore
-import util.ranks as rank
 from util.const import *
 from util.func import decoy_print, _get_variable
 from util.fake import FakeObject
 import util.token as token
-import util.json as json
+import util.dynaimport as di
+for mod in ['asyncio', 'random', 'inspect', 'subprocess', 'os', 'sys', 'gc',
+            'traceback', 're', 'shutil', 'math', 'logging', 'async_timeout',
+            'discord', 'pickledb']:
+    globals()[mod] = di.load(mod)
+json = di.load('util.json')
+commands = di.load('util.commands')
+rank = di.load('util.ranks')
 
 try:
     from ex_props import store_path
