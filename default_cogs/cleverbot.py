@@ -2,6 +2,7 @@
 import asyncio
 import random
 from util.cleverbot import Cleverbot as RealCleverbot
+from cleverbot import Cleverbot as RealRealCleverbot
 import util.commands as commands
 from util.func import bdel
 from .cog import Cog
@@ -11,6 +12,7 @@ class Cleverbot(Cog):
 
     def __init__(self, bot):
         self.cb = RealCleverbot(get_cookies=False) # broken?
+        self.real_cb = RealRealCleverbot()
         self.cleverbutt_timers = set()
         self.cleverbutt_latest = {}
         self.cleverbutt_replied_to = set()
@@ -25,7 +27,8 @@ class Cleverbot(Cog):
     async def askcb(self, query):
         """A method of querying Cleverbot safe for async."""
         try:
-            return await self.cb.ask(query)
+            #return await self.cb.ask(query)
+            return await self.loop.run_in_executor(None, self.real_cb.ask, query)
         except IndexError:
             return 'Couldn\'t get a response from Cleverbot.'
 

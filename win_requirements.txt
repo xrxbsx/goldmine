@@ -12,3 +12,4 @@ ujson
 psutil
 cozmo[camera]
 pillow
+cleverbot

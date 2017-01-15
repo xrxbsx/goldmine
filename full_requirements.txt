@@ -12,3 +12,4 @@ cchardet
 ujson
 psutil
 cozmo
+cleverbot
