@@ -73,12 +73,12 @@ class Cogs(Cog):
 - Disabled{key}{3}
 ----------------------------------------------
 - Enabled{key}{4}```'''
-        def_cogs = [c.replace('.py', '').replace('_', ' ').title() for c in filter(os.listdir(os.path.join(cur_dir, 'default_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
+        def_cogs = [c.replace('.py', '').replace('_', ' ').title().replace(' ', '_') for c in filter(os.listdir(os.path.join(cur_dir, 'default_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         try:
             dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         except OSError:
             dl_cogs = ['None! 😦']
-        dis_cogs = [c.replace('_', ' ').title() for c in self.bot.disabled_cogs if c != '']
+        dis_cogs = [c.replace('_', ' ').title().replace(' ', '_') for c in self.bot.disabled_cogs if c != '']
         essential_enb = default_cogs
         for cog in self.bot.disabled_cogs:
             if cog in essential_enb:
@@ -87,7 +87,7 @@ class Cogs(Cog):
             dl_cogs = ['None! 😦']
         if not dis_cogs:
             dis_cogs = ['None! 😃']
-        enb_cogs = [c.replace('_', ' ').title() for c in self.bot.enabled_cogs if c != ''] + essential_enb
+        enb_cogs = [c.replace('_', ' ').title().replace(' ', '_') for c in self.bot.enabled_cogs if c != ''] + essential_enb
         loaded_cogs = self.bot.cogs.keys()
         await self.bot.say(clist.format(*[key.join(l) for l in [def_cogs, dl_cogs, loaded_cogs, dis_cogs, enb_cogs]], key=key))
 
@@ -98,39 +98,40 @@ class Cogs(Cog):
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'default_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs + ['all']
-        req_cog = cog_name.lower().replace(' ', '_')
-        if req_cog in cogs:
-            start_time = datetime.now()
-            if 'default_cogs.' + req_cog in self.bot.extensions:
-                status = await self.bot.say(f'**Reloading cog** `{cog_name}` (`{req_cog}`)...')
-                self.bot.unload_extension('default_cogs.' + req_cog)
-                self.bot.load_extension('default_cogs.' + req_cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished reloading cog** `{cog_name}` (`{req_cog}`)**!** (took {time_taken}s)')
-            elif 'cogs.' + req_cog in self.bot.extensions:
-                status = await self.bot.say(f'**Reloading cog** `{cog_name}` (`{req_cog}`)...')
-                self.bot.unload_extension('cogs.' + req_cog)
-                self.bot.load_extension('cogs.' + req_cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished reloading cog** `{cog_name}` (`{req_cog}`)**!** (took {time_taken}s)')
-            elif req_cog == 'all':
-                status = await self.bot.say('**Reloading all loaded cogs...**')
-                for cog in def_cogs:
-                    if 'default_cogs.' + cog in self.bot.extensions:
-                        self.bot.unload_extension('default_cogs.' + cog)
-                        self.bot.load_extension('default_cogs.' + cog)
-                for cog in dl_cogs:
-                    if 'cogs.' + cog in self.bot.extensions:
-                        self.bot.unload_extension('cogs.' + cog)
-                        self.bot.load_extension('cogs.' + cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished reloading all loaded cogs!** (took {time_taken}s)')
+        req_cogs = cog_name.lower().split()
+        for req_cog in req_cogs:
+            if req_cog in cogs:
+                start_time = datetime.now()
+                if 'default_cogs.' + req_cog in self.bot.extensions:
+                    status = await self.bot.say(f'**Reloading cog** `{req_cog}`...')
+                    self.bot.unload_extension('default_cogs.' + req_cog)
+                    self.bot.load_extension('default_cogs.' + req_cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished reloading cog** `{req_cog}`**!** (took {time_taken}s)')
+                elif 'cogs.' + req_cog in self.bot.extensions:
+                    status = await self.bot.say(f'**Reloading cog** `{req_cog}`...')
+                    self.bot.unload_extension('cogs.' + req_cog)
+                    self.bot.load_extension('cogs.' + req_cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished reloading cog** `{req_cog}`**!** (took {time_taken}s)')
+                elif req_cog == 'all':
+                    status = await self.bot.say('**Reloading all loaded cogs...**')
+                    for cog in def_cogs:
+                        if 'default_cogs.' + cog in self.bot.extensions:
+                            self.bot.unload_extension('default_cogs.' + cog)
+                            self.bot.load_extension('default_cogs.' + cog)
+                    for cog in dl_cogs:
+                        if 'cogs.' + cog in self.bot.extensions:
+                            self.bot.unload_extension('cogs.' + cog)
+                            self.bot.load_extension('cogs.' + cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished reloading all loaded cogs!** (took {time_taken}s)')
+                else:
+                    await self.bot.say('**That cog isn\'t already loaded, so I\'ll load it.**')
+                    self.cog_load.invoke(ctx)
             else:
-                await self.bot.say('**That cog isn\'t already loaded, so I\'ll load it.**')
-                self.cog_load.invoke(ctx)
-        else:
-            await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
-            return False
+                await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
+                return False
 
     @cog.command(name='load', pass_context=True, aliases=['activate', 'enactivate', 'inactivate']) # idek but lets be safe ¯\_(ツ)_/¯
     async def cog_load(self, ctx, *, cog_name: str):
@@ -139,33 +140,34 @@ class Cogs(Cog):
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'default_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs + ['all']
-        req_cog = cog_name.lower().replace(' ', '_')
-        if req_cog in cogs:
-            start_time = datetime.now()
-            if req_cog in [c.lower() for c in self.bot.cogs.keys()]:
-                await self.bot.say(f'**Cog** `{cog_name}` (`{req_cog}`) **already loaded!**')
+        req_cogs = cog_name.lower().split()
+        for req_cog in req_cogs:
+            if req_cog in cogs:
+                start_time = datetime.now()
+                if req_cog in [c.lower() for c in self.bot.cogs.keys()]:
+                    await self.bot.say(f'**Cog** `{req_cog}` **already loaded!**')
+                    return False
+                elif req_cog in def_cogs:
+                    status = await self.bot.say(f'**Loading cog** `{req_cog}`...')
+                    self.bot.load_extension('default_cogs.' + req_cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished loading cog** `{req_cog}`**!** (took {time_taken}s)')
+                elif req_cog in dl_cogs:
+                    status = await self.bot.say(f'**Loading cog** `{req_cog}`...')
+                    self.bot.load_extension('cogs.' + req_cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished loading cog** `{req_cog}`**!** (took {time_taken}s)')
+                elif req_cog == 'all':
+                    status = await self.bot.say('**Loading all cogs...**')
+                    for cog in def_cogs:
+                        self.bot.load_extension('default_cogs.' + cog)
+                    for cog in dl_cogs:
+                        self.bot.load_extension('cogs.' + cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished loading all cogs!** (took {time_taken}s)')
+            else:
+                await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
                 return False
-            elif req_cog in def_cogs:
-                status = await self.bot.say(f'**Loading cog** `{cog_name}` (`{req_cog}`)...')
-                self.bot.load_extension('default_cogs.' + req_cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished loading cog** `{cog_name}` (`{req_cog}`)**!** (took {time_taken}s)')
-            elif req_cog in dl_cogs:
-                status = await self.bot.say(f'**Loading cog** `{cog_name}` (`{req_cog}`)...')
-                self.bot.load_extension('cogs.' + req_cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished loading cog** `{cog_name}` (`{req_cog}`)**!** (took {time_taken}s)')
-            elif req_cog == 'all':
-                status = await self.bot.say('**Loading all cogs...**')
-                for cog in def_cogs:
-                    self.bot.load_extension('default_cogs.' + cog)
-                for cog in dl_cogs:
-                    self.bot.load_extension('cogs.' + cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished loading all cogs!** (took {time_taken}s)')
-        else:
-            await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
-            return False
 
     @cog.command(name='unload', pass_context=True, aliases=['deactivate', 'unactivate'])
     async def cog_unload(self, ctx, *, cog_name: str):
@@ -174,38 +176,39 @@ class Cogs(Cog):
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'default_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs + ['all']
-        req_cog = cog_name.lower().replace(' ', '_')
-        if req_cog in essential_cogs:
-            await self.bot.say('**You can\'t unload that!**')
-            return
-        if req_cog in cogs:
-            start_time = datetime.now()
-            if 'default_cogs.' + req_cog in self.bot.extensions:
-                status = await self.bot.say(f'**Unloading cog** `{cog_name}` (`{req_cog}`)...')
-                self.bot.unload_extension('default_cogs.' + req_cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished unloading cog** `{cog_name}` (`{req_cog}`)**!** (took {time_taken}s)')
-            elif 'cogs.' + req_cog in self.bot.extensions:
-                status = await self.bot.say(f'**Unloading cog** `{cog_name}` (`{req_cog}`)...')
-                self.bot.unload_extension('cogs.' + req_cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished unloading cog** `{cog_name}` (`{req_cog}`)**!** (took {time_taken}s)')
-            elif req_cog == 'all':
-                status = await self.bot.say('**Unloading all loaded cogs but this...**')
-                for cog in def_cogs:
-                    if ('default_cogs.' + cog in self.bot.extensions) and (cog != 'cogs'):
-                        self.bot.unload_extension('default_cogs.' + cog)
-                for cog in dl_cogs:
-                    if 'cogs.' + cog in self.bot.extensions:
-                        self.bot.unload_extension('cogs.' + cog)
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished unloading all loaded cogs!** (took {time_taken}s)')
+        req_cogs = cog_name.lower().split()
+        for req_cog in req_cogs:
+            if req_cog in essential_cogs:
+                await self.bot.say('**You can\'t unload that!**')
+                return
+            if req_cog in cogs:
+                start_time = datetime.now()
+                if 'default_cogs.' + req_cog in self.bot.extensions:
+                    status = await self.bot.say(f'**Unloading cog** `{req_cog}`...')
+                    self.bot.unload_extension('default_cogs.' + req_cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished unloading cog** `{req_cog}`**!** (took {time_taken}s)')
+                elif 'cogs.' + req_cog in self.bot.extensions:
+                    status = await self.bot.say(f'**Unloading cog** `{req_cog}`...')
+                    self.bot.unload_extension('cogs.' + req_cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished unloading cog** `{req_cog}`**!** (took {time_taken}s)')
+                elif req_cog == 'all':
+                    status = await self.bot.say('**Unloading all loaded cogs but this...**')
+                    for cog in def_cogs:
+                        if ('default_cogs.' + cog in self.bot.extensions) and (cog != 'cogs'):
+                            self.bot.unload_extension('default_cogs.' + cog)
+                    for cog in dl_cogs:
+                        if 'cogs.' + cog in self.bot.extensions:
+                            self.bot.unload_extension('cogs.' + cog)
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished unloading all loaded cogs!** (took {time_taken}s)')
+                else:
+                    await self.bot.say(f'**Cog** `{req_cog}` **not loaded!**')
+                    return False
             else:
-                await self.bot.say(f'**Cog** `{cog_name}` (`{req_cog}`) **not loaded!**')
+                await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
                 return False
-        else:
-            await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
-            return False
 
     @cog.command(name='enable', pass_context=True)
     async def cog_enable(self, ctx, *, cog_name: str):
@@ -214,26 +217,27 @@ class Cogs(Cog):
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'default_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs
-        req_cog = cog_name.lower().replace(' ', '_')
-        if req_cog in cogs:
-            if req_cog in self.bot.enabled_cogs:
-                await self.bot.say(f'**Cog** `{cog_name}` (`{req_cog}`) **already enabled!**')
-            else:
-                start_time = datetime.now()
-                status = await self.bot.say(f'**Enabling cog** `{cog_name}` (`{req_cog}`)...')
-                if req_cog in self.bot.disabled_cogs:
-                    self.bot.disabled_cogs.remove(req_cog)
-                    with open(self.bot.dis_cogs_path, 'w+') as f:
-                        f.write('\r\n'.join(self.bot.disabled_cogs))
+        req_cogs = cog_name.lower().split()
+        for req_cog in req_cogs:
+            if req_cog in cogs:
+                if req_cog in self.bot.enabled_cogs:
+                    await self.bot.say(f'**Cog** `{req_cog}` **already enabled!**')
                 else:
-                    self.bot.enabled_cogs.append(req_cog)
-                    with open(self.bot.ex_cogs_path, 'w+') as f:
-                        f.write('\r\n'.join(self.bot.enabled_cogs))
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished enabling cog** `{cog_name}` (`{req_cog}`)**!** (took {time_taken}s)')
-        else:
-            await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
-            return False
+                    start_time = datetime.now()
+                    status = await self.bot.say(f'**Enabling cog** `{req_cog}`...')
+                    if req_cog in self.bot.disabled_cogs:
+                        self.bot.disabled_cogs.remove(req_cog)
+                        with open(self.bot.dis_cogs_path, 'w+') as f:
+                            f.write('\r\n'.join(self.bot.disabled_cogs))
+                    else:
+                        self.bot.enabled_cogs.append(req_cog)
+                        with open(self.bot.ex_cogs_path, 'w+') as f:
+                            f.write('\r\n'.join(self.bot.enabled_cogs))
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished enabling cog** `{req_cog}`**!** (took {time_taken}s)')
+            else:
+                await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
+                return False
 
     @cog.command(name='disable', pass_context=True)
     async def cog_disable(self, ctx, *, cog_name: str):
@@ -242,30 +246,31 @@ class Cogs(Cog):
         def_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'default_cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         dl_cogs = [c.replace('.py', '') for c in filter(os.listdir(os.path.join(cur_dir, 'cogs')), '*.py') if c not in ['__init__.py', 'cog.py']]
         cogs = def_cogs + dl_cogs
-        req_cog = cog_name.lower().replace(' ', '_')
-        if req_cog in essential_cogs:
-            await self.bot.say('**You can\'t disable that!**')
-            return
-        if req_cog in cogs:
-            if (req_cog in self.bot.enabled_cogs) or (req_cog in list(set(default_cogs) - set(self.bot.disabled_cogs))):
-                start_time = datetime.now()
-                status = await self.bot.say(f'**Disabling cog** `{cog_name}` (`{req_cog}`)...')
-                if req_cog in default_cogs:
-                    self.bot.disabled_cogs.append(req_cog)
-                    with open(self.bot.dis_cogs_path, 'w+') as f:
-                        f.write('\r\n'.join(self.bot.disabled_cogs))
-                else:
-                    self.bot.enabled_cogs.remove(req_cog)
-                    with open(self.bot.ex_cogs_path, 'w+') as f:
-                        f.write('\r\n'.join(self.bot.enabled_cogs))
-                time_taken = round((datetime.now() - start_time).total_seconds(), 3)
-                await self.bot.edit_message(status, f'**Finished disabling cog** `{cog_name}` (`{req_cog}`)**!** (took {time_taken}s)')
-            else:
-                await self.bot.say(f'**Cog** `{cog_name}` (`{req_cog}`) **not enabled!**')
+        req_cogs = cog_name.lower().split()
+        for req_cog in req_cogs:
+            if req_cog in essential_cogs:
+                await self.bot.say('**You can\'t disable that!**')
                 return
-        else:
-            await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
-            return False
+            if req_cog in cogs:
+                if (req_cog in self.bot.enabled_cogs) or (req_cog in list(set(default_cogs) - set(self.bot.disabled_cogs))):
+                    start_time = datetime.now()
+                    status = await self.bot.say(f'**Disabling cog** `{req_cog}`...')
+                    if req_cog in default_cogs:
+                        self.bot.disabled_cogs.append(req_cog)
+                        with open(self.bot.dis_cogs_path, 'w+') as f:
+                            f.write('\r\n'.join(self.bot.disabled_cogs))
+                    else:
+                        self.bot.enabled_cogs.remove(req_cog)
+                        with open(self.bot.ex_cogs_path, 'w+') as f:
+                            f.write('\r\n'.join(self.bot.enabled_cogs))
+                    time_taken = round((datetime.now() - start_time).total_seconds(), 3)
+                    await self.bot.edit_message(status, f'**Finished disabling cog** `{req_cog}`**!** (took {time_taken}s)')
+                else:
+                    await self.bot.say(f'**Cog** `{req_cog}` **not enabled!**')
+                    return
+            else:
+                await self.bot.say(f'**No such cog! Try** `{ctx.prefix}cog list`**.**')
+                return False
 
     @cog.group(pass_context=True)
     async def repo(self, ctx):
