@@ -185,7 +185,7 @@ class GoldBot(commands.Bot):
             bname = await self.store.get_prop(msg, 'bot_name')
             prefix_convo = (await self.store.get_prop(msg, 'prefix_answer')) in bool_true
             do_logic = msg.author.id != self.user.id
-        prefix_help = msg.server.id != '110373943822540800' # DBots
+        prefix_help = (msg.server.id if msg.server else '__this_isnt_dbots__') != '110373943822540800' # DBots
         lbname = bname.lower()
         if do_logic:
             if msg.author.bot:
