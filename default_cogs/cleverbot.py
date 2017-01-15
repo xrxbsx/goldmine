@@ -2,7 +2,13 @@
 import asyncio
 import random
 from util.cleverbot import Cleverbot as RealCleverbot
-from cleverbot import Cleverbot as RealRealCleverbot
+try:
+    from cleverbot import Cleverbot as RealRealCleverbot
+except ImportError:
+    class RealRealCleverbot:
+        """Bogus cleverbot."""
+        def ask(self, q):
+            return 'The bot owner hasn\'t set up Cleverbot.'
 import util.commands as commands
 from util.func import bdel
 from .cog import Cog
