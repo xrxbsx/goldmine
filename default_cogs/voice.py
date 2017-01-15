@@ -192,6 +192,7 @@ class Voice(Cog):
         else:
             self.opus_decoder = None
         super().__init__(bot)
+        self.disconnect_task = self.loop.create_task(self.disconnect_bg_task())
 
     def get_voice_state(self, server):
         """Get the current VoiceState object."""
@@ -201,6 +202,20 @@ class Voice(Cog):
             self.voice_states[server.id] = state
 
         return state
+
+    async def disconnect_bg_task(self):
+        """Background task to disconnect from voice channels if idle."""
+        while True:
+            for sid in self.voice_states:
+                state = self.voice_states[sid]
+                music = state.songs._queue
+                if not state.current:
+                    if not music:
+                        state.speech_player.cancel()
+                        state.audio_player.cancel()
+                        del self.voice_states[sid]
+                        await state.voice.disconnect()
+            await asyncio.sleep(100)
 
     async def create_voice_client(self, channel):
         """Create a new voice client on a specified channel."""

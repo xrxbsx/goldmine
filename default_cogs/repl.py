@@ -101,7 +101,7 @@ class REPL(Cog):
             'file_import': import_by_path,
             'get_server': lambda s_name: {s.name: s for s in self.bot.servers}[s_name],
             'server_dict': lambda: {s.name: s for s in self.bot.servers},
-            'get_voice': lambda: {self.bot.cogs['Voice'].voice_states[s].voice.channel.server.name: [str(e) for e in self.bot.cogs['Voice'].voice_states[s].songs._queue] for s in self.bot.cogs['Voice'].voice_states}
+            'get_voice': lambda: {self.bot.cogs['Voice'].voice_states[s].voice.channel.server.name: [str(e) for e in self.bot.cogs['Voice'].voice_states[s].songs._queue + [self.bot.cogs['Voice'].voice_states[s].current] if e] for s in self.bot.cogs['Voice'].voice_states}
         }
         is_shell = False
         valid_flags = ['public', 'asteval', 'py', 'split', 'shell']

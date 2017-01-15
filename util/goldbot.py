@@ -145,6 +145,7 @@ class GoldBot(commands.Bot):
             self.game['name'] = ''
             self.game['type'] = 0
             self.game['url'] = ''
+        self.server_map = {}
         super().__init__(**options)
 
     async def update_presence(self):
@@ -235,6 +236,7 @@ class GoldBot(commands.Bot):
     async def on_server_join(self, server):
         """Send the bot introduction message when invited."""
         self.logger.info('New server: ' + server.name + ', yay!')
+        self.update_server_map()
         if self.selfbot: return
         try:
             await self.send_message(server.default_channel, join_msg)
@@ -254,6 +256,10 @@ class GoldBot(commands.Bot):
     async def on_server_remove(self, server):
         """Update the stats."""
         self.logger.info('Lost a server: ' + server.name + ', aww :\\')
+        self.update_server_map()
+
+    def update_server_map(self):
+        self.server_map = {s.id: s for s in self.servers}
 
     async def suspend(self):
         """Suspend the bot."""
