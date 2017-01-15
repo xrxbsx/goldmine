@@ -331,14 +331,21 @@ class Admin(Cog):
         """List all bot admins defined.
         Usage: adminlist"""
         alist = ''
+        nid = ''
         for i in self.dstore['bot_admins']:
             try:
                 _name = ctx.message.server.get_member(i)
             except AttributeError:
                 _name = None
             if not _name:
-                _name = await self.bot.get_user_info(i)
-            alist += '**' + str(_name) + f'** (ID `{_name.id}`)\n'
+                try:
+                    _name = await self.bot.get_user_info(i)
+                except discord.NotFound:
+                    _name = 'UNKNOWN'
+                    nid = i
+            if not nid:
+                nid = _name.id
+            alist += '**' + str(_name) + f'** (ID `{nid}`)\n'
         await self.bot.say('The following people are bot admins:\n' + alist)
 
     @commands.command(pass_context=True)
