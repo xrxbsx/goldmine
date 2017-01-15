@@ -141,11 +141,11 @@ cool right?''',
             await self.bot.say('**Stopping animation...**')
             self.stop_anim.add(cmid)
             await asyncio.sleep(1.9)
-            self.stop_anim.remove(ctmid)
+            self.stop_anim.remove(cmid)
         else:
             await self.bot.say('**Not playing any animation here!**')
 
-    @commands.command(aliases=['lanim', 'listanims', 'listanim', 'animationlist', 'animl', 'anims', 'animations', 'al', 'packs', 'packed', 'pal', 'pa'])
+    @commands.command(aliases=['lanim', 'listanims', 'listanim', 'animationlist', 'animl', 'anims', 'animations', 'al', 'packs', 'packed', 'pal', 'pa', 'alist'])
     async def animlist(self):
         """List the packed animations I have saved.
         Usage: animlist"""
