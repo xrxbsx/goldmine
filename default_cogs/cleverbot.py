@@ -82,9 +82,9 @@ class Cleverbot(Cog):
 
     async def on_pm(self, msg):
         """PM replying logic."""
-        await self.send_typing(msg.channel)
+        await self.bot.send_typing(msg.channel)
         cb_reply = await self.askcb(msg.content)
-        return await self.msend(msg, ':speech_balloon: ' + cb_reply)
+        return await self.bot.msend(msg, ':speech_balloon: ' + cb_reply)
 
     async def on_prefix_convo(self, msg, lbname):
         """Reply to prefix conversation."""
