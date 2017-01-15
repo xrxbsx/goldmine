@@ -288,7 +288,7 @@ class Admin(Cog):
         if tmp:
             aentry = target
             if aentry not in self.dstore['bot_admins']:
-                self.dstore['bot_admins'].extend([aentry])
+                self.dstore['bot_admins'].append(aentry)
                 await self.bot.say('The user specified has successfully been added to the bot admin list!')
             else:
                 await self.bot.say('The user specified is already a bot admin!')
