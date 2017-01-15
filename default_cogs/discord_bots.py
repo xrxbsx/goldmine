@@ -45,9 +45,9 @@ class DiscordBots(Cog):
 
     async def on_ready(self):
         await self.update()
-    async def on_server_join(self):
+    async def on_server_join(self, server):
         await self.update()
-    async def on_server_remove(self):
+    async def on_server_remove(self, server):
         await self.update()
 
 def setup(bot):
