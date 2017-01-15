@@ -156,8 +156,11 @@ class Cleverbot(object):
             item.split('\r') for item in resp_text.split('\r\r\r\r\r\r')[:-1]
             ]
 
-        if parsed[0][1] == 'DENIED':
-            raise CleverbotAPIError()
+        try:
+            if parsed[0][1] == 'DENIED':
+                raise CleverbotAPIError()
+        except IndexError:
+            print('cleverbot error!', parsed)
 
         parsed_dict = {
             'answer': parsed[0][0],

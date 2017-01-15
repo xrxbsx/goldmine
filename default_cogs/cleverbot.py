@@ -10,7 +10,7 @@ class Cleverbot(Cog):
     """Good ol' Cleverbot."""
 
     def __init__(self, bot):
-        self.cb = RealCleverbot(get_cookies=False)
+        self.cb = RealCleverbot(get_cookies=False) # broken?
         self.cleverbutt_timers = set()
         self.cleverbutt_latest = {}
         self.cleverbutt_replied_to = set()
