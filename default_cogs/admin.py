@@ -310,8 +310,8 @@ class Admin(Cog):
             _target = None
         if _target:
             target = _target.id
-        elif len(rtarget) == 18:
-            target = rtarget[0]
+        elif len(rtarget) in [15, 16, 17, 18, 19, 20]:
+            target = rrtarget[0]
         else:
             await self.bot.say('**Invalid name! Name, nickname, name#discriminator, or ID work.**')
             return
