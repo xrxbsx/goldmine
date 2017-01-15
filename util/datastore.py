@@ -114,7 +114,7 @@ class DataStore():
                 raise CommandInvokeError(AttributeError('Invalid scope specified. Valid scopes are by_user, by_channel, by_server, and global.'))
             self.store['properties'][scope] = t_scope
 
-    async def get_prop(self, msg, prop: str):
+    async def get_prop(self, msg, prop: str, hint=[]):
         """Get the final property referenced in msg's scope."""
         try: # User
             thing = await self.get_props_u(msg)
