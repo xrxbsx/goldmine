@@ -18,6 +18,8 @@ class Moderation(Cog):
                     self.logger.warning('Couldn\'t delete iOS crash message in ' + msg.server.name + ', sent by ' + str(msg.author))
                     return
                 await self.bot.send_message(msg.channel, msg.author.mention + ' **:japanese_goblin: Stop crashing iOS users!**')
+        if msg.content.lower() == 'kys':
+            await self.bot.msend(msg, 'Ay ' + msg.author.mention + ', follow your own advice first, :ok_hand::question:')
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
