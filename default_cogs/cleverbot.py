@@ -43,7 +43,7 @@ class Cleverbot(Cog):
 
     async def clever_reply(self, msg):
         self.cleverbutt_timers.add(msg.server.id)
-        await asyncio.sleep((random.random()) * 2)
+        await asyncio.sleep(random.random() * 1.8)
         await self.bot.send_typing(msg.channel)
         try:
             query = self.cleverbutt_latest[msg.server.id]
@@ -51,11 +51,11 @@ class Cleverbot(Cog):
             query = msg.content
         reply_bot = await self.askcb(query)
         s_duration = (((len(reply_bot) / 15) * 1.4) + random.random()) - 0.2
-        await asyncio.sleep(s_duration / 2)
+        await asyncio.sleep(s_duration / 3)
         await self.bot.send_typing(msg.channel)
-        await asyncio.sleep((s_duration / 2) - 0.4)
+        await asyncio.sleep((s_duration / 3) - 0.4)
         await self.bot.msend(msg, reply_bot)
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         try:
             del self.cleverbutt_latest[msg.server.id]
         except Exception:
@@ -80,7 +80,7 @@ class Cleverbot(Cog):
         if str(msg.channel) == 'cleverbutts':
             if self.bot.status == 'invisible': return
             if msg.content.lower() == 'kickstart':
-                await self.msend(msg, 'Hi, how are you doing?')
+                await self.bot.msend(msg, 'Hi, how are you doing?')
                 return
 
     async def on_pm(self, msg):
