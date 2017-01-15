@@ -1,7 +1,7 @@
 """Definition of the bot's Voice module.'"""
 from urllib.parse import urlencode
 from gtts_token import gtts_token
-from util.perms import echeck_perms, or_check_perms
+from util.perms import or_check_perms
 from util.func import assert_msg, check
 from util.const import sem_cells
 import util.dynaimport as di
@@ -432,9 +432,10 @@ class Voice(Cog):
             await self.bot.say('Now playing {} [skips: {}/3]'.format(state.current, skip_count))
 
     @commands.command(pass_context=True, no_pm=True)
-    async def speak(self, ctx, *, tospeak: str):
+    async def picospeak(self, ctx, *, tospeak: str):
         """Uses the SVOX pico TTS engine to speak a message.
-        Usage: speak [message]"""
+        Usage: picospeak [message]"""
+        await or_check_perms(ctx, ['bot_owner'])
         state = self.get_voice_state(ctx.message.server)
 
         if state.voice is None:
@@ -457,10 +458,10 @@ class Voice(Cog):
         await self.bot.say('Queued ' + str(entry))
         state.voice.encoder_options(sample_rate=48000, channels=2)
 
-    @commands.command(pass_context=True, no_pm=True)
-    async def gspeak(self, ctx, *, text: str):
+    @commands.command(pass_context=True, no_pm=True, aliases=['gspeak'])
+    async def speak(self, ctx, *, text: str):
         """Uses a TTS voice to speak a message.
-        Usage: gspeak [message]"""
+        Usage: speak [message]"""
         state = self.get_voice_state(ctx.message.server)
         opts = {
             'quiet': True,
@@ -607,7 +608,7 @@ class Voice(Cog):
             return False
         for e in state.songs._queue:
             emb.add_field(name=e.get_name(), value=e.get_desc())
-        await self.bot.say('🎶🎵🎶🎵', embed=emb)
+        await self.bot.say('🎶🎵', embed=emb)
 
 def setup(bot):
     c = Voice(bot)
