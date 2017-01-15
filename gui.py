@@ -17,10 +17,7 @@ import discord
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-try:
-    import threading as threading
-except ImportError:
-    import dummy_threading as threading
+import multiprocessing as mp
 import __main__
 __main__.core_file = __file__
 import util.token as token
@@ -339,12 +336,15 @@ class DiscordMain(QWidget):
 class FakeDiscordCallable:
     def __init__(self, name, interface, attr):
         self.name = name
-        self.interface = interface
+        self.iface = interface
         self.attr = attr
     def __call__(self, *args, **kwargs):
-        kwargs['call_is_coro'] = inspect.isawaitable(self.attr)
-        call = DiscordCall(self.name, *args, **kwargs)
-        self.interface.loop.create_task(self.interface.queue.put(call))
+        print('called fake')
+        res = self.attr(*args, **kwargs)
+        print('calling regular' + str(args))
+        print(self.attr)
+        if inspect.isawaitable(res):
+            self.iface.loop.create_task(res)
 class DiscordCall:
     def __init__(self, func, *args, **kwargs):
         self.coro = kwargs.get('call_is_coro', True)
@@ -355,13 +355,14 @@ class DiscordCall:
 class DiscordInterface:
     """The interface to discord.py."""
     def __init__(self):
-        self.loop = None
-        self.bot = None
+        self.loop = asyncio.get_event_loop()
+        self.bot = discord.Client()
         self.bot_task = None
         self.discord = None
         self.queue = None
         self.event = None
-        self.thread = threading.Thread(target=self.thread_start)
+        self.gen_chan = {}
+        self.thread = mp.Process(target=self.thread_start)
         self.thread.start()
 
     def thread_start(self):
@@ -376,43 +377,29 @@ class DiscordInterface:
         self.loop.run_until_complete(self.async_loop())
         self.loop.close()
 
-    def event_finish(self):
-        self.loop.call_soon_threadsafe(self.event.set)
-
     def finish(self):
         self.loop.call_soon(self.bot.logout)
 
-    @asyncio.coroutine
-    def async_loop(self):
+    async def async_loop(self):
         self.queue = asyncio.Queue()
         self.event = asyncio.Event()
         self.bot = discord.Client()
         @self.bot.event
-        @asyncio.coroutine
-        def on_ready():
+        async def on_ready():
             print('Discord component ready!')
-            self.gen_chan = {c.name: c for c in {s.name: s for s in self.bot.servers}['Codes \'n Skillz Hideout'].channels}['general']
-            yield from self.bot.send_message(self.gen_chan, 'hi testing from gui discord')
-        self.bot_task = self.loop.create_task(self.bot.start(*token.bot_token))
-        while True:
-            self.event.clear()
-            current = yield from self.queue.get()
-            if current.coro:
-                yield from getattr(self.bot, current.call)(*current.args)
-            else:
-                getattr(self.bot, current.call)(*current.args)
-            self.event.set()
-            yield from self.event.wait()
+            self.gen_chan = {c.name: c for c in {s.name: s for s in self.bot.servers}['Codes \'n Skillz Hideout'].channels}['bot-testing']
+            await self.bot.send_message(self.gen_chan, '**Discordian** GUI started.')
+        await self.bot.start(*token.bot_token)
         self.loop.stop()
 
     def __getattr__(self, name):
-        if hasattr(self, name):
+        if name in dir(self):
             return getattr(self, name)
         else:
             if hasattr(self.bot, name):
                 bot_attr = getattr(self.bot, name)
                 if hasattr(bot_attr, '__call__'):
-                    return FakeDiscordCallable(name, self, attr)
+                    return FakeDiscordCallable(name, self, bot_attr)
                 else:
                     return bot_attr
 
@@ -432,7 +419,7 @@ def main():
     app.setStyleSheet(stylesheets[0])
     window = DiscordWindow()
     timer = QTimer()
-    timer.start(550) # let interpreter run every 550ms
+    timer.start(60) # let interpreter run every 550ms
     timer.timeout.connect(lambda: None)
     window.show()
     window.raise_()
