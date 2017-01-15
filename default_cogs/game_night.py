@@ -51,7 +51,8 @@ class GameNight(Cog):
             'recruiting': True,
             'role': None,
             'round': 1,
-            'round_active': False
+            'round_active': False,
+            'r_mention': ''
         }
         self.games[ctx.message.channel.id] = game
         await self.bot.say(f''':clap: Now hosting a **meme war** for `{topic}`! :clap:
@@ -71,6 +72,7 @@ Everyone, you have 1 minute to join! Just use `{ctx.prefix}gamenight join`.''')
             r_mention = '<@&' + role.id + '> '
         except discord.Forbidden:
             await self.bot.say('⚠ **I work best with the Manage Roles permission.**')
+        game['r_mention'] = r_mention
         await self.bot.say('''Starting the **meme war** in 30 seconds!
 {}Get your butts in here, and grab your dankest memes!'''.format(r_mention))
         await asyncio.sleep(28.6)
@@ -90,6 +92,7 @@ Leaders: when you're ready, select a winner (and end the round) with `{ctx.prefi
             except discord.Forbidden:
                 await self.bot.say('⚠ **I work best with the Manage Messages permission.**')
             game = self.games[ctx.message.channel.id]
+            r_mention = game['r_mention']
             game['topic'] = topic
             await self.bot.say('''Starting **round {}** in 30 seconds!
 {}Get your butts in here, and grab your dankest memes!'''.format(str(game['round']), r_mention))
