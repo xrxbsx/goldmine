@@ -124,7 +124,7 @@ class Admin(Cog):
 #        subprocess.check_output(['git', 'reset', 'HEAD', '--hard'])
         dest = ctx.message.channel if self.bot.selfbot else ctx.message.author
         try:
-            gitout = await self.loop.run_in_executor(None, functools.partial(subprocess.check_output, ['git', 'pull', '-v'], stderr=subprocess.STDOUT))
+            gitout = await self.loop.run_in_executor(None, functools.partial(subprocess.check_output, ['git', 'pull'], stderr=subprocess.STDOUT))
             gitout = gitout.decode('utf-8')
         except subprocess.CalledProcessError as exp:
             await self.bot.edit_message(msg, 'An error occured while attempting to update!')

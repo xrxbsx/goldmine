@@ -5,8 +5,8 @@ from .cog import Cog
 class CustomCommands(Cog):
     """Nice and easy... custom commands!"""
 
-    @commands.command(aliases=['any', 'anyet', 'anoty'])
-    async def anotyet(self):
+    @commands.command(aliases=['ny', 'nyet', 'noty'])
+    async def notyet(self):
         """Not yet, coming Soon™!"""
         await self.bot.say('⚠ Not finished yet!')
 

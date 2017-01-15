@@ -18,13 +18,18 @@ class GameNight(Cog):
         if ctx.invoked_subcommand is None:
             await self.bot.send_cmd_help(ctx)
 
-    @gamenight.command(pass_context=True)
-    async def end(self, ctx):
-        """Start a meme war on a topic.
-        Usage: gamenight memewar [topic]"""
+    @gamenight.command(pass_context=True, aliases=['end', 'finish'])
+    async def stop(self, ctx):
+        """Stop the current game night session.
+        Usage: gamenight stop"""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages', 'manage_roles'])
         if ctx.message.channel.id in self.games:
             game = self.games[ctx.message.channel.id]
+            if game['role']:
+                try:
+                    await self.bot.delete_role(ctx.message.server, game['role'])
+                except discord.Forbidden:
+                    pass
             del self.games[ctx.message.channel.id]
             await self.bot.say('**Ended the current game night session at round ' + str(game['round']) + '.**')
             del game
@@ -45,13 +50,14 @@ class GameNight(Cog):
             },
             'recruiting': True,
             'role': None,
-            'round': 1
+            'round': 1,
+            'round_active': False
         }
         self.games[ctx.message.channel.id] = game
         await self.bot.say(f''':clap: Now hosting a **meme war** for `{topic}`! :clap:
 We need at least 4 participants. ({ctx.message.author.mention} is already in.)
 Everyone, you have 1 minute to join! Just use `{ctx.prefix}gamenight join`.''')
-        #await asyncio.sleep(60)
+        await asyncio.sleep(60)
         game['recruiting'] = False
         r_mention = ''
         if len(game['players']) >= 4:
@@ -67,11 +73,34 @@ Everyone, you have 1 minute to join! Just use `{ctx.prefix}gamenight join`.''')
             await self.bot.say('⚠ **I work best with the Manage Roles permission.**')
         await self.bot.say('''Starting the **meme war** in 30 seconds!
 {}Get your butts in here, and grab your dankest memes!'''.format(r_mention))
-        #await asyncio.sleep(28.6)
+        await asyncio.sleep(28.6)
         game['active'] = True
+        game['round_active'] = True
         await self.bot.say(f'''{r_mention}The **meme war** is now starting for the topic `{topic}`!
 Get your memes in already! :clap::clap:
 Leaders: when you're ready, select a winner (and end the round) with `{ctx.prefix}gamenight winner`!''')
+
+    @gamenight.command(pass_conext=True)
+    async def topic(self, ctx, *, topic: str):
+        """Start the current round with a topic."""
+        await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages', 'manage_roles'])
+        if ctx.message.channel.id in self.games:
+            try:
+                await self.bot.delete_message(ctx.message)
+            except discord.Forbidden:
+                await self.bot.say('⚠ **I work best with the Manage Messages permission.**')
+            game = self.games[ctx.message.channel.id]
+            game['topic'] = topic
+            await self.bot.say('''Starting **round {}** in 30 seconds!
+{}Get your butts in here, and grab your dankest memes!'''.format(str(game['round']), r_mention))
+            await asyncio.sleep(28.6)
+            game['active'] = True
+            game['round_active'] = True
+            await self.bot.say(f'''{r_mention}The **meme war** is now starting for the topic `{topic}`!
+Get your memes in already! :clap::clap:
+Leaders: when you're ready, select a winner (and end the round) with `{ctx.prefix}gamenight winner`!''')
+        else:
+            await self.bot.reply('there isn\'t a game night session in this channel!')
 
     @gamenight.command(pass_context=True)
     async def winner(self, ctx, *, winner: discord.Member):
@@ -97,6 +126,9 @@ Leaders: when you're ready, select a winner (and end the round) with `{ctx.prefi
                 await self.bot.edit_message(msg, key + '...:drum: ' + str(winner) + '!**')
                 game['players'][winner] += 1
                 game['round'] += 1
+                game['round_active'] = False
+                await asyncio.sleep(0.6)
+                await self.bot.say(f'Leaders: to set the topic for the next round, do `{ctx.prefix}gamenight topic [topic]`!')
             else:
                 await self.bot.reply('that person isn\'t in this game night session!')
         else:
