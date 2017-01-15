@@ -407,7 +407,7 @@ class Voice(Cog):
             await self.bot.say('Couldn\'t stop.')
             pass
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=['next'])
     async def skip(self, ctx):
         """Vote to skip a song. The song requester can automatically skip.
         3 skip votes are needed for the song to be skipped.

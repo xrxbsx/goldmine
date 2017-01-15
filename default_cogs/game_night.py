@@ -56,6 +56,7 @@ class GameNight(Cog):
         }
         if ctx.message.channel.id in self.games:
             await self.bot.reply('there\'s already a game night session here!')
+            return
         self.games[ctx.message.channel.id] = game
         await self.bot.say(f''':clap: Now hosting a **meme war** for `{topic}`! :clap:
 We need at least 4 participants. ({ctx.message.author.mention} is already in.)
@@ -133,7 +134,7 @@ Leaders: when you're ready, select a winner (and end the round) with `{ctx.prefi
                 game['players'][winner] += 1
                 game['round'] += 1
                 game['round_active'] = False
-                await asyncio.sleep(0.6)
+                await asyncio.sleep(1.5)
                 await self.bot.say(f'Leaders: to set the topic for the next round, do `{ctx.prefix}gamenight topic [topic]`!')
             else:
                 await self.bot.reply('that person isn\'t in this game night session!')
