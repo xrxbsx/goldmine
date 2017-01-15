@@ -279,7 +279,7 @@ class Admin(Cog):
         if _target:
             target = _target.id
         elif len(rtarget) == 18:
-            target = rtarget[0]
+            target = rrtarget[0]
         elif ctx.message.mentions:
             target = ctx.message.mentions[0].id
         else:
@@ -331,8 +331,8 @@ class Admin(Cog):
         """List all bot admins defined.
         Usage: adminlist"""
         alist = ''
-        nid = ''
         for i in self.dstore['bot_admins']:
+            nid = ''
             try:
                 _name = ctx.message.server.get_member(i)
             except AttributeError:
