@@ -158,7 +158,7 @@ Leaders: when you're ready, select a winner (and end the round) with `{ctx.prefi
     @gamenight.command(pass_context=True)
     async def start(self, ctx):
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages', 'manage_roles'])
-        await self.bot.say(':clap:')
+        await self.bot.say(f':clap: Use `{ctx.prefix}gamenight memewar [topic]` for now.')
 
 def setup(bot):
     c = GameNight(bot)
