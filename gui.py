@@ -17,7 +17,10 @@ import discord
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-import multiprocessing as mp
+try:
+    import threading
+except ImportError:
+    import dummy_threading as threading
 import __main__
 __main__.core_file = __file__
 import util.token as token
@@ -355,14 +358,13 @@ class DiscordCall:
 class DiscordInterface:
     """The interface to discord.py."""
     def __init__(self):
-        self.loop = asyncio.get_event_loop()
-        self.bot = discord.Client()
+        self.loop = None
+        self.bot = None
         self.bot_task = None
         self.discord = None
         self.queue = None
         self.event = None
-        self.gen_chan = {}
-        self.thread = mp.Process(target=self.thread_start)
+        self.thread = threading.Thread(target=self.thread_start)
         self.thread.start()
 
     def thread_start(self):
