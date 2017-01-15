@@ -24,7 +24,10 @@ class Cleverbot(Cog):
 
     async def askcb(self, query):
         """A method of querying Cleverbot safe for async."""
-        return await self.cb.ask(query)
+        try:
+            return await self.cb.ask(query)
+        except IndexError:
+            return 'Couldn\'t get a response from Cleverbot.'
 
     async def auto_cb_convo(self, msg, kickstart, replace=False):
         """Cleverbot auto conversation manager."""
