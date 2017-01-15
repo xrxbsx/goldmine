@@ -54,6 +54,8 @@ class GameNight(Cog):
             'round_active': False,
             'r_mention': ''
         }
+        if ctx.message.channel.id in self.games:
+            await self.bot.reply('there\'s already a game night session here!')
         self.games[ctx.message.channel.id] = game
         await self.bot.say(f''':clap: Now hosting a **meme war** for `{topic}`! :clap:
 We need at least 4 participants. ({ctx.message.author.mention} is already in.)
@@ -70,6 +72,7 @@ Everyone, you have 1 minute to join! Just use `{ctx.prefix}gamenight join`.''')
             for player in game['players']:
                 await self.bot.add_roles(player, role)
             r_mention = '<@&' + role.id + '> '
+            game['role'] = role
         except discord.Forbidden:
             await self.bot.say('⚠ **I work best with the Manage Roles permission.**')
         game['r_mention'] = r_mention
@@ -82,7 +85,7 @@ Everyone, you have 1 minute to join! Just use `{ctx.prefix}gamenight join`.''')
 Get your memes in already! :clap::clap:
 Leaders: when you're ready, select a winner (and end the round) with `{ctx.prefix}gamenight winner`!''')
 
-    @gamenight.command(pass_conext=True)
+    @gamenight.command(pass_context=True)
     async def topic(self, ctx, *, topic: str):
         """Start the current round with a topic."""
         await or_check_perms(ctx, ['manage_server', 'manage_channels', 'manage_messages', 'manage_roles'])
