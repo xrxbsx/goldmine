@@ -610,7 +610,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
             with async_timeout.timeout(5):
                 data = await self.loop.run_in_executor(None, mclib.get_info, server, port)
         except Exception as e:
-            await self.bot.say(f':warning: Couldn\'t get server info for `{server}:{port}`.')
+            await self.bot.send_message(ctx.message.channel, f':warning: Couldn\'t get server info for `{server}:{port}`.')
             return
         desc = ''
         server_type = 'Vanilla'

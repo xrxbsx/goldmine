@@ -20,7 +20,7 @@ class Pokemon(Cog):
         bot = self.bot
         d_lines = []
         if pokemon_name:
-            p_name = pokemon_name.lower()
+            p_name = pokemon_name[0].lower()
             try:
                 if re.match(r'[0-9]+', p_name):
                     target = await pokeget(pokemon_id=int(p_name))
