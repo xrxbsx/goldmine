@@ -38,12 +38,12 @@ class AutoCucumber(Cog):
                 text = await r.text()
         with open(os.path.join(self.bot.dir, 'data', 'autocorrect.txt'), 'a') as f:
             f.write(text)
-        self.corrector = await self.loop.run_in_executor(None, lambda: Corrector())
+        self.corrector = await self.loop.run_in_executor(None, Corrector)
 
     async def create_corrector(self):
         """Create the auto correction engine."""
         try:
-            self.corrector = await self.loop.run_in_executor(None, lambda: Corrector())
+            self.corrector = await self.loop.run_in_executor(None, Corrector)
         except FileNotFoundError:
             await self.init_corrector()
 
@@ -68,8 +68,7 @@ class AutoCucumber(Cog):
                     result += self.corrections[word] + ' '
                 else:
                     result += self.corrector.correct(word) + ' '
-            #final = result[0].upper() + result[1:]
-            final = result
+            final = result[0].upper() + result[1:]
             raw_final = final.replace('\u200b', '').replace('\n', '')
             raw_msg_content = msg.content.replace('\u200b', '').replace('\n', '')
             if raw_final != raw_msg_content:

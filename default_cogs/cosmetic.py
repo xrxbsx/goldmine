@@ -51,7 +51,7 @@ class Cosmetic(Cog):
             'title': 'This is the title',
             'description': '''This is the description
 Testing multi line
-cool right?''',
+:thinking:''',
             'color': int('0x%06X' % random.randint(0, 256**3-1), 16)
         }
         r_embed = discord.Embed(**embed_data)
