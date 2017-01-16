@@ -466,7 +466,7 @@ class Voice(Cog):
 
         stream = io.BytesIO(subprocess.check_output(['pico2wave', '-w', '/tmp/pipe.wav', tospeak]))
         state.voice.encoder_options(sample_rate=16000, channels=1)
-        player = state.voice.create_stream_player(stream)
+        player = state.voice.create_stream_player(stream, after=state.toggle_next)
         player.volume = 1.0
         entry = VoiceEntry(ctx.message, player, False, override_name='Speech')
         await state.songs.put(entry)
