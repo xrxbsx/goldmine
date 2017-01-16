@@ -564,6 +564,21 @@ class Admin(Cog):
         for i in range(times):
             await self.bot.process_commands(msg)
 
+    @commands.command(pass_context=True)
+    async def console_msg(self, ctx):
+        await echeck_perms(ctx, ['bot_owner'])
+        def console_task(ch):
+            while True:
+                text_in = input('Message> ')
+                if text_in == 'quit':
+                    return
+                else:
+                    self.loop.create_task(self.bot.send_message(ch, text_in))
+        await self.bot.say('Now entering: Console message mode')
+        print('Type \'quit\' to exit.')
+        await self.loop.run_in_executor(None, console_task, ctx.message.channel)
+        await self.bot.say('Exited console message mode')
+
 def setup(bot):
     c = Admin(bot)
     bot.add_cog(c)
