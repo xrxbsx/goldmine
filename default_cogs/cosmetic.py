@@ -24,6 +24,7 @@ class Cosmetic(Cog):
 
     async def on_not_command(self, msg):
         """Table flipping!"""
+        return # disabled for now
         if self.bot.selfbot: return
         if msg.author.id != self.bot.user.id:
             if msg.content == '(╯°□°）╯︵ ┻━┻':
