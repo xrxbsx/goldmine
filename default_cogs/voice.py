@@ -374,7 +374,7 @@ class Voice(Cog):
             player.pause()
             await self.bot.say('Paused.')
 
-    @commands.command(pass_context=True, no_pm=True)
+    @commands.command(pass_context=True, no_pm=True, aliases=['unpause'])
     async def resume(self, ctx):
         """Resumes the current song OR resume suspended bot features.
         Usage: resume"""

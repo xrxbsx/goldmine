@@ -4,7 +4,7 @@ import struct
 import json
 
 def pop_int(conn):
-    """Decode integers"""
+    """Decode bytes from protocol."""
     acc = 0
     shift = 0
     byte = ord(conn.recv(1))
@@ -12,7 +12,7 @@ def pop_int(conn):
         acc = acc | ((byte & 0x7f) << shift)
         shift = shift + 7
         byte = ord(conn.recv(1))
-    return (acc) | (byte << shift)
+    return acc | (byte << shift)
 
 def pack_varint(data):
     """Pack a VARINT for the protocol."""

@@ -599,7 +599,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
         Usage: minecraft [server address]"""
         port = 25565
         port_split = server_ip.split(':')
-        server = port_split[0]
+        server = port_split[0].replace('/', '')
         if len(port_split) > 1:
             try:
                 port = int(port_split[1])
@@ -625,11 +625,16 @@ Server Owner\'s ID: `{0.server.owner.id}`
             for e in data['description']['extra']:
                 item = e['text']
                 for fkey in format_keys:
-                    if fkey in e:
-                        if e[fkey]:
-                            item = format_keys[fkey] + item + format_keys[fkey]
+                    if e.get(fkey, False): 
+                        int_key = '%{f:' + fkey + '}$'
+                        item = int_key + item + int_key
                 final.append(item)
-            return ''.join(final)
+            final = ''.join(final)
+            for fkey in format_keys:
+                int_key = '%{f:' + fkey + '}$'
+                final = final.replace(int_key * 3, '').replace(int_key * 2, '')
+                final = final.replace(int_key, format_keys[fkey])
+            return final
         if isinstance(data['description'], dict):
             if 'text' in data['description']:
                 if data['description']['text']:
