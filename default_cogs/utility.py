@@ -668,6 +668,8 @@ Server Owner\'s ID: `{0.server.owner.id}`
                 if data['modinfo']['modList']:
                     emb.add_field(name='Mods', value=smartjoin([m['modid'].title() + ' ' +
                                   m['version'] for m in data['modinfo']['modList']]))
+                else:
+                    emb.add_field(name='Use of Mods', value='This server appears to fake its identity, so Forge clients will send their mod list. Beware!')
             if 'type' in data['modinfo']:
                 if data['modinfo']['type']:
                     t = data['modinfo']['type']
