@@ -7,7 +7,7 @@ from io import BytesIO
 from properties import bot_owner
 from util.const import _mention_pattern, _mentions_transforms, home_broadcast, absfmt, status_map, ch_fmt, code_stats, eval_blocked, v_level_map
 from util.fake import FakeContextMember, FakeMessageMember
-from util.func import bdel, async_encode as b_encode, async_decode as b_decode
+from util.func import bdel, async_encode as b_encode, async_decode as b_decode, smartjoin
 from util.asizeof import asizeof
 from util.perms import check_perms, or_check_perms
 import util.dynaimport as di
@@ -18,6 +18,7 @@ for mod in ['asyncio', 'random', 're', 'sys', 'time', 'textwrap', 'unicodedata',
     globals()[mod] = di.load(mod)
 json = di.load('util.json')
 commands = di.load('util.commands')
+mclib = di.load('util.mclib')
 
 have_pil = True
 print(' - Loading PIL...')
@@ -591,6 +592,86 @@ Server Owner\'s ID: `{0.server.owner.id}`
         """Fake encoding for Goldmine's encoding. Not secure at all.
         Usage: fakecode [text]"""
         await self.bot.say('```' + ('d1;g4.4689257;l0&' + ('@'.join([str(ord(c)) for c in content])) + '~51@77@97@105@110@83@104@105@102@116@67@111@114@114@101@99@116') + '```')
+
+    @commands.command(pass_context=True, aliases=['mc'])
+    async def minecraft(self, ctx, *, server_ip: str):
+        """Get information about a Minecraft server.
+        Usage: minecraft [server address]"""
+        port = 25565
+        port_split = server_ip.split(':')
+        server = port_split[0]
+        if len(port_split) > 1:
+            try:
+                port = int(port_split[1])
+            except ValueError:
+                pass
+        try:
+            self.logger.info('Connecting to Minecraft server ' + server + ':' + str(port) + '...')
+            with async_timeout.timeout(5):
+                data = await self.loop.run_in_executor(None, mclib.get_info, server, port)
+        except Exception as e:
+            await self.bot.say(f':warning: Couldn\'t get server info for `{server}:{port}`.')
+            return
+        desc = ''
+        server_type = 'Vanilla'
+        def decode_extra_desc():
+            final = []
+            format_keys = {
+                'bold': '**',
+                'italic': '*',
+                'underlined': '__',
+                'strikethrough': '~~'
+            }
+            for e in data['description']['extra']:
+                item = e['text']
+                for fkey in format_keys:
+                    if fkey in e:
+                        if e[fkey]:
+                            item = format_keys[fkey] + item + format_keys[fkey]
+                final.append(item)
+            return ''.join(final)
+        if isinstance(data['description'], dict):
+            if 'text' in data['description']:
+                if data['description']['text']:
+                    desc = data['description']['text']
+                else:
+                    desc = decode_extra_desc()
+            else:
+                desc = decode_extra_desc()
+        elif isinstance(data['description'], str):
+            desc = data['description']
+        else:
+            desc = str(data['description'])
+        desc = re.sub(r'\u00a7[4c6e2ab319d5f78lnokmr]', '', desc)
+        rc = int('0x%06X' % random.randint(0, 256**3-1), 16)
+        emb = discord.Embed(title=server + ':' + str(port), description=desc, color=rc)
+        try:
+            target = ctx.message.server.me
+        except AttributeError:
+            target = self.bot.user
+        au = target.avatar_url
+        avatar_link = (au if au else target.default_avatar_url)
+        emb.set_footer(text=target.name, icon_url=avatar_link)
+        emb.add_field(name='Players', value=str(data['players']['online']) + '/' + str(data['players']['max']))
+        if 'sample' in data['players']:
+            if data['players']['sample']:
+                emb.add_field(name='Players Online', value=smartjoin([p['name'] for p in data['players']['sample']]))
+        emb.add_field(name='Version', value=re.sub(r'\u00a7[4c6e2ab319d5f78lnokmr]', '', data['version']['name']))
+        emb.add_field(name='Protocol Version', value=data['version']['protocol'])
+        if 'modinfo' in data:
+            if 'modList' in data['modinfo']:
+                if data['modinfo']['modList']:
+                    emb.add_field(name='Mods', value=smartjoin([m['modid'].title() + ' ' +
+                                  m['version'] for m in data['modinfo']['modList']]))
+            if 'type' in data['modinfo']:
+                if data['modinfo']['type']:
+                    t = data['modinfo']['type']
+                    if t.lower() == 'fml':
+                        server_type = 'Forge / FML'
+                    else:
+                        server_type = t.title()
+        emb.add_field(name='Server Type', value=server_type)
+        await self.bot.say(embed=emb)
 
 def setup(bot):
     c = Utility(bot)

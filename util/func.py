@@ -189,3 +189,8 @@ def numberToBase(n, b):
         digits.append(int(n % b))
         n /= b
     return digits[::-1]
+
+def smartjoin(l):
+    if len(l) > 1:
+        l[-1] = 'and ' + l[-1]
+    return ', '.join(l)

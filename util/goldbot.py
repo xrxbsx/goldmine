@@ -341,18 +341,33 @@ class GoldBot(commands.Bot):
             return message
         except discord.HTTPException as e:
             if embed: # let's try non embed
-                e_text = '```md\n'
-                if 'author' in embed:
-                    e_text += embed['author']['name'] + '\n\n'
-                for kv in embed['fields']:
-                    e_text += kv['name'] + '\n-----------------------------------\n' + kv['value'] + '\n\n'
-                if 'footer' in embed:
-                    e_text += embed['footer']['text'] + '\n\n'
-                e_text += '⚠ I need the Embed Links permission to send embeds! ⚠```'
-                data = await self.http.send_message(channel_id, (content if content else '') + '\n' + e_text, guild_id=guild_id, tts=tts, embed=None)
-                channel = self.get_channel(data.get('channel_id'))
-                message = self.connection._create_message(channel=channel, **data)
-                return message
+                def final_perms():
+                    if isinstance(destination, discord.User):
+                        return ('embed_links',)
+                    elif isinstance(destination, discord.Server):
+                        return [k[0] for k in list(destination.me.permissions_in(destination.default_channel)) if k[1]]
+                    elif isinstance(destination, discord.Channel):
+                        if destination.is_private:
+                            return ('embed_links',)
+                        else:
+                            return [k[0] for k in list(destination.server.me.permissions_in(destination)) if k[1]]
+                    else:
+                        raise e
+                if 'embed_links' not in final_perms():
+                    e_text = '```md\n'
+                    if 'author' in embed:
+                        e_text += embed['author']['name'] + '\n\n'
+                    for kv in embed['fields']:
+                        e_text += kv['name'] + '\n-----------------------------------\n' + kv['value'] + '\n\n'
+                    if 'footer' in embed:
+                        e_text += embed['footer']['text'] + '\n\n'
+                    e_text += '⚠ I need the Embed Links permission to send embeds! ⚠```'
+                    data = await self.http.send_message(channel_id, (content if content else '') + '\n' + e_text, guild_id=guild_id, tts=tts, embed=None)
+                    channel = self.get_channel(data.get('channel_id'))
+                    message = self.connection._create_message(channel=channel, **data)
+                    return message
+                else:
+                    raise e # didn't mean to catch that
             elif self.selfbot and (destination.id == self.user.id):
                 print('Sending to ourselves. what??')
                 destination = _get_variable('_internal_channel')
