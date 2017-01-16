@@ -101,7 +101,9 @@ class REPL(Cog):
             'file_import': import_by_path,
             'get_server': lambda s_name: {s.name: s for s in self.bot.servers}[s_name],
             'server_dict': lambda: {s.name: s for s in self.bot.servers},
-            'get_voice': lambda: {self.bot.cogs['Voice'].voice_states[s].voice.channel.server.name: [str(e) for e in list(self.bot.cogs['Voice'].voice_states[s].songs._queue) + [self.bot.cogs['Voice'].voice_states[s].current] if e] for s in self.bot.cogs['Voice'].voice_states if self.bot.cogs['Voice'].voice_states[s].voice}
+            'get_voice': lambda: {self.bot.cogs['Voice'].voice_states[s].voice.channel.server.name: [str(e) for e in list(self.bot.cogs['Voice'].voice_states[s].songs._queue) + [self.bot.cogs['Voice'].voice_states[s].current] if e] for s in self.bot.cogs['Voice'].voice_states if self.bot.cogs['Voice'].voice_states[s].voice},
+            'rgb_to_hex': lambda r, g, b: '#%02X%02X%02X'.format(r, g, b),
+            'hex_to_rgb': lambda shex: [int(h.upper(), 16) for h in [shex.replace('#', '').replace('0x', '')[i:i + 2] for i in range(0, len(shex.replace('#', '').replace('0x', '')), 2)]]
         }
         is_shell = False
         valid_flags = ['public', 'asteval', 'py', 'split', 'shell']
