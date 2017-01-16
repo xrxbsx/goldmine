@@ -50,13 +50,9 @@ class Errors(Cog):
         except AttributeError:
             cmid = ctx.message.author.id
             eprefix = 'dm'
-        try:
-            server = ctx.message.server
-        except AttributeError:
+        server = ctx.message.server
+        if not server:
             server = ctx.message.author
-            if not server:
-                if self.selfbot:
-                    server = myself
         if isinstance(exp, commands.CommandNotFound):
             self.logger.error(str(ctx.message.author) + ' in ' + server.name + ': command \'' + cprocessed + '\' not found')
         elif isinstance(exp, commands.CommandInvokeError):
