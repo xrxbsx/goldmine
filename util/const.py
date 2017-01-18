@@ -513,7 +513,7 @@ essential_cogs = [
     'errors'
 ]
 
-join_msg = '''Thanks for inviting me! :heart:
+join_msg = '''**Thanks for inviting me!** :heart:
 My default prefix is `!`, so type `!help` to learn more about me.
 People with Manage permissions can change it with `!prefix [new prefix]`.
 If you ever forget my prefix, just type `prefix`.
