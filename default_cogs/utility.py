@@ -696,7 +696,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
         """Contact the bot owner with a message.
         Usage: contact [message]"""
         with open(os.path.join('data', 'contact.txt'), 'a') as f:
-            f.write(message)
+            f.write(message + '\n')
         await self.bot.say(':thumbsup: Message recorded.')
 
 def setup(bot):
