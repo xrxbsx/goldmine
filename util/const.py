@@ -513,9 +513,9 @@ essential_cogs = [
     'errors'
 ]
 
-join_msg = '''Thanks for inviting me :heart:
+join_msg = '''Thanks for inviting me! :heart:
 My default prefix is `!`, so type `!help` to learn more about me.
-People with some more permissions can change it with `!prefix [new prefix]`.
+People with Manage permissions can change it with `!prefix [new prefix]`.
 If you ever forget my prefix, just type `prefix`.
 **Enjoy, and remember that I can play music!** :stuck_out_tongue:'''
 muted_perms = [
