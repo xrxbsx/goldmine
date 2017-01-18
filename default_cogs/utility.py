@@ -14,7 +14,7 @@ import util.dynaimport as di
 from .cog import Cog
 
 for mod in ['asyncio', 'random', 're', 'sys', 'time', 'textwrap', 'unicodedata',
-            'aiohttp', 'async_timeout', 'discord', 'asteval']:
+            'aiohttp', 'async_timeout', 'discord', 'asteval', 'os']:
     globals()[mod] = di.load(mod)
 json = di.load('util.json')
 commands = di.load('util.commands')
@@ -690,6 +690,14 @@ Server Owner\'s ID: `{0.server.owner.id}`
                         server_type = t.title()
         emb.add_field(name='Server Type', value=server_type)
         await self.bot.say(embed=emb)
+
+    @commands.command()
+    async def contact(self, *, message: str):
+        """Contact the bot owner with a message.
+        Usage: contact [message]"""
+        with open(os.path.join('data', 'contact.txt'), 'a') as f:
+            f.write(message)
+        await self.bot.say(':thumbsup: Message recorded.')
 
 def setup(bot):
     c = Utility(bot)
