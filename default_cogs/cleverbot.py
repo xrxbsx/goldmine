@@ -82,6 +82,7 @@ class Cleverbot(Cog):
 
     async def on_mention(self, msg):
         """Cleverbot on-mention logic."""
+        if msg.server.id == '110373943822540800': return
         await self.auto_cb_convo(msg, self.bot.user.mention, replace=True)
 
     async def on_not_command(self, msg):

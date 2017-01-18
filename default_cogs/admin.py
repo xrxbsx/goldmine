@@ -186,27 +186,41 @@ class Admin(Cog):
 
     @commands.cooldown(1, 16, type=commands.BucketType.default)
     @commands.command(pass_context=True)
-    async def broadcast(self, ctx, *, text: str):
+    async def broadcast(self, ctx, *, broadcast_text: str):
         """Broadcast a message to all servers.
         Usage: broadcast [message]"""
         await echeck_perms(ctx, ['bot_owner'])
         err = ''
+        def get_prefix(s):
+            props = self.dstore['properties']
+            servs = props['by_server']
+            if s.id in servs:
+                if 'command_prefix' in servs[s.id]:
+                    return servs[s.id]['command_prefix']
+                else:
+                    return props['global']['command_prefix']
+            else:
+                return props['global']['command_prefix']
         for i in self.bot.servers:
-            try:
-                await self.bot.send_message(i.default_channel, text)
-            except discord.Forbidden:
-                satisfied = False
-                c_count = 0
-                try_channels = list(i.channels)
-                channel_count = len(try_channels) - 1
-                while not satisfied:
-                    with suppress(discord.Forbidden, discord.HTTPException):
-                        await self.bot.send_message(try_channels[c_count], text)
-                        satisfied = True
-                    if c_count >= channel_count:
-                        err += f'`[WARN]` Couldn\'t broadcast to server **{i.name}**\n'
-                        satisfied = True
-                    c_count += 1
+            text = broadcast_text.replace('%prefix%', get_prefix(i))
+            if i.id in self.dstore['nobroadcast']:
+                pass
+            else:
+                try:
+                    await self.bot.send_message(i.default_channel, text)
+                except discord.Forbidden:
+                    satisfied = False
+                    c_count = 0
+                    try_channels = list(i.channels)
+                    channel_count = len(try_channels) - 1
+                    while not satisfied:
+                        with suppress(discord.Forbidden, discord.HTTPException):
+                            await self.bot.send_message(try_channels[c_count], text)
+                            satisfied = True
+                        if c_count >= channel_count:
+                            err += f'`[WARN]` Couldn\'t broadcast to server **{i.name}**\n'
+                            satisfied = True
+                        c_count += 1
         if err:
             await self.bot.say(err)
 

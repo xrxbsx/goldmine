@@ -146,6 +146,8 @@ class GoldBot(commands.Bot):
             self.game['type'] = 0
             self.game['url'] = ''
         self.server_map = {}
+        if 'nobroadcast' not in self.store.store:
+            self.store.store['nobroadcast'] = ['110373943822540800']
         super().__init__(**options)
 
     async def update_presence(self):
