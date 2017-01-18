@@ -20,9 +20,9 @@ def load(name):
 
 # minified version
 '''import importlib as i
-class DI:
+class D:
  def __init__(s,n):s.i=n;s.s=0;s.m=0
  def e(s):
   if not s.s:s.m=i.import_module(s.i);s.s=1
  def __getattr__(s,a):s.e();return getattr(s.m,a)
-load=lambda n:DI(n)'''
+load=lambda n:D(n)'''

@@ -647,7 +647,19 @@ Server Owner\'s ID: `{0.server.owner.id}`
             desc = data['description']
         else:
             desc = str(data['description'])
-        desc = re.sub(r'\u00a7[4c6e2ab319d5f78lnokmr]', '', desc)
+        def decode_section_code():
+            formats = {
+                'l': '**',
+                'n': '__',
+                'o': '*',
+                'k': '',
+                'm': '~~',
+                'k': '**',
+                'r': ''
+            } # k = obf, r = reset
+            state = ''
+            for 
+        desc = re.sub(r'\u00a7[4c6e2ab319d5f780lnokmr]', '', desc)
         rc = int('0x%06X' % random.randint(0, 256**3-1), 16)
         emb = discord.Embed(title=server + ':' + str(port), description=desc, color=rc)
         try:

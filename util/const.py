@@ -462,7 +462,10 @@ spinners = [
     "🌑🌒🌓🌔🌕🌝🌖🌗🌘🌚"
 ]
 
-home_broadcast = 'I\'d appreciate it if you visited my home at <https://blog.khronodragon.com>, my creator\'s websites at <https://khronodragon.com> and <http://gh.khronodragon.com>, and my GitHub at <https://github.com/Armored-Dragon/goldmine>. You can invite me to your guilds with <https://tiny.cc/goldbot>, and get to my support guild with <https://discord.gg/PQ9qWWr>. :wink:'
+home_broadcast = '''**Author\'s Blog**: <https://blog.khronodragon.com>
+**GitHub**: <https://github.com/Armored-Dragon/goldmine>
+**Invite Link**: <https://tiny.cc/goldbot>
+**Support Guild**: <https://discord.gg/PQ9qWWr>'''
 
 lvl_base = 100
 
@@ -510,13 +513,11 @@ essential_cogs = [
     'errors'
 ]
 
-join_msg = '''👀🤔👀🤔👀🤔👀🤔 **Hmm...** 👀🤔👀🤔👀🤔👀🤔
-This seems like a nice place to be. Thanks for bringing me here!
-My default command prefix is `!`, so type `!help` to learn more about me.
-If you have some higher permissions, you can change it! Just use `!prefix [new prefix]`.
-You can also type `!setprop bot_name [name here]` to change my name!
-If you\'re ever stuck without knowing my prefix, just type `prefix`.
-**Anyways, enjoy, and remember that I can play music!**'''
+join_msg = '''Thanks for inviting me :heart:
+My default prefix is `!`, so type `!help` to learn more about me.
+People with some more permissions can change it with `!prefix [new prefix]`.
+If you ever forget my prefix, just type `prefix`.
+**Enjoy, and remember that I can play music!** :stuck_out_tongue:'''
 muted_perms = [
     'send_messages',
     'send_tts_messages',
