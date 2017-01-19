@@ -691,12 +691,31 @@ Server Owner\'s ID: `{0.server.owner.id}`
         emb.add_field(name='Server Type', value=server_type)
         await self.bot.say(embed=emb)
 
-    @commands.command()
-    async def contact(self, *, message: str):
+    @commands.command(pass_context=True)
+    async def contact(self, ctx, *, message: str):
         """Contact the bot owner with a message.
         Usage: contact [message]"""
-        with open(os.path.join('data', 'contact.txt'), 'a') as f:
-            f.write(message + '\n')
+        for m in ctx.message.mentions:
+            message = message.replace(m.mention, '@' + str(m))
+        msg_object = {
+            'message': message,
+            'user': str(ctx.message.author),
+            'nick': ctx.message.author.display_name,
+            'message_id': ctx.message.id,
+            'user_id': ctx.message.author.id,
+            'channel_id': ctx.message.channel.id,
+            'pm': ctx.message.channel.is_private,
+            'time': str(ctx.message.timestamp),
+            'timestamp': ctx.message.timestamp.timestamp(),
+            'contains_mention': bool(ctx.message.mentions),
+        }
+        if ctx.message.server:
+            msg_object.update({
+                'server': ctx.message.server.name,
+                'server_id': ctx.message.server.id,
+                'server_members': len(ctx.message.server.members)
+            })
+        self.dstore['owner_messages'].append(msg_object)
         await self.bot.say(':thumbsup: Message recorded.')
 
 def setup(bot):

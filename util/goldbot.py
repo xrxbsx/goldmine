@@ -148,6 +148,8 @@ class GoldBot(commands.Bot):
         self.server_map = {}
         if 'nobroadcast' not in self.store.store:
             self.store.store['nobroadcast'] = ['110373943822540800']
+        if 'owner_messages' not in self.store.store:
+            self.store.store['owner_messages'] = []
         super().__init__(**options)
 
     async def update_presence(self):
