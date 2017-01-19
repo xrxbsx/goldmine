@@ -214,11 +214,9 @@ class GoldBot(commands.Bot):
                         self.dispatch('not_command', msg)
                 if self.status == 'invisible':
                     if msg.content.lower().startswith(cmdfix + 'resume'):
-                        self.status = 'dnd'
+                        self.status = 'online'
                         await self.update_presence()
                         await self.msend(msg, 'Successfully **resumed** my features!')
-                elif myself.mentioned_in(msg) and ('@everyone' not in msg.content) and ('@here' not in msg.content):
-                    self.dispatch('mention', msg)
                 elif msg.channel.is_private:
                     if msg.content.startswith(cmdfix):
                         await self.process_commands(msg, cmdfix)
@@ -231,6 +229,8 @@ class GoldBot(commands.Bot):
                 else:
                     if msg.content.startswith(cmdfix):
                         await self.process_commands(msg, cmdfix)
+                    elif myself.mentioned_in(msg) and ('@everyone' not in msg.content) and ('@here' not in msg.content):
+                        self.dispatch('mention', msg)
         else:
             self.logger.debug('Didn\'t meet check for main on_message processing')
 

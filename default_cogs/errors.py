@@ -1,6 +1,7 @@
 """Error handlers."""
 import traceback
 import asyncio
+import random
 import discord
 import util.commands as commands
 from util.const import *
@@ -69,7 +70,8 @@ class Errors(Cog):
         elif isinstance(exp, commands.DisabledCommand):
             await self.csend(ctx, ccd_fmt.format(ctx.message.author, cprocessed, cmdfix))
         elif isinstance(exp, commands.CommandOnCooldown):
-            await self.say(exp.ctx.message.author, coc_fmt.format(ctx.message.author, cprocessed, cmdfix, bdel(c_key, 'You are on cooldown. Try again in ')))
+            #await self.say(exp.ctx.message.author, coc_fmt.format(ctx.message.author, cprocessed, cmdfix, bdel(c_key, 'You are on cooldown. Try again in ')))
+            await self.csend(ctx, ':warning: :gear: ' + random.choice(clocks))
         elif isinstance(exp, commands.PassException):
             pass
         elif isinstance(exp, commands.ReturnError):
