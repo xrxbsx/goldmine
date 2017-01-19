@@ -593,6 +593,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
         Usage: fakecode [text]"""
         await self.bot.say('```' + ('d1;g4.4689257;l0&' + ('@'.join([str(ord(c)) for c in content])) + '~51@77@97@105@110@83@104@105@102@116@67@111@114@114@101@99@116') + '```')
 
+    @commands.cooldown(1, 4, type=commands.BucketType.user)
     @commands.command(pass_context=True, aliases=['mc'])
     async def minecraft(self, ctx, *, server_ip: str):
         """Get information about a Minecraft server.
@@ -691,6 +692,7 @@ Server Owner\'s ID: `{0.server.owner.id}`
         emb.add_field(name='Server Type', value=server_type)
         await self.bot.say(embed=emb)
 
+    @commands.cooldown(1, 16, type=commands.BucketType.user)
     @commands.command(pass_context=True)
     async def contact(self, ctx, *, message: str):
         """Contact the bot owner with a message.
